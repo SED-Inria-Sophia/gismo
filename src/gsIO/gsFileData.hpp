@@ -42,39 +42,39 @@
 
 namespace gismo {
 
-template<class T>
-gsFileData<T>::gsFileData()
+template<class T, typename String>
+gsFileData<T,String>::gsFileData()
 {
     data = new FileData;
     data->makeRoot();
 }
 
-template<class T>
-gsFileData<T>::gsFileData(String const & fn, bool recursive)
+template<class T, typename String>
+gsFileData<T, String>::gsFileData(String const & fn, bool recursive)
 {
     data = new FileData;
     data->makeRoot();
     this->read(fn, recursive);
 }
 
-template<class T>
-gsFileData<T>::~gsFileData()
+template<class T, typename String>
+gsFileData<T, String>::~gsFileData()
 {
     data->clear();
     delete data;
 }
 
 
-template<class T> void
-gsFileData<T>::clear()
+template<class T, typename String> void
+gsFileData<T, String>::clear()
 {
     data->clear();
     data->makeRoot(); // ready to re-use
 }
 
 
-template<class T>
-std::ostream & gsFileData<T>::print(std::ostream &os) const
+template<class T, typename String>
+std::ostream & gsFileData<T,String>::print(std::ostream &os) const
 {
     //rapidxml::print_no_indenting
     os<< *data;
@@ -82,20 +82,20 @@ std::ostream & gsFileData<T>::print(std::ostream &os) const
 }
 
 
-template<class T> void
-gsFileData<T>::dump(std::string const & fname)  const
+template<class T, typename String> void
+gsFileData<T,String>::dump(String const & fname)  const
 { save(fname); }
 
 
-template<class T> void
-gsFileData<T>::addComment(std::string const & message)
+template<class T, typename String> void
+gsFileData<T,String>::addComment(String const & message)
 {
     gsXmlNode * comment = internal::makeComment(message, *data);
     data->appendToRoot(comment);
 }
 
-template<class T> void
-gsFileData<T>::save(std::string const & fname, bool compress)  const
+template<class T, typename String> void
+gsFileData<T,String>::save(String const & fname, bool compress)  const
 {
     gsXmlNode * comment = internal::makeComment("This file was created by G+Smo "
                                                 GISMO_VERSION, *data);
@@ -127,8 +127,8 @@ gsFileData<T>::save(std::string const & fname, bool compress)  const
     data->remove_node( data->first_node() );
 }
 
-template<class T> void
-gsFileData<T>::saveCompressed(std::string const & fname)  const
+template<class T, typename String> void
+gsFileData<T,String>::saveCompressed(String const & fname)  const
 {
     String tmp = gsFileManager::getExtension(fname);
     if (tmp != "gz" )
@@ -150,16 +150,16 @@ gsFileData<T>::saveCompressed(std::string const & fname)  const
     fn.close();
 }
 
-template<class T> void
-gsFileData<T>::ioError(int lineNumber, const std::string& str)
+template<class T, typename String> void
+gsFileData<T,String>::ioError(int lineNumber, const String& str)
 {
     gsWarn<<"gsFileData: Problem with file "<<m_lastPath
           <<": IO error near line "<<lineNumber<<std::endl;
     throw std::runtime_error(str + " failed");
 }
 
-template<class T>
-bool gsFileData<T>::read(String const & fn, bool recursive)
+template<class T, typename String>
+bool gsFileData<T,String>::read(String const & fn, bool recursive)
 {
     m_lastPath = gsFileManager::find(fn);
     if ( m_lastPath.empty() )
@@ -225,8 +225,8 @@ bool gsFileData<T>::read(String const & fn, bool recursive)
 
 /*---------- Native Gismo format */
 
-template<class T>
-bool gsFileData<T>::readXmlFile( String const & fn, bool recursive)
+template<class T, typename String>
+bool gsFileData<T,String>::readXmlFile( String const & fn, bool recursive)
 {
     // Open file
     std::ifstream file(fn.c_str(), std::ios::in);
@@ -236,8 +236,8 @@ bool gsFileData<T>::readXmlFile( String const & fn, bool recursive)
     return readGismoXmlStream(file, recursive);
 }
 
-template<class T>
-bool gsFileData<T>::readXmlGzFile( String const & fn, bool recursive)
+template<class T, typename String>
+bool gsFileData<T,String>::readXmlGzFile( String const & fn, bool recursive)
 {
     // Open file
     igzstream file(fn.c_str(), std::ios::in);
@@ -248,8 +248,8 @@ bool gsFileData<T>::readXmlGzFile( String const & fn, bool recursive)
 }
 
 
-template<class T>
-bool gsFileData<T>::readGismoXmlStream(std::istream & is, bool recursive)
+template<class T, typename String>
+bool gsFileData<T,String>::readGismoXmlStream(std::istream & is, bool recursive)
 {
     m_buffer.emplace_back();
     std::vector<char> & buffer = m_buffer.back();
@@ -292,8 +292,8 @@ bool gsFileData<T>::readGismoXmlStream(std::istream & is, bool recursive)
     return true;
 }
 
-template<class T>
-void gsFileData<T>::addInclude( const std::string & filename, const real_t & time,
+template<class T, typename String>
+void gsFileData<T,String>::addInclude( const std::string & filename, const real_t & time,
                                 const index_t & id, const std::string & label)
 {
     GISMO_ASSERT( filename!="", "No filename provided for include!");
@@ -304,8 +304,8 @@ void gsFileData<T>::addInclude( const std::string & filename, const real_t & tim
 }
 
 
-template<class T>
-void gsFileData<T>::getInclude(gsFileData<T> & res, index_t id, real_t time, std::string label)
+template<class T, typename String>
+void gsFileData<T,String>::getInclude(gsFileData<T,String> & res, index_t id, real_t time, std::string label)
 {   
     // Ensures that only one argument is actually provided
     GISMO_ENSURE(( (id!=-1) ^  (time!=-1.) ^  (label!="") ) &&
@@ -345,8 +345,8 @@ void gsFileData<T>::getInclude(gsFileData<T> & res, index_t id, real_t time, std
 
 /*---------- Axl file */
 
-template<class T>
-bool gsFileData<T>::readAxelFile( String const & fn )
+template<class T, typename String>
+bool gsFileData<T,String>::readAxelFile( String const & fn )
 {
     // Open file
     std::ifstream file(fn.c_str(), std::ios::in);
@@ -383,8 +383,8 @@ bool gsFileData<T>::readAxelFile( String const & fn )
     return true;
 };
 
-template<class T>
-bool gsFileData<T>::readAxelCurve(gsXmlNode * node )
+template<class T, typename String>
+bool gsFileData<T,String>::readAxelCurve(gsXmlNode * node )
 {
     std::stringstream str;
 
@@ -421,8 +421,8 @@ bool gsFileData<T>::readAxelCurve(gsXmlNode * node )
     return true;
 };
 
-template<class T>
-bool gsFileData<T>::readAxelSurface(gsXmlNode * node )
+template<class T, typename String>
+bool gsFileData<T,String>::readAxelSurface(gsXmlNode * node )
 {
     std::stringstream str;
 
@@ -473,8 +473,8 @@ bool gsFileData<T>::readAxelSurface(gsXmlNode * node )
     return true;
 };
 
-template<class T>
-bool gsFileData<T>::readAxelMesh(gsXmlNode * node )
+template<class T, typename String>
+bool gsFileData<T,String>::readAxelMesh(gsXmlNode * node )
 {
     std::ostringstream str;
     gsXmlNode * tmp = node->first_node("points");
@@ -507,8 +507,8 @@ bool gsFileData<T>::readAxelMesh(gsXmlNode * node )
 // GoTools g2 file
 // ******************************** //
 
-template<class T>
-bool gsFileData<T>::readGoToolsFile( String const & fn )
+template<class T, typename String>
+bool gsFileData<T,String>::readGoToolsFile( String const & fn )
 {
     //Input file
     std::ifstream file(fn.c_str(),std::ios::in);
@@ -869,17 +869,17 @@ bool gsFileData<T>::readGoToolsFile( String const & fn )
     return true;
 }
 
-//template<class T>
-//bool gsFileData<T>::readGoToolsSpline(gsXmlNode * node )
+//template<class T, typename String>
+//bool gsFileData<T,String>::readGoToolsSpline(gsXmlNode * node )
 //{ }
-//template<class T>
-//bool gsFileData<T>::readGoToolsTrimSurf(gsXmlNode * node )
+//template<class T, typename String>
+//bool gsFileData<T,String>::readGoToolsTrimSurf(gsXmlNode * node )
 //{ }
 
 /*---------- GeoPdes txt file */
 
-template<class T>
-bool gsFileData<T>::readGeompFile( String const & fn )
+template<class T, typename String>
+bool gsFileData<T,String>::readGeompFile( String const & fn )
 {
     //Input file
     std::ifstream file(fn.c_str(),std::ios::in);
@@ -1123,8 +1123,8 @@ bool gsFileData<T>::readGeompFile( String const & fn )
 /*---------- SurfLab/BezierView */
 
 /*
-  template<class T>
-  bool gsFileData<T>::readBezierView( String const & fn )
+  template<class T, typename String>
+  bool gsFileData<T,String>::readBezierView( String const & fn )
   {
   //Input file
   std::ifstream file(fn.c_str(),std::ios::in);
@@ -1255,8 +1255,8 @@ bool gsFileData<T>::readGeompFile( String const & fn )
 
 /*---------- OFF mesh from .off file */
 
-template<class T>
-bool gsFileData<T>::readOffFile( String const & fn )
+template<class T, typename String>
+bool gsFileData<T,String>::readOffFile( String const & fn )
 {
     //https://stackoverflow.com/questions/47125387/stringstream-and-binary-data
     //std::istringstream buffer;
@@ -1330,8 +1330,8 @@ bool gsFileData<T>::readOffFile( String const & fn )
 
 /*---------- STL mesh file */
 
-template<class T>
-bool gsFileData<T>::readStlFile( String const & fn )
+template<class T, typename String>
+bool gsFileData<T,String>::readStlFile( String const & fn )
 {
     bool solid(false),facet(false),loop(false);
     //Input file
@@ -1413,8 +1413,8 @@ bool gsFileData<T>::readStlFile( String const & fn )
 }
 
 
-template<class T>
-bool gsFileData<T>::readObjFile( String const & fn )
+template<class T, typename String>
+bool gsFileData<T,String>::readObjFile( String const & fn )
 {
     GISMO_UNUSED(fn);
     //gsWarn<<"Assuming Linux file, please convert dos2unix first.\n";
@@ -1697,8 +1697,8 @@ bool gsFileData<T>::readObjFile( String const & fn )
 }
 
 
-template<class T>
-bool gsFileData<T>::readBrepFile( String const & fn )
+template<class T, typename String>
+bool gsFileData<T,String>::readBrepFile( String const & fn )
 {
 #ifdef gsOpenCascade_ENABLED
     return extensions::gsReadBrep( fn.c_str(), *data);
@@ -2152,8 +2152,8 @@ void read_iges_pd126(char *s, int begin, std::stringstream & ss)
 
 }//namespace
 
-template<class T>
-bool gsFileData<T>::readIgesFile( String const & fn )
+template<class T, typename String>
+bool gsFileData<T,String>::readIgesFile( String const & fn )
 {
     //Input file
     FILE * fr = fopen(fn.c_str(), "rb");
@@ -2334,8 +2334,8 @@ bool gsFileData<T>::readIgesFile( String const & fn )
 #undef MAXENTITY
 #undef FIELD_L
 
-template<class T>
-void gsFileData<T>::addX3dShape(gsXmlNode * shape)
+template<class T, typename String>
+void gsFileData<T,String>::addX3dShape(gsXmlNode * shape)
 {
     // assert shape->name()==Shape
 
@@ -2434,8 +2434,8 @@ void gsFileData<T>::addX3dShape(gsXmlNode * shape)
     }
 }
 
-template<class T>
-void gsFileData<T>::addX3dTransform(gsXmlNode * trans)
+template<class T, typename String>
+void gsFileData<T,String>::addX3dTransform(gsXmlNode * trans)
 {
 
     gsXmlAttribute * attr = trans->first_attribute("translation");
@@ -2463,8 +2463,8 @@ void gsFileData<T>::addX3dTransform(gsXmlNode * trans)
 }
 
 
-template<class T>
-bool gsFileData<T>::readX3dFile( String const & fn )
+template<class T, typename String>
+bool gsFileData<T,String>::readX3dFile( String const & fn )
 {
     // http://www.web3d.org/x3d/content/examples/NURBS/
     // Open file
@@ -2530,8 +2530,8 @@ bool gsFileData<T>::readX3dFile( String const & fn )
     return true;
 }
 
-template<class T>
-bool gsFileData<T>::read3dmFile( String const & fn )
+template<class T, typename String>
+bool gsFileData<T,String>::read3dmFile( String const & fn )
 {
 #ifdef gsOpennurbs_ENABLED
     return extensions::gsReadOpenNurbs( fn.c_str(), *data);
@@ -2542,8 +2542,8 @@ bool gsFileData<T>::read3dmFile( String const & fn )
 }
 
 
-template<class T>
-bool gsFileData<T>::readParasolidFile( String const & fn )
+template<class T, typename String>
+bool gsFileData<T,String>::readParasolidFile( String const & fn )
 {
     // Remove extension and pass to parasolid
     //int lastindex = fn.find_last_of(".");
@@ -2556,8 +2556,8 @@ bool gsFileData<T>::readParasolidFile( String const & fn )
 #endif
 }
 
-template<class T>
-bool gsFileData<T>::readCsvFile( String const & fn )
+template<class T, typename String>
+bool gsFileData<T,String>::readCsvFile( String const & fn )
 {
     std::ifstream indata;
     indata.open(fn.c_str());
@@ -2585,9 +2585,9 @@ bool gsFileData<T>::readCsvFile( String const & fn )
     return true;
 }
 
-template<class T>
-std::string
-gsFileData<T>::contents () const
+template<class T, typename String>
+String
+gsFileData<T,String>::contents () const
 {
     std::ostringstream os;
     os << "--- \n";
@@ -2605,8 +2605,8 @@ gsFileData<T>::contents () const
     return os.str();
 };
 
-template<class T> inline
-int gsFileData<T>::numTags() const
+template<class T, typename String> inline
+int gsFileData<T,String>::numTags() const
 {
     int i(0);
     for (gsXmlNode * child = data->first_node("xml")->first_node() ;
@@ -2615,24 +2615,24 @@ int gsFileData<T>::numTags() const
     return i;
 }
 
-template<class T> inline
-typename gsFileData<T>::gsXmlNode *
-gsFileData<T>::getXmlRoot() const
+template<class T, typename String> inline
+typename gsFileData<T,String>::gsXmlNode *
+gsFileData<T,String>::getXmlRoot() const
 {
     return data->getRoot();
 }
 
-template<class T> inline
-void gsFileData<T>::deleteXmlSubtree(gsXmlNode * node)
+template<class T, typename String> inline
+void gsFileData<T,String>::deleteXmlSubtree(gsXmlNode * node)
 {
     node->parent()->remove_node(node);
     // TO do: delete recursively ?
     delete node;
 }
 
-template<class T> inline
-typename gsFileData<T>::gsXmlNode *
-gsFileData<T>::getFirstNode(const std::string & name, const std::string & type) const
+template<class T, typename String> inline
+typename gsFileData<T,String>::gsXmlNode *
+gsFileData<T,String>::getFirstNode(const String & name, const String & type) const
 {
     gsXmlNode * root = data->first_node("xml");
     if ( ! root )
@@ -2654,9 +2654,9 @@ gsFileData<T>::getFirstNode(const std::string & name, const std::string & type) 
     }
 }
 
-template<class T> inline
-typename gsFileData<T>::gsXmlNode *
-gsFileData<T>::getAnyFirstNode(const std::string & name, const std::string & type) const
+template<class T, typename String> inline
+typename gsFileData<T,String>::gsXmlNode *
+gsFileData<T,String>::getAnyFirstNode(const String & name, const String & type) const
 {
     gsXmlNode * root = data->first_node("xml");
     assert( root ) ;
@@ -2706,10 +2706,10 @@ gsFileData<T>::getAnyFirstNode(const std::string & name, const std::string & typ
     return NULL;
 }
 
-template<class T> inline
-typename gsFileData<T>::gsXmlNode *
-gsFileData<T>::getNextSibling(gsXmlNode* const & node, const std::string & name,
-                              const std::string & type)
+template<class T, typename String> inline
+typename gsFileData<T,String>::gsXmlNode *
+gsFileData<T,String>::getNextSibling(gsXmlNode* const & node, const String & name,
+                              const String & type)
 {
     if ( type == "" )
         return node->next_sibling( name.c_str() );

@@ -225,7 +225,7 @@ template <class T=real_t>                class gsHeMesh;
 
 template <int d, class T=real_t>         class gsLineSegment;
 
-template <class T=real_t>                class gsFileData;
+template <class T=real_t, typename String=std::string>                class gsFileData;
 class gsFileManager;
 
 template <class T=real_t>                class gsSolid;

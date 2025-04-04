@@ -29,14 +29,13 @@ namespace gismo
 
    \ingroup IO
  */
-template<class T>
+template<class T, typename String>
 class gsFileData
 {
 public:
     typedef internal::gsXmlTree         FileData;
     typedef internal::gsXmlNode         gsXmlNode;
     typedef internal::gsXmlAttribute    gsXmlAttribute;
-    typedef std::string                 String;
 
     typedef gsVector3d<T>               Point_3;
 
@@ -74,7 +73,7 @@ public:
     void save(String const & fname = "dump", bool compress = false) const;
 
     /// \brief Save multipatch contents to an IGES file
-    void writeIges(String const & fname);
+  //  void writeIges(String const & fname); // \TODO No definition found for this method
 
     /// \brief Save file contents to compressed xml file
     void saveCompressed(String const & fname = "dump") const;
@@ -339,7 +338,7 @@ public:
     /// @brief Looks for a referenced Gismo .xml file ( <xmlfile> tag ) in the current xml tree, parses it in the gsFileData \em res object
     /// @param res The gsFileData object where the referenced file will be loaded into
     /// @param id Index of the <xmlfile> node
-    void getIncludeById(gsFileData & res, index_t id)
+    void getIncludeById(gsFileData<T, String> & res, index_t id)
     {
         return getInclude(res, id, -1., "");
     }
@@ -347,7 +346,7 @@ public:
     /// @brief Looks for a referenced Gismo .xml file ( <xmlfile> tag ) in the current xml tree, parses it in the gsFileData \em res object
     /// @param res The gsFileData object where the referenced file will be loaded into
     /// @param time Time attribute of the <xmlfile> node
-    void getIncludeByTime(gsFileData & res, real_t time)
+    void getIncludeByTime(gsFileData<T, String> & res, real_t time)
     {
         return getInclude(res, -1,time, "");
     }
@@ -355,7 +354,7 @@ public:
     /// @brief Looks for a referenced Gismo .xml file ( <xmlfile> tag ) in the current xml tree, parses it in the gsFileData \em res object
     /// @param res The gsFileData object where the referenced file will be loaded into
     /// @param label Label of the <xmlfile> node
-    void getIncludeByLabel(gsFileData & res, std::string label)
+    void getIncludeByLabel(gsFileData<T, String> & res, std::string label)
     {
         return getInclude(res, -1,-1.,label);
     }
@@ -601,7 +600,10 @@ std::ostream &operator<<(std::ostream &os, const gsFileData<T> & fd)
   void pybind11_init_gsFileData(pybind11::module &m);
   
 #endif // GISMO_WITH_PYBIND11
-  
+
+#ifdef WRAPIT
+  template class gsFileData<real_t, std::string>;
+#endif
 } // namespace gismo
 
 #ifndef GISMO_BUILD_LIB

@@ -231,7 +231,7 @@ public:
     }
 
     /// Returns true if an Object with such label exists in the filedata
-    inline bool hasLabel(std::string label) const {
+    inline bool hasLabel(const std::string & label) const {
       gsXmlNode* root = getXmlRoot();
       // const gsXmlAttribute * id_at;
       gsXmlNode* nd = internal::searchLabel(label, root, NULL, false);
@@ -338,7 +338,7 @@ public:
     /// @brief Looks for a referenced Gismo .xml file ( <xmlfile> tag ) in the current xml tree, parses it in the gsFileData \em res object
     /// @param res The gsFileData object where the referenced file will be loaded into
     /// @param id Index of the <xmlfile> node
-    void getIncludeById(gsFileData<T, String> & res, index_t id)
+    void getIncludeById(gsFileData & res, index_t id)
     {
         return getInclude(res, id, -1., "");
     }
@@ -346,7 +346,7 @@ public:
     /// @brief Looks for a referenced Gismo .xml file ( <xmlfile> tag ) in the current xml tree, parses it in the gsFileData \em res object
     /// @param res The gsFileData object where the referenced file will be loaded into
     /// @param time Time attribute of the <xmlfile> node
-    void getIncludeByTime(gsFileData<T, String> & res, real_t time)
+    void getIncludeByTime(gsFileData & res, real_t time)
     {
         return getInclude(res, -1,time, "");
     }
@@ -354,7 +354,7 @@ public:
     /// @brief Looks for a referenced Gismo .xml file ( <xmlfile> tag ) in the current xml tree, parses it in the gsFileData \em res object
     /// @param res The gsFileData object where the referenced file will be loaded into
     /// @param label Label of the <xmlfile> node
-    void getIncludeByLabel(gsFileData<T, String> & res, std::string label)
+    void getIncludeByLabel(gsFileData & res, std::string label)
     {
         return getInclude(res, -1,-1.,label);
     }
@@ -598,7 +598,7 @@ std::ostream &operator<<(std::ostream &os, const gsFileData<T> & fd)
    * @brief Initializes the Python wrapper for the class: gsFileData
    */
   void pybind11_init_gsFileData(pybind11::module &m);
-  
+
 #endif // GISMO_WITH_PYBIND11
 
 #ifdef WRAPIT

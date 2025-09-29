@@ -1,16 +1,16 @@
 # GISMO Component Orchestration CMakeLists.txt
 # This file manages all GISMO components following modern CMake patterns
 
-# Check that we're building Core (required)
-if(NOT GISMO_WITH_CORE)
-    message(FATAL_ERROR "GISMO Core module is required and cannot be disabled")
+# Check that we're building Common (required)
+if(NOT GISMO_WITH_COMMON)
+    message(FATAL_ERROR "GISMO Common module is required and cannot be disabled")
 endif()
 
 # Foundation Layer - Layer 1 (no dependencies)
 message(STATUS "Building GISMO Foundation Layer...")
 
-# Core module (required)
-add_subdirectory(Core)
+# Common module (required)
+add_subdirectory(Common)
 
 # # Math module
 # if(GISMO_WITH_MATH)
@@ -34,4 +34,4 @@ add_subdirectory(Core)
 #message(STATUS "Building GISMO Function Layer...")
 
 # All other modules commented out until implementation
-# TODO: Implement modules one by one following the Core module pattern
+# TODO: Implement modules one by one following the Common module pattern

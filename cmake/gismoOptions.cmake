@@ -10,7 +10,7 @@ option(GISMO_BUILD_UNITTESTS "Build G+Smo unit tests" OFF)
 option(GISMO_BUILD_PCH "Build with precompiled headers" OFF)
 
 # Component options
-option(GISMO_WITH_CORE "Build Core module (required)" ON)
+option(GISMO_WITH_COMMON "Build Common module (required)" ON)
 option(GISMO_WITH_MATH "Build Math module" ON)
 option(GISMO_WITH_GEOMETRY "Build Geometry module" ON)
 option(GISMO_WITH_MATRIX "Build Matrix module" ON)
@@ -72,8 +72,8 @@ if(COMMAND check_cxx_compiler_flag)
 endif()
 
 # Generate config header
-configure_file(
-    "${CMAKE_CURRENT_LIST_DIR}/gsConfig.h.in"
-    "${CMAKE_BINARY_DIR}/src/gismo/Core/Config.h"
-    @ONLY
-)
+# configure_file(
+#     "${CMAKE_CURRENT_LIST_DIR}/gsConfig.h.in"
+#     "${CMAKE_BINARY_DIR}/src/gismo/Core/Config.h"
+#     @ONLY
+# )

@@ -14,8 +14,8 @@
 #pragma once
 
 // Include config for build configuration
-#include "gismo/Core/Config.h"
-#include "gismo/Core/Export.h"
+#include "gismo/Common/Config.h"
+#include "gismo/Common/Export.h"
 
 #ifdef __MINGW32__
 //#include <malloc/malloc.h> //xcode

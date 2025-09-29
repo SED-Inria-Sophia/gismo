@@ -36,7 +36,7 @@ target_include_directories(${PROJECT_NAME}
 # Dependencies - Geometry depends on Core and Math (Layer 2 → Layer 1)
 target_link_libraries(${PROJECT_NAME}
     INTERFACE
-        gismo::Core
+        gismo::Common
         gismo::Math
 )
 

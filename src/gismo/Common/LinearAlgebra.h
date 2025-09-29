@@ -13,10 +13,10 @@
 
 #pragma once
 
-#include "gismo/Core/Config.h"
-#include "gismo/Core/Debug.h"
+#include "gismo/Common/Config.h"
+#include "gismo/Common/Debug.h"
 
-// Basic type definitions for Core module
+// Basic type definitions for Common module
 namespace gismo {
 
 // Forward declarations for basic types

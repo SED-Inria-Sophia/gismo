@@ -1,7 +1,7 @@
-# Core Module CMakeLists.txt
+# Common Module CMakeLists.txt
 # Foundation types, memory management, and forward declarations
 
-project(Core
+project(Common
 VERSION
   ${${CMAKE_PROJECT_NAME}_VERSION}
 LANGUAGES
@@ -32,15 +32,20 @@ add_library(${CMAKE_PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 ## Build rules
 ## #################################################################
 
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/Config.h.in"
+  "${PROJECT_BINARY_DIR}/Config.h"
+  @ONLY)
+
 target_sources(${PROJECT_NAME}
   INTERFACE
     FILE_SET HEADERS
       BASE_DIRS
-        ${CMAKE_CURRENT_BINARY_DIR}
+        ${PROJECT_BINARY_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}
       FILES
-        ${CMAKE_CURRENT_BINARY_DIR}/Config.h
-        Core
+        ${PROJECT_BINARY_DIR}/Config.h
+        Common
         Memory.h
         ForwardDeclarations.h
         Export.h

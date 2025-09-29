@@ -20,7 +20,7 @@
 #include <typeinfo>
 
 // Include config for debug-specific definitions
-#include "gismo/Core/Config.h"
+#include "gismo/Common/Config.h"
 
 // See also about memory leak detection:
 // http://msdn.microsoft.com/en-us/library/e5ewb1h3%28v=vs.90%29.aspx

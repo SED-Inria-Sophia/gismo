@@ -24,9 +24,9 @@
 #include <limits>
 
 // Include Core headers
-#include "gismo/Core/Config.h"
-#include "gismo/Core/Debug.h"
-#include "gismo/Core/Memory.h"
+#include "gismo/Common/Config.h"
+#include "gismo/Common/Debug.h"
+#include "gismo/Common/Memory.h"
 
 // Eigen library
 #define Eigen gsEigen

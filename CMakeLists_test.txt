@@ -11,7 +11,7 @@ add_executable(integration_test test_integration.cpp)
 # Link with GISMO modules
 target_link_libraries(integration_test
     PRIVATE
-        gismo::Core
+        gismo::Common
         gismo::Math
         gismo::Geometry
 )

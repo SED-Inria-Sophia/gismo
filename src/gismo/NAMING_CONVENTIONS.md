@@ -8,9 +8,9 @@ Following the **Generic C++ Build Pattern**, all modules in the new GISMO archit
 
 ```
 src/gismo/
-├── Core/
+├── Common/
 │   ├── CMakeLists.txt
-│   ├── Core                    # Main module header (no extension)
+│   ├── Common                    # Main module header (no extension)
 │   ├── Memory.h               # No gs prefix
 │   ├── Debug.h                # No gs prefix
 │   ├── Export.h               # No gs prefix
@@ -45,8 +45,8 @@ src/
 ## Naming Rules
 
 ### 1. **Module Names**
-- Use `PascalCase` for module directory names: `Core`, `Math`, `Geometry`, `Matrix`
-- Match the CMake target name: `gismo::Core`, `gismo::Math`, etc.
+- Use `PascalCase` for module directory names: `Common`, `Math`, `Geometry`, `Matrix`
+- Match the CMake target name: `gismo::Common`, `gismo::Math`, etc.
 
 ### 2. **Header Files**
 - Use `PascalCase.h` for header files: `Memory.h`, `ForwardDeclarations.h`
@@ -54,7 +54,7 @@ src/
 - Descriptive names that indicate functionality
 
 ### 3. **Module Header File**
-- Each module has a main header file with **no extension**: `Core`, `Math`, `Geometry`
+- Each module has a main header file with **no extension**: `Common`, `Math`, `Geometry`
 - This follows the Generic C++ Build Pattern
 - Includes all module headers for convenience
 
@@ -68,11 +68,11 @@ src/
 ### **Consumer Code (Clean):**
 ```cpp
 // Include entire module
-#include <gismo/Core/Core>
+#include <gismo/Common/Common>
 
 // Or include specific headers
-#include <gismo/Core/Memory.h>
-#include <gismo/Core/Debug.h>
+#include <gismo/Common/Memory.h>
+#include <gismo/Common/Debug.h>
 
 // Use with proper namespace
 gismo::memory::shared_ptr<int> ptr;
@@ -83,7 +83,7 @@ gismo::memory::shared_ptr<int> ptr;
 # Link against clean module targets
 target_link_libraries(MyApp
     PRIVATE
-        gismo::Core
+        gismo::Common
         gismo::Math
         gismo::Geometry
 )
@@ -101,7 +101,7 @@ target_link_libraries(MyApp
 
 ### **For New Modules:**
 - Use clean names from the start
-- Follow the `Core` module as template
+- Follow the `Common` module as template
 - No `gs` prefixes in new architecture
 
 ### **For Existing Modules:**
@@ -123,5 +123,5 @@ When creating a new module:
 
 ---
 
-**Status**: ✅ Implemented in Core module
+**Status**: ✅ Implemented in Common module
 **Next**: Apply to Math, Geometry, and Matrix modules

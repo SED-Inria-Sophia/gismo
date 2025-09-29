@@ -31,10 +31,10 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>   # Install: include/
 )
 
-# Dependencies - Math depends on Core (Layer 1 → Layer 1)
+# Dependencies - Math depends on Common (Layer 1 → Layer 1)
 target_link_libraries(${PROJECT_NAME}
     INTERFACE
-        gismo::Core
+        gismo::Common
 )
 
 # Compiler requirements

@@ -65,7 +65,7 @@ gismo/
 
 ### 1. Foundation Components (Layer 1 - No Dependencies)
 
-#### gismo::Core
+#### gismo::Common
 **Purpose**: Core types, memory management, forward declarations
 **Type**: Interface Library (header-only)
 **Files Migrated from gsCore**:
@@ -102,20 +102,20 @@ target_include_directories(${PROJECT_NAME} INTERFACE
 #### gismo::Math
 **Purpose**: Mathematical constants, basic mathematical operations
 **Type**: Interface Library (header-only)
-**Dependencies**: `gismo::Core`
+**Dependencies**: `gismo::Common`
 
 ### 2. Core Components (Layer 2)
 
 #### gismo::Geometry
 **Purpose**: Points, vectors, geometric primitives, transformations
 **Type**: Shared Library
-**Dependencies**: `gismo::Core`, `gismo::Math`
+**Dependencies**: `gismo::Common`, `gismo::Math`
 **Files**: Geometric operations requiring implementations
 
 #### gismo::Matrix
 **Purpose**: Matrix operations and linear algebra
 **Type**: Shared Library
-**Dependencies**: `gismo::Core`, `gismo::Math`
+**Dependencies**: `gismo::Common`, `gismo::Math`
 **External Dependencies**: Eigen3
 
 ```cmake
@@ -159,7 +159,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
-    gismo::Core
+    gismo::Common
     gismo::Math
     Eigen3::Eigen
 )
@@ -170,46 +170,46 @@ target_link_libraries(${PROJECT_NAME}
 #### gismo::Basis
 **Purpose**: Basis function interfaces and definitions
 **Type**: Shared Library
-**Dependencies**: `gismo::Core`, `gismo::Math`, `gismo::Geometry`
+**Dependencies**: `gismo::Common`, `gismo::Math`, `gismo::Geometry`
 
 #### gismo::Function
 **Purpose**: Function spaces, evaluation, and function data
 **Type**: Shared Library
-**Dependencies**: `gismo::Core`, `gismo::Math`, `gismo::Geometry`, `gismo::Basis`
+**Dependencies**: `gismo::Common`, `gismo::Math`, `gismo::Geometry`, `gismo::Basis`
 
 #### gismo::Topology
 **Purpose**: Mesh topology, boundaries, connectivity
 **Type**: Shared Library
-**Dependencies**: `gismo::Core`, `gismo::Math`, `gismo::Geometry`
+**Dependencies**: `gismo::Common`, `gismo::Math`, `gismo::Geometry`
 
 ### 4. Infrastructure Components (Layer 4)
 
 #### gismo::IO
 **Purpose**: File I/O, XML parsing, data serialization
 **Type**: Shared Library
-**Dependencies**: `gismo::Core`, `gismo::Math`, `gismo::Geometry`, `gismo::Function`
+**Dependencies**: `gismo::Common`, `gismo::Math`, `gismo::Geometry`, `gismo::Function`
 
 #### gismo::Compiler
 **Purpose**: Just-in-time compilation support
 **Type**: Shared Library (Optional)
-**Dependencies**: `gismo::Core`
+**Dependencies**: `gismo::Common`
 
 ### 5. Application Components (Layer 5+)
 
 #### gismo::Assembler
 **Purpose**: Assembly operations, DOF mapping
 **Type**: Shared Library
-**Dependencies**: `gismo::Core`, `gismo::Math`, `gismo::Matrix`, `gismo::Function`, `gismo::Basis`
+**Dependencies**: `gismo::Common`, `gismo::Math`, `gismo::Matrix`, `gismo::Function`, `gismo::Basis`
 
 #### gismo::Pde
 **Purpose**: PDE definitions and problem setup
 **Type**: Shared Library
-**Dependencies**: `gismo::Core`, `gismo::Function`, `gismo::Assembler`
+**Dependencies**: `gismo::Common`, `gismo::Function`, `gismo::Assembler`
 
 #### gismo::Solver
 **Purpose**: Linear and nonlinear solvers
 **Type**: Shared Library
-**Dependencies**: `gismo::Core`, `gismo::Matrix`, `gismo::Assembler`
+**Dependencies**: `gismo::Common`, `gismo::Matrix`, `gismo::Assembler`
 
 ### 6. Feature Components (Layer 6)
 
@@ -356,7 +356,7 @@ find_package(gismo REQUIRED COMPONENTS Core Math Matrix Assembler)
 
 target_link_libraries(MyApp
   PRIVATE
-    gismo::Core
+    gismo::Common
     gismo::Math
     gismo::Matrix
     gismo::Assembler
@@ -398,7 +398,7 @@ Provide compatibility targets for existing build scripts:
 # Create legacy aliases for existing projects
 add_library(gsCore INTERFACE)
 target_link_libraries(gsCore INTERFACE
-  gismo::Core
+  gismo::Common
   gismo::Math
   gismo::Geometry
   gismo::Function

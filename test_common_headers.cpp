@@ -1,13 +1,13 @@
-/** @file test_core_headers.cpp
+/** @file test_common_headers.cpp
 
-    @brief Standalone test for proper inclusion of all gismo/Core module headers.
+    @brief Standalone test for proper inclusion of all gismo/Common module headers.
 
     This is a simple compilation test that verifies all headers in the gismo/Core
     module can be included correctly and compile without errors.
 
     Usage:
-    1. From build directory: g++ -I../src -I. ../test_core_headers.cpp -o test_core_headers
-    2. Run: ./test_core_headers
+    1. From build directory: g++ -I../src -I. ../test_common_headers.cpp -o test_common_headers
+    2. Run: ./test_common_headers
 
     This file is part of the G+Smo library.
 
@@ -15,38 +15,38 @@
     License, v. 2.0. If a copy of the MPL was not distributed with this
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-    Author(s): Generated test for Core module header verification
+    Author(s): Generated test for Common module header verification
 **/
 
 #include <iostream>
 
-// Test Core module header inclusions at global scope
+// Test Common module header inclusions at global scope
 // If any header has compilation issues, this test will fail to compile
 
 // Test 1: Include Export.h (includes Config.h)
-#include <gismo/Core/Export.h>
+#include <gismo/Common/Export.h>
 
 // Test 2: Include Debug.h
-#include <gismo/Core/Debug.h>
+#include <gismo/Common/Debug.h>
 
 // Test 3: Include Memory.h
-#include <gismo/Core/Memory.h>
+#include <gismo/Common/Memory.h>
 
 // Test 4: Include ForwardDeclarations.h
-#include <gismo/Core/ForwardDeclarations.h>
+#include <gismo/Common/ForwardDeclarations.h>
 
 // Test 5: Include LinearAlgebra.h (may require Eigen)
 // Note: Commenting out LinearAlgebra.h for now as it requires Eigen
-// #include <gismo/Core/LinearAlgebra.h>
+// #include <gismo/Common/LinearAlgebra.h>
 
 // Test 6: Include main Core header (includes all above)
 // Note: Commenting out for now due to Config.h dependency
-// #include <gismo/Core/Core>
+// #include <gismo/Common/Core>
 
 // Test multiple inclusions (header guards test)
-#include <gismo/Core/Debug.h>
-#include <gismo/Core/Memory.h>
-#include <gismo/Core/Export.h>
+#include <gismo/Common/Debug.h>
+#include <gismo/Common/Memory.h>
+#include <gismo/Common/Export.h>
 
 // Function declarations for testing
 void test_basic_functionality();
@@ -92,8 +92,8 @@ int main() {
         test_inclusion_order();
 
         std::cout << std::endl;
-        std::cout << "🎉 COMPILATION TEST PASSED! Core module headers compile successfully." << std::endl;
-        std::cout << "The basic gismo/Core module headers are properly structured for inclusion." << std::endl;
+        std::cout << "🎉 COMPILATION TEST PASSED! Common module headers compile successfully." << std::endl;
+        std::cout << "The basic gismo/Common module headers are properly structured for inclusion." << std::endl;
         std::cout << std::endl;
         std::cout << "Note: For complete testing including LinearAlgebra.h and the main Core header," << std::endl;
         std::cout << "      build the full project to generate Config.h and link against Eigen." << std::endl;

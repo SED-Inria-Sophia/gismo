@@ -1,0 +1,6 @@
+name: gismo
+channels:
+  - conda-forge
+dependencies:
+  - cmake
+  - paraview

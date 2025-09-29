@@ -92,6 +92,17 @@ or as a tar.gz or zip file:
    - [Doxygen](https://www.doxygen.org) for generating documentation.
    - [Paraview](https://www.paraview.org) for visualization.
 
+# Conda Environment
+
+## For MacOs
+
+```bash
+mamba env create --name gismo-build
+mamba env update -f pkg/env/gismo-build-osx-64.yml
+mamba env create --name gismo
+mamba env update -f pkg/env/gismo.yml
+```
+
 # Compilation
 
 The compilation requires configuration using [CMake](https://cmake.org)

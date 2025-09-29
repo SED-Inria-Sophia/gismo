@@ -1,0 +1,9 @@
+name: gismo-build
+
+channels:
+  - conda-forge
+
+dependencies:
+  - cmake >= 3.21
+  - constructor
+  - clangxx_osx-64 = 18 # [osx and x86_64]

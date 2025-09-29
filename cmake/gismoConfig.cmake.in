@@ -1,66 +1,113 @@
-######################################################################
-## gismoConfig.cmake --- G+Smo CMake Configuration file
-## This file is part of the G+Smo library.
-##
-## https://github.com/gismo/gismo
-## https://gismo.github.io/
-##
-## Author: Angelos Mantzaflaris
-######################################################################
+### iglooConfig.cmake.in ---
 
-######################################################################
-##
-## Config file for the G+SMO library
-## It defines the following variables
-## GISMO_VERSION      - version string of G+SMO
-## GISMO_INCLUDE_DIRS - include directories for G+SMO
-## GISMO_LIBRARIES    - libraries to link against
-## GISMO_MODULE_PATH  - path containing cmake modules
-## GISMO_USE_FILE     - the cmake use-file
-## GISMO_BUILD_TYPE   - the cmake build type used to compile G+Smo
-##
-######################################################################
+@PACKAGE_INIT@
 
-# Compute paths
-#get_filename_component(GISMO_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+# ################################################################################
 
-# Our library dependencies (contains definitions for IMPORTED targets)
-#if(NOT TARGET gismo AND NOT gismo_BINARY_DIR)
-#  include("${GISMO_CMAKE_DIR}/gismoTargets.cmake")
-#endif()
+function(_scan_dependencies _comp _intern_deps _extern_deps)
+  set(_int ${${_intern_deps}})
+  set(_ext ${${_extern_deps}})
+  if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@${_comp}Targets.cmake")
+    file(STRINGS "${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@${_comp}Targets.cmake" data)
+    foreach(line ${data})
+      string(FIND "${line}" "INTERFACE_LINK_LIBRARIES" _LINE_FOUND)
+      if (_LINE_FOUND GREATER -1)
+        string(REPLACE "INTERFACE_LINK_LIBRARIES" "" _line "${line}")
+        string(REPLACE "\"" "" _line_ "${_line}")
+        foreach(word ${_line_})
+          string(REGEX MATCHALL "@PROJECT_NAME@::([^:]+)" _word_ "${word}")
+          string(LENGTH "${_word_}" len)
+          if(len GREATER 0)
+            string(REPLACE "@PROJECT_NAME@::" "" _word "${_word_}")
+            list(APPEND _int "${_word}")
+            _scan_dependencies(${_word} _int _ext)
+          else()
+            string(STRIP "${word}" word1)
+            list(APPEND _ext "${word1}")
+          endif()
+        endforeach()
+      endif()
+    endforeach()
+    list(APPEND _int "${_comp}")
+  else()
+    list(REMOVE_ITEM _int "${_comp}")
+    list(APPEND _ext "${_comp}")
+  endif()
 
-# These are IMPORTED targets created by gismoTargets.cmake (add TARGETS gsView ...)
+  set(${_intern_deps} ${_int} PARENT_SCOPE)
+  set(${_extern_deps} ${_ext} PARENT_SCOPE)
+endfunction()
 
-set(GISMO_VERSION       "@gismo_VERSION@")
-set(GISMO_VERSION_MAJOR "@gismo_VERSION_MAJOR@")
-set(GISMO_VERSION_MINOR "@gismo_VERSION_MINOR@")
-set(GISMO_VERSION_PATCH "@gismo_VERSION_PATCH@")
-set(gismo_VERSION       "@gismo_VERSION@")
-set(gismo_VERSION_MAJOR "@gismo_VERSION_MAJOR@")
-set(gismo_VERSION_MINOR "@gismo_VERSION_MINOR@")
-set(gismo_VERSION_PATCH "@gismo_VERSION_PATCH@")
+# ################################################################################
 
-set(GISMO_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
-set(GISMO_PUBLIC_HEADER "@CONF_PUBLIC_HEADER@")
-set(GISMO_LIBRARY_DIR  "@CONF_LIB_DIRS@")
-set(GISMO_LIBRARIES           gismo)
-set(GISMO_STATIC_LIBRARIES    gismo_static)
-set(TARGET_ARCHITECTURE "@TARGET_ARCHITECTURE@")
-set(GISMO_MODULE_PATH  "@CONF_MODULE_PATH@")
-set(GISMO_USE_FILE     "@CONF_USE_FILE@")
-set(GISMO_BUILD_TYPE   "@CMAKE_BUILD_TYPE@")
+list(LENGTH _FIND_COMPONENTS len)
+list(FIND @PROJECT_NAME@_FIND_COMPONENTS "ALL" ALL_FOUND)
+set(_COMPONENTS_AND_DEPS "")
+set(_EXTERNAL_DEPS "")
 
-if(NOT GISMO_IS_CONFIGURED_MESSAGE)
-  message(STATUS "G+Smo is configured at ${GISMO_LIBRARY_DIR}")
-  set(GISMO_IS_CONFIGURED_MESSAGE 1 CACHE INTERNAL "Display once G+Smo library path")
+## #############################################################################
+## Search for all components whether ALL is specified or no components are specified
+## #############################################################################
+
+# Search for all available component-configuration directories...
+file(GLOB __@PROJECT_NAME@_all_components
+  LIST_DIRECTORIES false RELATIVE "${CMAKE_CURRENT_LIST_DIR}"
+  "${CMAKE_CURRENT_LIST_DIR}/*Targets.cmake")
+# ...and extract component names from it.
+string(REGEX REPLACE "@PROJECT_NAME@" "" __@PROJECT_NAME@_all_components "${__@PROJECT_NAME@_all_components}")
+string(REGEX REPLACE "Targets.cmake" "" __@PROJECT_NAME@_all_components "${__@PROJECT_NAME@_all_components}")
+
+if(len EQUAL 0 OR ALL_FOUND GREATER -1)
+  list(LENGTH __@PROJECT_NAME@_all_components leng)
+  if(leng GREATER 0)
+    set(@PROJECT_NAME@_FIND_COMPONENTS ${__@PROJECT_NAME@_all_components})
+  endif()
 endif()
 
-if(NOT CMAKE_BUILD_TYPE)
-   # Set automatically the build type
-   set(CMAKE_BUILD_TYPE ${GISMO_BUILD_TYPE} CACHE STRING
-   "Type of build (set to comply with G+Smo library)" FORCE)
-elseif(NOT "x${CMAKE_BUILD_TYPE}" STREQUAL "x${GISMO_BUILD_TYPE}")
-  message(WARNING "G+Smo is configured in ${GISMO_BUILD_TYPE} mode which does not coincide with this project! Conflicts may occur. Re-run CMake with CMAKE_BUILD_TYPE=${GISMO_BUILD_TYPE} to fix this, or update gismo_DIR.")
+## #############################################################################
+## Scan internal dependencies for every required components
+## #############################################################################
+
+foreach(_comp ${@PROJECT_NAME@_FIND_COMPONENTS})
+  if (NOT TARGET @PROJECT_NAME@::${_comp})
+    _scan_dependencies(${_comp} _COMPONENTS_AND_DEPS _EXTERNAL_DEPS)
+  endif()
+  list(REMOVE_DUPLICATES _COMPONENTS_AND_DEPS)
+  list(REMOVE_DUPLICATES _EXTERNAL_DEPS)
+endforeach()
+message(STATUS "@PROJECT_NAME@ required components: ${_COMPONENTS_AND_DEPS}")
+message(STATUS "@PROJECT_NAME@ required external dependencies: ${_EXTERNAL_DEPS}")
+
+## #############################################################################
+## Include every required components with dependencies
+## #############################################################################
+
+foreach(_comp ${@PROJECT_NAME@_FIND_COMPONENTS})
+  if (NOT TARGET @PROJECT_NAME@::${_comp})
+    include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@${_comp}Targets.cmake")
+  endif()
+endforeach()
+
+## #############################################################################
+## Global convenient target GUDHI::Gudhi
+## #############################################################################
+
+if (NOT TARGET @PROJECT_NAME@::@PROJECT_NAME@)
+  add_library(@PROJECT_NAME@::@PROJECT_NAME@ INTERFACE IMPORTED)
+  foreach(_comp ${__@PROJECT_NAME@_all_components})
+    set_property(TARGET @PROJECT_NAME@::@PROJECT_NAME@ APPEND PROPERTY INTERFACE_LINK_LIBRARIES @PROJECT_NAME@::${_comp})
+  endforeach()
 endif()
 
-#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${GISMO_MODULE_PATH})
+## #############################################################################
+## External dependencies
+## #############################################################################
+
+include(CMakeFindDependencyMacro)
+
+if ("Eigen::Eigen3" IN_LIST _EXTERNAL_DEPS  AND NOT TARGET Eigen::Eigen3)
+  find_dependency(Eigen3 REQUIRED)
+endif()
+
+######################################################################
+### gismoConfig.cmake.in ends here

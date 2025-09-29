@@ -1,0 +1,37 @@
+/** @file Geometry
+
+    @b# Geometry module - Geometric primitives and transformations
+#include <gismo/Geometry/Point.h>         # Point definitions
+#include <gismo/Geometry/Vector.h>        # Vector operations
+#include <gismo/Geometry/PointVector.hpp> # Point-Vector interaction implementations
+#include <gismo/Geometry/Transform.h>     # Transformations
+#include <gismo/Geometry/Primitives.h>    # Basic geometric primitivesMain Geometry module header that includes all geometric functionality
+
+    This file provides a convenient single-include header for the Geometry module.
+    Following the Generic C++ Build Pattern, this allows users to include
+    the entire Geometry module with a single include.
+
+    Usage:
+    ```cpp
+    #include <gismo/Geometry/Geometry>
+    // or include individual headers:
+    #include <gismo/Geometry/Point.h>
+    #include <gismo/Geometry/Vector.h>
+    ```
+
+    This file is part of the G+Smo library.
+
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+    Author(s): A. Mantzaflaris, Modern CMake Architecture Implementation
+*/
+
+#pragma once
+
+// Geometry module - Geometric primitives and transformations
+#include "Point.h"                        // Point definitions
+#include "Vector.h"                       // Vector operations
+#include "Transform.h"                    // Transformations
+#include "Primitives.h"                   // Basic geometric primitives

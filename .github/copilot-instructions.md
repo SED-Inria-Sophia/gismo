@@ -1,0 +1,4 @@
+- Respect the patterns in `src/gismo/GENERIC_CPP_BUILD_PATTERN.md`
+- Follow naming conventions in `src/gismo/NAMING_CONVENTIONS.md` - remove `gs` prefix from files in new architecture
+- Use clean PascalCase names for headers (e.g., `Memory.h`, `Debug.h`) in modules under `src/gismo/`
+- Each module should have a main header file with no extension (e.g., `Core`, `Math`) following Generic C++ pattern

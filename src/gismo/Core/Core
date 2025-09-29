@@ -1,0 +1,34 @@
+/** @file Core
+
+    @brief Main Core module header that includes all Core functionality
+
+    This file provides a convenient single-include header for the Core module.
+    Following the Generic C++ Build Pattern, this allows users to include
+    the entire Core module with a single include.
+
+    Usage:
+    ```cpp
+    #include <gismo/Core/Core>
+    // or include individual headers:
+    #include <gismo/Core/Memory.h>
+    #include <gismo/Core/Debug.h>
+    ```
+
+    This file is part of the G+Smo library.
+
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+    Author(s): A. Mantzaflaris, Modern CMake Architecture Implementation
+*/
+
+#pragma once
+
+// Core module - Foundation types and utilities
+#include <gismo/Core/Config.h>                     // Core configuration and type definitions
+#include <gismo/Core/Export.h>                     // Symbol export/import handling (must be early)
+#include <gismo/Core/Debug.h>                      // Debugging and logging macros
+#include <gismo/Core/Memory.h>                     // Memory management utilities
+#include <gismo/Core/ForwardDeclarations.h>        // Type forward declarations
+#include <gismo/Core/LinearAlgebra.h>              // Basic type definitions

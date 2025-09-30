@@ -265,6 +265,152 @@ gismo::Solver (Linear operators)
 4. ✅ Build time for test ≤ current build time
 5. ✅ Clear, explicit dependencies in CMake
 
+### 2.4 Complex Multi-Optional Use Case: Full Research Configuration
+
+**Rationale**: 
+- Validates the architecture with a realistic research-oriented build
+- Tests complex interdependencies between multiple optional modules
+- Mirrors actual CI configuration used in production
+- Ensures scalability of the optional module system
+
+**Command to Validate**:
+```bash
+cmake ../ -D GISMO_OPTIONAL="gsModule;gsOpennurbs;gsSpectra;gsElasticity;gsKLShell;gsStructuralAnalysis;gsUnstructuredSplines;gsPolynomial;gsHLBFGS"
+```
+
+#### Optional Module Descriptions
+
+| Module | Purpose | External Dependencies | Core Dependencies |
+|--------|---------|----------------------|-------------------|
+| `gsModule` | Base extension framework | None | `gismo::Common` |
+| `gsOpennurbs` | OpenNURBS file support | OpenNURBS library | `gismo::IO`, `gismo::Nurbs` |
+| `gsSpectra` | Eigenvalue computations | Spectra-C++ | `gismo::Math`, `gismo::Solver` |
+| `gsElasticity` | Elasticity simulations | None | `gismo::Assembler`, `gismo::PDE` |
+| `gsKLShell` | Kirchhoff-Love shell analysis | None | `gismo::Elasticity`, `gismo::Assembler` |
+| `gsStructuralAnalysis` | Structural analysis tools | None | `gismo::KLShell`, `gismo::Solver` |
+| `gsUnstructuredSplines` | Unstructured spline support | None | `gismo::Basis`, `gismo::MSplines` |
+| `gsPolynomial` | Polynomial basis functions | None | `gismo::Basis`, `gismo::Math` |
+| `gsHLBFGS` | L-BFGS optimization | None | `gismo::Optimizer`, `gismo::Math` |
+
+#### Target Architecture for Complex Build
+
+```
+Layer 0: Foundation
+  gismo::Common
+
+Layer 1: Mathematics  
+  gismo::Math
+  └── gsPolynomial (extends polynomial functionality)
+
+Layer 2: Geometry & I/O
+  gismo::Geometry
+  gismo::IO
+  └── gsOpennurbs (extends I/O with OpenNURBS support)
+
+Layer 3: Basis Functions
+  gismo::Basis
+  └── gsUnstructuredSplines (extends basis functions)
+  gismo::Nurbs
+  gismo::MSplines
+
+Layer 4: Solvers & Analysis
+  gismo::Solver
+  ├── gsSpectra (extends eigenvalue capabilities)
+  └── gsHLBFGS (extends optimization)
+  
+Layer 5: Physical Simulations
+  gismo::Assembler
+  gismo::PDE  
+  └── gsElasticity (extends PDE with elasticity)
+      └── gsKLShell (extends elasticity with shell theory)
+          └── gsStructuralAnalysis (high-level structural tools)
+
+Layer 6: Extension Framework
+  gsModule (provides base extension infrastructure)
+```
+
+#### Complex Build Validation Criteria
+
+**Architecture Requirements**:
+1. ✅ All optional modules build without circular dependencies
+2. ✅ Clear layered dependency structure maintained
+3. ✅ External dependencies (OpenNURBS, Spectra) properly isolated
+4. ✅ No global namespace pollution from optional modules
+5. ✅ Optional modules can be enabled/disabled independently
+6. ✅ Build configuration completes without errors
+7. ✅ All optional module interdependencies resolved correctly
+
+**Build System Requirements**:
+```cmake
+# Each optional module follows modern CMake pattern
+add_library(gsElasticity SHARED)  # or STATIC based on GISMO_BUILD_SHARED
+add_library(gismo::gsElasticity ALIAS gsElasticity)
+
+# Clear dependency specification
+target_link_libraries(gsElasticity
+  PUBLIC
+    gismo::Assembler
+    gismo::PDE
+  PRIVATE
+    gismo::Math  # Implementation detail
+)
+
+# Proper installation and export
+install(TARGETS gsElasticity
+  EXPORT gismo-optional-targets
+  COMPONENT optional-modules
+)
+```
+
+**Success Metrics**:
+1. ✅ `cmake ../` configuration succeeds with all 9 optional modules
+2. ✅ Dependency graph validates with no cycles
+3. ✅ Build time scales reasonably with number of modules
+4. ✅ Each module can be imported independently: `find_package(gismo COMPONENTS gsElasticity)`
+5. ✅ Documentation builds with all optional modules included
+6. ✅ Examples using multiple optional modules compile and run
+7. ✅ Unit tests for all optional modules pass
+
+**Integration Test Case**:
+```cpp
+// Example integration test using multiple optional modules
+#include <gismo/Assembler/Assembler>
+#include <gsElasticity/gsElasticity>
+#include <gsKLShell/gsKLShell>
+#include <gsSpectra/gsSpectra>
+#include <gsHLBFGS/gsHLBFGS>
+
+int main() {
+    // Load geometry with OpenNURBS
+    gismo::io::gsOpennurbsReader reader("shell.3dm");
+    auto geometry = reader.readGeometry();
+    
+    // Setup KL shell problem
+    gismo::elasticity::gsKLShell shell(geometry);
+    shell.setMaterial(youngsModulus, poissonRatio);
+    
+    // Assemble system
+    auto assembler = shell.createAssembler();
+    assembler.assemble();
+    
+    // Solve eigenvalue problem with Spectra
+    gismo::spectra::EigenSolver solver(assembler.matrix());
+    auto eigenvalues = solver.compute(10);  // First 10 modes
+    
+    // Optimize design with L-BFGS
+    gismo::hlbfgs::Optimizer optimizer;
+    auto optimizedShell = optimizer.minimize(shell, designVariables);
+    
+    return 0;
+}
+```
+
+**Rollback Strategy for Complex Build**:
+- If any optional module fails: exclude it and continue with others
+- Graceful degradation: dependent modules automatically disabled
+- Clear error messages indicating which dependencies are missing
+- Option to build with subset: `GISMO_OPTIONAL="gsOpennurbs;gsSpectra"` still works
+
 ---
 
 ## Part III: Target Architecture Design
@@ -740,6 +886,46 @@ target_include_directories(${PROJECT_NAME}
 3. Remove global cache variable pollution
 4. Use modern CMake patterns
 
+**Handling Complex Multi-Optional Builds**:
+
+For the command `cmake ../ -D GISMO_OPTIONAL="gsModule;gsOpennurbs;gsSpectra;gsElasticity;gsKLShell;gsStructuralAnalysis;gsUnstructuredSplines;gsPolynomial;gsHLBFGS"`, the system must:
+
+1. **Parse module list and validate dependencies**:
+   ```cmake
+   # optional/CMakeLists.txt
+   set(AVAILABLE_OPTIONALS gsOpennurbs gsSpectra gsHLBFGS) # Currently implemented
+   set(MISSING_OPTIONALS gsModule gsElasticity gsKLShell gsStructuralAnalysis gsUnstructuredSplines gsPolynomial)
+   
+   foreach(module ${GISMO_OPTIONAL_LIST})
+     if(module IN_LIST MISSING_OPTIONALS)
+       message(WARNING "Optional module '${module}' is not yet implemented. Skipping.")
+       continue()
+     endif()
+     
+     if(module IN_LIST AVAILABLE_OPTIONALS)
+       set(GISMO_WITH_${module} ON)
+     endif()
+   endforeach()
+   ```
+
+2. **Graceful dependency resolution**:
+   ```cmake
+   # For modules that depend on missing ones
+   if(GISMO_WITH_gsKLShell AND NOT GISMO_WITH_gsElasticity)
+     message(WARNING "gsKLShell requires gsElasticity which is not available. Disabling gsKLShell.")
+     set(GISMO_WITH_gsKLShell OFF)
+   endif()
+   ```
+
+3. **Clear build summary**:
+   ```cmake
+   message(STATUS "=== GISMO Optional Modules Configuration ===")
+   message(STATUS "Requested: ${GISMO_OPTIONAL}")
+   message(STATUS "Available: ${ENABLED_OPTIONALS}")
+   message(STATUS "Missing/Skipped: ${SKIPPED_OPTIONALS}")
+   message(STATUS "===========================================")
+   ```
+
 #### Task 7.3: Document Optional Module System (Week 20)
 
 **Create documentation**:
@@ -749,9 +935,9 @@ target_include_directories(${PROJECT_NAME}
 
 ### 4.8 Phase 8: Testing & Validation (Weeks 21-24)
 
-#### Task 8.1: Validate Use Case (Week 21)
+#### Task 8.1: Validate Use Cases (Week 21)
 
-**Validation Test**: `gsMatrixOp_test`
+**Primary Validation Test**: `gsMatrixOp_test`
 
 **Steps**:
 1. Build with new modular architecture
@@ -763,6 +949,22 @@ target_include_directories(${PROJECT_NAME}
    ```
 3. Run test and verify results match
 4. Measure build time vs. old architecture
+
+**Complex Multi-Optional Validation**:
+
+**Command**: 
+```bash
+cmake ../ -D GISMO_OPTIONAL="gsModule;gsOpennurbs;gsSpectra;gsElasticity;gsKLShell;gsStructuralAnalysis;gsUnstructuredSplines;gsPolynomial;gsHLBFGS"
+```
+
+**Validation Steps**:
+1. Ensure all 9 optional modules are properly recognized by CMake
+2. Verify dependency resolution between optional modules
+3. Check that missing optional modules (not yet implemented) are gracefully handled
+4. Validate build system generates proper error/warning messages
+5. Test subset builds work: `GISMO_OPTIONAL="gsOpennurbs;gsSpectra;gsHLBFGS"`
+6. Measure configuration time with complex optional setup
+7. Verify no circular dependencies in full build graph
 
 #### Task 8.2: Update All Unit Tests (Week 22)
 
@@ -1099,6 +1301,7 @@ For each module:
 | Template issues across modules | Medium | High | Careful header organization, explicit instantiation |
 | Build time increase | Medium | Medium | Incremental migration, precompiled headers |
 | Incomplete dependency mapping | Low | High | Thorough analysis, automated tools |
+| Missing optional modules in complex builds | Medium | Low | Graceful degradation, clear error messages |
 
 ### 7.2 Schedule Risks
 
@@ -1135,11 +1338,11 @@ For each module:
 | 9. Documentation | 25-26 | Docs, migration tools |
 
 **Milestones**:
-- Week 4: Foundation modules complete, use case validates
+- Week 4: Foundation modules complete, matrix use case validates
 - Week 11: Core functionality migrated
 - Week 16: All primary modules migrated
 - Week 20: Optional modules modernized
-- Week 24: All tests passing
+- Week 24: All tests passing, complex multi-optional build validates
 - Week 26: Production-ready
 
 ---

@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include <Matrix.h>
+#include <gismo/Math/Matrix.h>
 
 namespace gismo
 {

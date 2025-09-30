@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include <LinearAlgebra.h>
+#include <gismo/Math/LinearAlgebra.h>
 #include <vector>
 
 namespace gismo

@@ -3,3 +3,4 @@
 
 # Add component test subdirectories
 add_subdirectory(Common)
+add_subdirectory(Math)

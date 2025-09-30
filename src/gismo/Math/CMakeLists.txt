@@ -1,11 +1,19 @@
-# Common Module CMakeLists.txt
-# Foundation types, memory management, and forward declarations
+# Math Module CMakeLists.txt
+# Linear algebra and mathematical utilities
 
-project(Common
+project(Math
 VERSION
   ${${CMAKE_PROJECT_NAME}_VERSION}
 LANGUAGES
   CXX)
+
+## #################################################################
+## Dependencies - Eigen3
+## #################################################################
+
+if(NOT TARGET Eigen3::Eigen)
+  find_package(Eigen3 REQUIRED)
+endif()
 
 ## #################################################################
 ## Create target
@@ -30,26 +38,28 @@ target_sources(${PROJECT_NAME}
       BASE_DIRS
         ${CMAKE_CURRENT_SOURCE_DIR}
       FILES
-        Common
-        Memory.h
-        ForwardDeclarations.h
-        Debug.h
-        Export.h
-        Assert.h
-        Config.h
-        Types.h
-        EigenDeclarations.h
-        MatrixAddons.h
-        PlainObjectBaseAddons.h
-        Utils.h
-        Stopwatch.h
-        Combinatorics.h
-        SortedVector.h
-        BoundedPriorityQueue.h
+        Math
+        LinearAlgebra.h
+        Constants.h
+        Matrix.h
+        Vector.h
+        SparseMatrix.h
+        MatrixView.h
+        PointGrid.h
 )
 
 target_include_directories(${PROJECT_NAME} INTERFACE
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>
+)
+
+## #################################################################
+## Dependencies
+## #################################################################
+
+target_link_libraries(${PROJECT_NAME}
+  INTERFACE
+    ${CMAKE_PROJECT_NAME}::Common
+    Eigen3::Eigen
 )
 
 ## ###################################################################

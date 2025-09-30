@@ -61,24 +61,17 @@ src/
 
 ```
 src/gismo/
-├── Common/           # ✅ Modern module (INTERFACE library)
+└── Module1/           # ✅ Modern module (INTERFACE library)
 │   ├── CMakeLists.txt
-│   ├── Common        # Main header (no extension)
-│   ├── Memory.h      # Clean names (no gs prefix)
-│   ├── Debug.h
-│   ├── Export.h
-│   ├── ForwardDeclarations.h
-│   └── LinearAlgebra.h
-├── Math/             # ⚠️ Not yet implemented
-├── Geometry/         # ⚠️ Not yet implemented
+│   └── Component1.h   # ⚠️ Not yet implemented
 └── CMakeLists.txt    # Orchestration file
 ```
 
 **Status**:
-- Only `Common` module implemented following modern pattern
+- `Module1` module is an example of modern pattern
 - Clean naming convention adopted (no `gs` prefix)
 - Modern CMake with FILE_SET HEADERS
-- Proper namespace aliases (`gismo::Common`)
+- Proper namespace aliases (`gismo::Module1`)
 
 ### 1.2 Dependency Analysis
 
@@ -160,7 +153,7 @@ set (GISMO_INCLUDE_DIRS ${GISMO_INCLUDE_DIRS} ${CODIPACK_INCLUDE_DIR}
   CACHE INTERNAL "Gismo include directories" FORCE)
 
 # ❌ Global template instantiation modification
-set(GISMO_EXTRA_INSTANCE ${GISMO_EXTRA_INSTANCE} 
+set(GISMO_EXTRA_INSTANCE ${GISMO_EXTRA_INSTANCE}
     "codi::RealForwardGen<${instance}>;..."
     CACHE INTERNAL "Additional instantiations")
 ```
@@ -221,7 +214,7 @@ add_subdirectory(gismo)
 
 ### 2.1 Selected Use Case: Matrix Operations
 
-**Rationale**: 
+**Rationale**:
 - Fundamental to all GISMO operations
 - Currently involved in circular dependency (gsCore ↔ gsMatrix)
 - Used extensively in tests and examples
@@ -267,7 +260,7 @@ gismo::Solver (Linear operators)
 
 ### 2.4 Complex Multi-Optional Use Case: Full Research Configuration
 
-**Rationale**: 
+**Rationale**:
 - Validates the architecture with a realistic research-oriented build
 - Tests complex interdependencies between multiple optional modules
 - Mirrors actual CI configuration used in production
@@ -298,7 +291,7 @@ cmake ../ -D GISMO_OPTIONAL="gsModule;gsOpennurbs;gsSpectra;gsElasticity;gsKLShe
 Layer 0: Foundation
   gismo::Common
 
-Layer 1: Mathematics  
+Layer 1: Mathematics
   gismo::Math
   └── gsPolynomial (extends polynomial functionality)
 
@@ -317,10 +310,10 @@ Layer 4: Solvers & Analysis
   gismo::Solver
   ├── gsSpectra (extends eigenvalue capabilities)
   └── gsHLBFGS (extends optimization)
-  
+
 Layer 5: Physical Simulations
   gismo::Assembler
-  gismo::PDE  
+  gismo::PDE
   └── gsElasticity (extends PDE with elasticity)
       └── gsKLShell (extends elasticity with shell theory)
           └── gsStructuralAnalysis (high-level structural tools)
@@ -384,23 +377,23 @@ int main() {
     // Load geometry with OpenNURBS
     gismo::io::gsOpennurbsReader reader("shell.3dm");
     auto geometry = reader.readGeometry();
-    
+
     // Setup KL shell problem
     gismo::elasticity::gsKLShell shell(geometry);
     shell.setMaterial(youngsModulus, poissonRatio);
-    
+
     // Assemble system
     auto assembler = shell.createAssembler();
     assembler.assemble();
-    
+
     // Solve eigenvalue problem with Spectra
     gismo::spectra::EigenSolver solver(assembler.matrix());
     auto eigenvalues = solver.compute(10);  // First 10 modes
-    
+
     // Optimize design with L-BFGS
     gismo::hlbfgs::Optimizer optimizer;
     auto optimizedShell = optimizer.minimize(shell, designVariables);
-    
+
     return 0;
 }
 ```
@@ -562,9 +555,114 @@ Layer 8 (I/O):
 
 ## Part IV: Implementation Plan
 
-### 4.1 Phase 1: Foundation Modules (Weeks 1-4)
+### 4.1 Phase 1: Foundation Modules (Weeks 1-5)
 
-#### Task 1.1: Create Math Module (Week 1)
+#### Task 1.0: Create Common Module (Week 1)
+
+**Objective**: Establish foundation layer with zero dependencies
+
+**Steps**:
+1. Create `src/gismo/Common/` directory structure
+2. Extract from `gsCore/`:
+   - `gsMemory.h` → `Common/Memory.h`
+   - `gsForwardDeclarations.h` → `Common/ForwardDeclarations.h`
+   - `gsDebug.h` → `Common/Debug.h`
+   - `gsExport.h` → `Common/Export.h`
+   - `gsAssert.h` → `Common/Assert.h`
+   - `gsConfig.h` → `Common/Config.h`
+3. Extract from `gsMatrix/`:
+   - `gsEigenDeclarations.h` → `Common/EigenDeclarations.h` (Eigen forward declarations)
+   - `gsMatrixAddons.h` → `Common/MatrixAddons.h` (Eigen MatrixBase extensions)
+   - `gsPlainObjectBaseAddons.h` → `Common/PlainObjectBaseAddons.h` (Eigen PlainObjectBase extensions)
+4. Extract from `gsUtils/`:
+   - `gsUtils.h` → `Common/Utils.h` (string utilities, type utilities, macros)
+   - `gsStopwatch.h` → `Common/Stopwatch.h` (timing utilities)
+   - `gsCombinatorics.h` → `Common/Combinatorics.h` (mathematical utilities)
+   - `gsSortedVector.h` → `Common/SortedVector.h` (container utilities)
+   - `gsBoundedPriorityQueue.h` → `Common/BoundedPriorityQueue.h` (container utilities)
+5. Remove all non-foundation dependencies from extracted headers
+6. Create `Common/CMakeLists.txt` following template
+7. Establish clean PascalCase naming convention
+
+**Note**: Other gsUtils files will be migrated to appropriate higher layers:
+- `gsFunctionWithDerivatives.h` → `Function/` module (depends on gsFunction)
+- `gsPointGrid.h` → `Geometry/` or `Math/` module (depends on linear algebra)
+- `gsL2Projection.h` → `Assembler/` module (depends on gsExprAssembler)
+- `gsQuasiInterpolate.h` → `Assembler/` module (likely depends on assembly)
+- `gsMesh/*` → `Geometry/` or separate `Mesh/` module (geometric structures)
+
+**Files to create**:
+```
+src/gismo/Common/
+├── CMakeLists.txt
+├── Common                      # Main header (convenience include)
+├── Memory.h                    # Memory management utilities
+├── ForwardDeclarations.h       # Forward declarations
+├── Debug.h                     # Debug macros and utilities
+├── Export.h                    # Symbol export/import macros
+├── Assert.h                    # Assertion macros
+├── Config.h                    # Build configuration
+├── Types.h                     # Fundamental type definitions
+├── EigenDeclarations.h         # Eigen forward declarations
+├── MatrixAddons.h              # Eigen MatrixBase extensions
+├── PlainObjectBaseAddons.h     # Eigen PlainObjectBase extensions
+├── Utils.h                     # String utilities, type utilities, macros
+├── Stopwatch.h                 # Timing and profiling utilities
+├── Combinatorics.h             # Mathematical combinatorial functions
+├── SortedVector.h              # Sorted container utilities
+└── BoundedPriorityQueue.h      # Priority queue utilities
+```
+
+**CMakeLists.txt**:
+```cmake
+project(Common VERSION ${${CMAKE_PROJECT_NAME}_VERSION} LANGUAGES CXX)
+
+add_library(${PROJECT_NAME} INTERFACE)
+add_library(${CMAKE_PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
+target_sources(${PROJECT_NAME}
+  INTERFACE
+    FILE_SET HEADERS
+      BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}
+      FILES
+        Common
+        Memory.h
+        ForwardDeclarations.h
+        Debug.h
+        Export.h
+        Assert.h
+        Config.h
+        Types.h
+        EigenDeclarations.h
+        MatrixAddons.h
+        PlainObjectBaseAddons.h
+        Utils.h
+        Stopwatch.h
+        Combinatorics.h
+        SortedVector.h
+        BoundedPriorityQueue.h
+)
+
+# No dependencies - this is the foundation layer
+target_compile_features(${PROJECT_NAME}
+  INTERFACE
+    cxx_std_17
+)
+
+# Installation rules
+install(TARGETS ${PROJECT_NAME}
+  EXPORT ${CMAKE_PROJECT_NAME}${PROJECT_NAME}-targets
+  FILE_SET HEADERS
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${CMAKE_PROJECT_NAME}/${PROJECT_NAME}
+)
+```
+
+**Validation**:
+- Compile standalone without any GISMO dependencies
+- Verify clean header includes (no circular references)
+- Check naming convention compliance
+
+#### Task 1.1: Create Math Module (Week 2)
 
 **Objective**: Break gsCore ↔ gsMatrix circular dependency
 
@@ -578,8 +676,10 @@ Layer 8 (I/O):
    - Core matrix classes → `Math/Matrix.h`
    - Matrix views → `Math/MatrixView.h`
    - Sparse matrix → `Math/SparseMatrix.h`
-4. Create `Math/CMakeLists.txt` following template
-5. Update `Common` to remove matrix dependencies
+4. Extract from `gsUtils/`:
+   - `gsPointGrid.h` → `Math/PointGrid.h` (structured point generation)
+5. Create `Math/CMakeLists.txt` following template
+6. Update `Common` to remove matrix dependencies
 
 **Files to create**:
 ```
@@ -591,7 +691,8 @@ src/gismo/Math/
 ├── Matrix.h                # Dense matrix
 ├── Vector.h                # Vector operations
 ├── SparseMatrix.h          # Sparse matrix
-└── MatrixView.h            # Matrix views
+├── MatrixView.h            # Matrix views
+└── PointGrid.h             # Structured point generation
 ```
 
 **CMakeLists.txt**:
@@ -628,7 +729,7 @@ target_link_libraries(${PROJECT_NAME}
 - Compile `gsMatrixOp_test` with new `Math` module
 - Verify no circular includes
 
-#### Task 1.2: Create Geometry Module (Week 2)
+#### Task 1.2: Create Geometry Module (Week 3)
 
 **Objective**: Extract geometry primitives from gsCore
 
@@ -652,7 +753,7 @@ src/gismo/Geometry/
 └── AffineFunction.h       # Affine functions
 ```
 
-#### Task 1.3: Create Basis Module (Week 3)
+#### Task 1.3: Create Basis Module (Week 4)
 
 **Objective**: Extract basis function interfaces
 
@@ -675,7 +776,7 @@ src/gismo/Basis/
 └── Evaluator.h            # Evaluation interface
 ```
 
-#### Task 1.4: Create Function Module (Week 4)
+#### Task 1.4: Create Function Module (Week 5)
 
 **Objective**: Extract function evaluation and spaces
 
@@ -696,7 +797,7 @@ src/gismo/Function/
 └── FunctionSpace.h        # Function spaces
 ```
 
-### 4.2 Phase 2: Domain & Topology (Week 5)
+### 4.2 Phase 2: Domain & Topology (Week 6)
 
 #### Task 2.1: Create Domain Module
 
@@ -721,9 +822,9 @@ src/gismo/Domain/
 └── TensorDomain.h         # Tensor domains
 ```
 
-### 4.3 Phase 3: Spline Modules (Weeks 6-8)
+### 4.3 Phase 3: Spline Modules (Weeks 7-9)
 
-#### Task 3.1: Create Nurbs Module (Week 6)
+#### Task 3.1: Create Nurbs Module (Week 7)
 
 **Objective**: Port gsNurbs to modern architecture
 
@@ -736,7 +837,7 @@ src/gismo/Domain/
 3. Remove `gs` prefix
 4. Depend on `Basis`, `Geometry`, `Domain`
 
-#### Task 3.2: Create HSplines Module (Week 7)
+#### Task 3.2: Create HSplines Module (Week 8)
 
 **Objective**: Port gsHSplines
 
@@ -745,7 +846,7 @@ src/gismo/Domain/
 2. Migrate hierarchical spline implementations
 3. Depend on `Nurbs`
 
-#### Task 3.3: Create MSplines Module (Week 8)
+#### Task 3.3: Create MSplines Module (Week 9)
 
 **Objective**: Port gsMSplines
 
@@ -754,9 +855,9 @@ src/gismo/Domain/
 2. Migrate multi-patch spline implementations
 3. Depend on `Nurbs`
 
-### 4.4 Phase 4: Assembly & Solver (Weeks 9-11)
+### 4.4 Phase 4: Assembly & Solver (Weeks 10-12)
 
-#### Task 4.1: Create Assembler Module (Week 9)
+#### Task 4.1: Create Assembler Module (Week 10)
 
 **Objective**: Break gsCore ↔ gsAssembler circular dependency
 
@@ -768,7 +869,7 @@ src/gismo/Domain/
    - Expression templates
 3. Depend on `Function`, `Domain`, `Math`
 
-#### Task 4.2: Create PDE Module (Week 10)
+#### Task 4.2: Create PDE Module (Week 11)
 
 **Objective**: Break gsCore ↔ gsPde circular dependency
 
@@ -777,7 +878,7 @@ src/gismo/Domain/
 2. Migrate PDE definitions
 3. Depend on `Assembler`
 
-#### Task 4.3: Create Solver Module (Week 11)
+#### Task 4.3: Create Solver Module (Week 12)
 
 **Objective**: Port gsSolver
 
@@ -786,9 +887,9 @@ src/gismo/Domain/
 2. Migrate solvers and preconditioners
 3. Depend on `Assembler`, `Math`
 
-### 4.5 Phase 5: High-Level Modules (Weeks 12-14)
+### 4.5 Phase 5: High-Level Modules (Weeks 13-15)
 
-#### Task 5.1: Create Modeling Module (Week 12)
+#### Task 5.1: Create Modeling Module (Week 13)
 
 **Objective**: Port gsModeling
 
@@ -797,7 +898,7 @@ src/gismo/Domain/
 2. Migrate geometric modeling tools
 3. Depend on `Nurbs`, `HSplines`
 
-#### Task 5.2: Create Optimizer Module (Week 13)
+#### Task 5.2: Create Optimizer Module (Week 14)
 
 **Objective**: Port gsOptimizer
 
@@ -806,7 +907,7 @@ src/gismo/Domain/
 2. Migrate optimization algorithms
 3. Depend on `Solver`
 
-#### Task 5.3: Create MultiGrid Module (Week 14)
+#### Task 5.3: Create MultiGrid Module (Week 15)
 
 **Objective**: Port gsMultiGrid
 
@@ -815,9 +916,9 @@ src/gismo/Domain/
 2. Migrate multigrid methods
 3. Depend on `Solver`
 
-### 4.6 Phase 6: I/O & Parallel (Weeks 15-16)
+### 4.6 Phase 6: I/O & Parallel (Weeks 16-17)
 
-#### Task 6.1: Create IO Module (Week 15)
+#### Task 6.1: Create IO Module (Week 16)
 
 **Objective**: Break gsCore ↔ gsIO circular dependency
 
@@ -829,7 +930,7 @@ src/gismo/Domain/
    - Visualization output
 3. Depend on `Function`, `Geometry` (not Core!)
 
-#### Task 6.2: Create Parallel Module (Week 16)
+#### Task 6.2: Create Parallel Module (Week 17)
 
 **Objective**: Port gsParallel
 
@@ -838,9 +939,9 @@ src/gismo/Domain/
 2. Migrate MPI/parallel implementations
 3. Depend on `Solver`
 
-### 4.7 Phase 7: Optional Modules Refactoring (Weeks 17-20)
+### 4.7 Phase 7: Optional Modules Refactoring (Weeks 18-21)
 
-#### Task 7.1: Audit Optional Dependencies (Week 17)
+#### Task 7.1: Audit Optional Dependencies (Week 18)
 
 **Steps**:
 1. Create dependency matrix for each optional
@@ -848,7 +949,7 @@ src/gismo/Domain/
 3. Document external library dependencies
 4. Create `optional/DEPENDENCIES.md`
 
-#### Task 7.2: Refactor Optional CMake (Weeks 18-19)
+#### Task 7.2: Refactor Optional CMake (Weeks 19-20)
 
 **Objective**: Modernize optional module builds
 
@@ -895,13 +996,13 @@ For the command `cmake ../ -D GISMO_OPTIONAL="gsModule;gsOpennurbs;gsSpectra;gsE
    # optional/CMakeLists.txt
    set(AVAILABLE_OPTIONALS gsOpennurbs gsSpectra gsHLBFGS) # Currently implemented
    set(MISSING_OPTIONALS gsModule gsElasticity gsKLShell gsStructuralAnalysis gsUnstructuredSplines gsPolynomial)
-   
+
    foreach(module ${GISMO_OPTIONAL_LIST})
      if(module IN_LIST MISSING_OPTIONALS)
        message(WARNING "Optional module '${module}' is not yet implemented. Skipping.")
        continue()
      endif()
-     
+
      if(module IN_LIST AVAILABLE_OPTIONALS)
        set(GISMO_WITH_${module} ON)
      endif()
@@ -926,16 +1027,16 @@ For the command `cmake ../ -D GISMO_OPTIONAL="gsModule;gsOpennurbs;gsSpectra;gsE
    message(STATUS "===========================================")
    ```
 
-#### Task 7.3: Document Optional Module System (Week 20)
+#### Task 7.3: Document Optional Module System (Week 21)
 
 **Create documentation**:
 1. `optional/README.md` - Overview of optional system
 2. `optional/DEPENDENCIES.md` - Dependency matrix
 3. Individual README per optional
 
-### 4.8 Phase 8: Testing & Validation (Weeks 21-24)
+### 4.8 Phase 8: Testing & Validation (Weeks 22-25)
 
-#### Task 8.1: Validate Use Cases (Week 21)
+#### Task 8.1: Validate Use Cases (Week 22)
 
 **Primary Validation Test**: `gsMatrixOp_test`
 
@@ -952,7 +1053,7 @@ For the command `cmake ../ -D GISMO_OPTIONAL="gsModule;gsOpennurbs;gsSpectra;gsE
 
 **Complex Multi-Optional Validation**:
 
-**Command**: 
+**Command**:
 ```bash
 cmake ../ -D GISMO_OPTIONAL="gsModule;gsOpennurbs;gsSpectra;gsElasticity;gsKLShell;gsStructuralAnalysis;gsUnstructuredSplines;gsPolynomial;gsHLBFGS"
 ```
@@ -966,7 +1067,7 @@ cmake ../ -D GISMO_OPTIONAL="gsModule;gsOpennurbs;gsSpectra;gsElasticity;gsKLShe
 6. Measure configuration time with complex optional setup
 7. Verify no circular dependencies in full build graph
 
-#### Task 8.2: Update All Unit Tests (Week 22)
+#### Task 8.2: Update All Unit Tests (Week 23)
 
 **Steps**:
 1. For each unit test in `unittests/`:
@@ -976,7 +1077,7 @@ cmake ../ -D GISMO_OPTIONAL="gsModule;gsOpennurbs;gsSpectra;gsElasticity;gsKLShe
    - Verify test passes
 2. Create `unittests/MIGRATION.md` documenting changes
 
-#### Task 8.3: Update Examples (Week 23)
+#### Task 8.3: Update Examples (Week 24)
 
 **Steps**:
 1. For each example in `examples/`:
@@ -986,7 +1087,7 @@ cmake ../ -D GISMO_OPTIONAL="gsModule;gsOpennurbs;gsSpectra;gsElasticity;gsKLShe
    - Verify builds and runs
 2. Create `examples/MIGRATION.md`
 
-#### Task 8.4: Comprehensive Testing (Week 24)
+#### Task 8.4: Comprehensive Testing (Week 25)
 
 **Test Suite**:
 1. ✅ All unit tests pass
@@ -1006,9 +1107,9 @@ function(gismo_check_circular_dependencies)
 endfunction()
 ```
 
-### 4.9 Phase 9: Documentation & Migration (Weeks 25-26)
+### 4.9 Phase 9: Documentation & Migration (Weeks 26-27)
 
-#### Task 9.1: Update Build Documentation (Week 25)
+#### Task 9.1: Update Build Documentation (Week 26)
 
 **Documents to create/update**:
 1. `docs/BUILD.md` - Modern build instructions
@@ -1017,7 +1118,7 @@ endfunction()
 4. `docs/DEPENDENCIES.md` - Dependency graph
 5. `MIGRATION.md` - User migration guide
 
-#### Task 9.2: Create Migration Tools (Week 26)
+#### Task 9.2: Create Migration Tools (Week 27)
 
 **Tools**:
 1. `tools/migrate_includes.py` - Script to update includes
@@ -1455,7 +1556,7 @@ SUITE(gsMatrixOp_test)
 
         CHECK((A - C).norm() <= 1.e-10);
     }
-    
+
     // ... rest of tests
 }
 ```

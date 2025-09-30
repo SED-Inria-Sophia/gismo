@@ -1,0 +1,35 @@
+/** @file Common
+
+    @brief Main header for the Common module - foundation layer with zero dependencies
+
+    This file is part of the G+Smo library.
+
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+    Author(s): A. Mantzaflaris
+*/
+
+#pragma once
+
+// Foundation headers - zero dependencies
+#include <Common/Config.h>
+#include <Common/Export.h>
+#include <Common/Types.h>
+#include <Common/Debug.h>
+#include <Common/Assert.h>
+#include <Common/Memory.h>
+#include <Common/ForwardDeclarations.h>
+
+// Eigen-related headers
+#include <Common/EigenDeclarations.h>
+#include <Common/MatrixAddons.h>
+#include <Common/PlainObjectBaseAddons.h>
+
+// Utility headers
+#include <Common/Utils.h>
+#include <Common/Stopwatch.h>
+#include <Common/Combinatorics.h>
+#include <Common/SortedVector.h>
+#include <Common/BoundedPriorityQueue.h>

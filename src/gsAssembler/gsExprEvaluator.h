@@ -20,6 +20,7 @@
 #include <gsDomain/gsCompositeDomain.h>
 #include <gsAssembler/gsRemapInterface.h>
 #include <gsAssembler/gsCPPInterface.h>
+#include <gsExpressions/gsExprHelper.h> // <-- Add this include
 //#include <gsIO/gsWriteParaview.h>
 
 namespace gismo

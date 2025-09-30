@@ -14,6 +14,7 @@
 
 #include <iostream>
 #include <gismo.h>
+#include <gsIO/gsCatalystAdaptor.h>
 
 using namespace gismo;
 
@@ -76,13 +77,16 @@ int main(int argc, char* argv[])
         return EXIT_SUCCESS;
     }
 
+    gsCatalystAdaptor adaptor;
+    adaptor.initialize();
+
     //! [gsWriteParaview]
     gsMultiBasis<> mBasis(mPatch);
-    gsWriteParaview(mPatch, output+"MultiPatch");
-    gsWriteParaview(mPatch, mBasis, output+"MultiBasis");
+    adaptor.publishMultiPatch(mPatch, output+"MultiPatch");
+    adaptor.publishMultiPatch(mPatch, output+"MultiBasis", &mBasis);
     gsMatrix<> cPoints = mPatch.coefs().transpose();
-    gsWriteParaviewPoints(cPoints, output+"Points");
-    gsInfo << "Wrote " << output+"MultiPatch.pvd, " << output+"MultiPatch_*.vts, "<< output+"MultiBasis.pvd, "<< output+"MultiBasis_*.vts"   << "\n\n";
+    adaptor.publishPoints(cPoints, output+"Points");
+    gsInfo << "Published " << output+"MultiPatch" << ", " << output+"MultiBasis" << " and " << output+"Points via Catalyst adaptor"   << "\n\n";
 
     // Fabricate some data to write to csv file and plot
     gsMatrix<> lineData(1000, 2);
@@ -102,9 +106,9 @@ int main(int argc, char* argv[])
     gsExprEvaluator<>::geometryMap geoMap = evaluator.getMap(mPatch);
     evaluator.setIntegrationDomain(mBasis.domain());
 
-    evaluator.writeParaview( meas(geoMap), geoMap, output+"ExprEval");
-    evaluator.writeParaview(usn(geoMap), geoMap, output+"ExprEval");
-    gsInfo << "Wrote " << output+"ExprEval.pvd"<<","<<output+"ExprEval.vts\n\n";
+    adaptor.publishExpression(evaluator, meas(geoMap), geoMap, output+"ExprEval");
+    adaptor.publishExpression(evaluator, usn(geoMap), geoMap, output+"ExprEval");
+    gsInfo << "Published expressions under base " << output+"ExprEval" << " via Catalyst adaptor\n\n";
     //! [gsExprEvaluator]
 
 
@@ -112,33 +116,33 @@ int main(int argc, char* argv[])
 
     // Initialize the Paraview Collection  with the desired filename of the .pvd file 
     // and the evaluator that will be used to evaluate the expressions (optionally)
-    gsParaviewCollection PVCollection(output + "PVCollection.pvd", &evaluator);
+    auto collection = adaptor.createCollection(output + "PVCollection.pvd", &evaluator);
 
     // Number of evaluation points per patch
-    PVCollection.options().setInt("numPoints", 1000);
+    collection.options().setInt("numPoints", 1000);
     // Number of decimal points in the output
-    PVCollection.options().setInt("precision", 5);
+    collection.options().setInt("precision", 5);
     // Plot the element mesh and set it's resolution
-    PVCollection.options().setSwitch("plotElements", false);
-    PVCollection.options().setInt("plotElements.resolution", -1);
+    collection.options().setSwitch("plotElements", false);
+    collection.options().setInt("plotElements.resolution", -1);
     // Plot the control net
-    PVCollection.options().setSwitch("plotControlNet", false);
+    collection.options().setSwitch("plotControlNet", false);
     // Export the vtk files to a subfolder
-    PVCollection.options().setSwitch("makeSubfolder", true);
+    collection.options().setSwitch("makeSubfolder", true);
     // Name of the subfolder
-    PVCollection.options().setString("subfolder", "");
+    collection.options().setString("subfolder", "");
     // Export in base64 binary format
-    PVCollection.options().setSwitch("base64", false);
+    collection.options().setSwitch("base64", false);
 
     // Create a new timestep (e.g for the initial state of the problem)
     // This initialises the appropriate files on disk
-    PVCollection.newTimeStep(&mPatch);
+    collection.newTimeStep(&mPatch);
     // Write the measure of the geometry to the files
-    PVCollection.addField( meas(geoMap), "Measure");
+    collection.addField( meas(geoMap), "Measure");
     // Write the unit surface normal to the files
-    PVCollection.addField(  usn(geoMap), "Surface normal");
+    collection.addField(  usn(geoMap), "Surface normal");
     // Save the timestep, so that all files are complete.
-    PVCollection.saveTimeStep();
+    collection.saveTimeStep();
 
     // Give ellapsed time as seed for random numbers
     std::srand(std::time(0)); 
@@ -151,23 +155,24 @@ int main(int argc, char* argv[])
     }
 
     // Perform the same steps as before for the deformed geometry
-    PVCollection.newTimeStep(&mPatch);
-    PVCollection.addField( meas(geoMap), "Measure");
-    PVCollection.addField(  usn(geoMap), "Surface normal");
-    PVCollection.saveTimeStep();
+    collection.newTimeStep(&mPatch);
+    collection.addField( meas(geoMap), "Measure");
+    collection.addField(  usn(geoMap), "Surface normal");
+    collection.saveTimeStep();
 
     // Save the collection, so that the main .pvd file is completed.
-    PVCollection.save(); 
-    gsInfo << "Wrote " << output + "PVCollection.pvd and all files referenced therein."<< "\n\n";
+    collection.save(); 
+    gsInfo << "Published collection " << output + "PVCollection.pvd via Catalyst adaptor"<< "\n\n";
     //! [gsParaviewCollection]
 
     //! [Bezier]
     if (bezier) 
     {
-        gsWriteParaviewBezier(mPatch, output+"Bezier");
-        gsInfo << "Wrote " << output+"Bezier" << ".vtu" << ", " << output+"Bezier" << ".pvd\n";
+        adaptor.publishBezier(mPatch, output+"Bezier");
+        gsInfo << "Published " << output+"Bezier" << " via Catalyst adaptor\n";
     }
     //! [Bezier]
 
+    adaptor.finalize();
     return EXIT_SUCCESS;
 }

@@ -166,6 +166,11 @@ if (GISMO_WITH_VTK)
 message ("  GISMO_WITH_VTK          ${GISMO_WITH_VTK}")
 endif()
 
+option(GISMO_WITH_CATALYST      "Enable ParaView Catalyst adaptor" false )
+if (GISMO_WITH_CATALYST)
+message ("  GISMO_WITH_CATALYST    ${GISMO_WITH_CATALYST}")
+endif()
+
 #https://www.threadingbuildingblocks.org/documentation
 #message ("  GISMO_WITH_ITBB          ${GISMO_WITH_ITBB}")
 

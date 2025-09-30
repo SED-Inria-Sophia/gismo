@@ -1,4 +1,7 @@
 # Submodule files
+build/
+.cache/
+.github/
 submodules.txt
 .gitmodules
 

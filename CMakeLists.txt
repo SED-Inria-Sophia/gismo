@@ -6,6 +6,8 @@
 ## Author: Angelos Mantzaflaris
 ######################################################################
 
+find_package(Python3 COMPONENTS Interpreter Development.Module Development REQUIRED)
+find_package(catalyst REQUIRED CONFIG)
 if(CMAKE_VERSION VERSION_LESS "3.19")
   cmake_minimum_required(VERSION 2.8.12)
 else()
@@ -223,6 +225,15 @@ if(GISMO_WITH_MPI)
   set(gismo_LINKER ${gismo_LINKER} ${MPI_CXX_LIBRARIES}
   CACHE INTERNAL "${PROJECT_NAME} extra linker objects" FORCE)
 endif(GISMO_WITH_MPI)
+
+if(GISMO_WITH_CATALYST)
+  add_definitions(-DGISMO_WITH_CATALYST)
+  find_package(ParaView REQUIRED COMPONENTS Catalyst)
+  set (GISMO_INCLUDE_DIRS ${GISMO_INCLUDE_DIRS} ${ParaView_INCLUDE_DIRS}
+    CACHE INTERNAL "${PROJECT_NAME} include directories" FORCE)
+  set(gismo_LINKER ${gismo_LINKER} ${ParaView_LIBRARIES}
+    CACHE INTERNAL "${PROJECT_NAME} extra linker objects" FORCE)
+endif()
 
 if(${GISMO_COEFF_TYPE} STREQUAL "mpq_class")
   include(external/gsGmp.cmake)

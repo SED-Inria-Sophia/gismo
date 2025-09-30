@@ -1,19 +1,11 @@
 # Common Module CMakeLists.txt
 # Foundation types, memory management, and forward declarations
 
-project(Common
+project(Module1
 VERSION
   ${${CMAKE_PROJECT_NAME}_VERSION}
 LANGUAGES
   CXX)
-
-## #################################################################
-## Dependencies - Lapack
-## #################################################################
-
-if(NOT TARGET Eigen3::Eigen)
-  find_package(Eigen3 REQUIRED)
-endif()
 
 ## #################################################################
 ## Create target
@@ -32,11 +24,6 @@ add_library(${CMAKE_PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 ## Build rules
 ## #################################################################
 
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/Config.h.in"
-  "${PROJECT_BINARY_DIR}/Config.h"
-  @ONLY)
-
 target_sources(${PROJECT_NAME}
   INTERFACE
     FILE_SET HEADERS
@@ -44,23 +31,12 @@ target_sources(${PROJECT_NAME}
         ${PROJECT_BINARY_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}
       FILES
-        ${PROJECT_BINARY_DIR}/Config.h
-        Common
-        Memory.h
-        ForwardDeclarations.h
-        Export.h
-        Debug.h
-        LinearAlgebra.h
+        Component1.h
 )
 
 target_include_directories(${PROJECT_NAME} INTERFACE
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>
     $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/src>
-)
-
-target_link_libraries(${PROJECT_NAME}
-  INTERFACE
-    Eigen3::Eigen
 )
 
 ## ###################################################################

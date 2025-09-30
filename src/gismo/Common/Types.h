@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include <Config.h>
+#include <gismo/Common/Config.h>
 
 // Fundamental type aliases
 using real_t = GISMO_COEFF_TYPE;

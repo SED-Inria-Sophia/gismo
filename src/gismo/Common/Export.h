@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include <Config.h>
+#include <gismo/Common/Config.h>
 
 /*
   Symbol exporting and importing

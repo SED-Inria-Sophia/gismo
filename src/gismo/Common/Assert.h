@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include <Debug.h>
+#include <gismo/Common/Debug.h>
 
 // Assertions are defined in Debug.h
 // This header exists for backward compatibility and future extensions

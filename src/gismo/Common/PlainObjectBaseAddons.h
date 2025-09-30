@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include <EigenDeclarations.h>
+#include <gismo/Common/EigenDeclarations.h>
 
 // This file provides extensions to Eigen PlainObjectBase
 // In a real implementation, these would extend Eigen's PlainObjectBase class

@@ -193,7 +193,191 @@ add_subdirectory(gismo)
 # ENDFOREACH()
 ```
 
-### 1.5 Test and Example Analysis
+### 1.5 Legacy CMake Patterns Analysis
+
+#### Critical Legacy Pattern: gismoFetch vs FetchContent
+
+**Current `gismoFetch` Implementation** (`cmake/gsFetch.cmake`):
+- **230+ lines** of custom ExternalProject-based dependency fetching
+- Manual CMakeLists.txt generation and execution
+- Custom git/svn repository handling
+- Global cache variable pollution (`GISMO_INCLUDE_DIRS`)
+
+**Issues**:
+```cmake
+# ❌ Manual CMakeLists.txt creation
+file(WRITE ${GF_DOWNLOAD_DIR}/CMakeLists.txt 
+  "cmake_minimum_required(VERSION 2.8.12)...")  # Ancient CMake version
+
+# ❌ Global include directory pollution  
+set (GISMO_INCLUDE_DIRS ${GISMO_INCLUDE_DIRS} ${EXTERNAL_INCLUDE_DIR}
+  CACHE INTERNAL "Gismo include directories" FORCE)
+
+# ❌ Complex ExternalProject_Add wrapper
+execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}"...)
+```
+
+**Modern FetchContent Replacement**:
+```cmake
+# ✅ Built-in CMake 3.14+ solution
+include(FetchContent)
+
+FetchContent_Declare(Spectra
+  GIT_REPOSITORY https://github.com/yixuan/spectra.git
+  GIT_TAG        v1.0.1
+  GIT_SHALLOW    TRUE
+)
+
+FetchContent_MakeAvailable(Spectra)
+
+# ✅ Target-based dependencies (no global pollution)
+target_link_libraries(gsSpectra 
+  INTERFACE 
+    Spectra::Spectra
+)
+```
+
+#### Legacy Pattern: OBJECT Libraries in Optional Modules
+
+**Current Pattern** (e.g., `optional/gsSpectra/CMakeLists.txt`):
+```cmake
+# ❌ Old-style OBJECT library
+add_library(${PROJECT_NAME} OBJECT ${SOURCES})
+
+# ❌ Global include directory modification
+set (GISMO_INCLUDE_DIRS ${GISMO_INCLUDE_DIRS} ${SPECTRA_INCLUDE_DIR}
+  CACHE INTERNAL "Gismo include directories" FORCE)
+
+# ❌ Custom gismo_fetch_directory usage
+include(gsFetch)
+gismo_fetch_directory(Spectra
+  GIT_REPOSITORY http://github.com/yixuan/spectra.git
+  DESTINATION external
+)
+```
+
+**Modern Pattern**:
+```cmake
+# ✅ Modern library type with proper aliasing
+add_library(gsSpectra INTERFACE)
+add_library(gismo::gsSpectra ALIAS gsSpectra)
+
+# ✅ Built-in dependency management
+include(FetchContent)
+FetchContent_Declare(Spectra
+  GIT_REPOSITORY https://github.com/yixuan/spectra.git
+  GIT_TAG        v1.0.1
+)
+FetchContent_MakeAvailable(Spectra)
+
+# ✅ Target-based include directories
+target_link_libraries(gsSpectra 
+  INTERFACE 
+    gismo::Common
+    gismo::Math
+    Spectra::Spectra
+)
+```
+
+#### Legacy Pattern: Ancient CMake Version Declarations
+
+**Multiple Contradictory Requirements**:
+```cmake
+# CMakeLists.txt - ❌ Contradictory version logic
+cmake_minimum_required(VERSION 3.20.0)
+if(CMAKE_VERSION VERSION_LESS "3.19")
+  cmake_minimum_required(VERSION 2.8.12)  # Contradictory!
+else()
+  cmake_minimum_required(VERSION 3.1...3.10)  # Also contradictory!
+endif()
+
+# gsFetch.cmake - ❌ Ancient version in generated CMakeLists.txt
+file(WRITE ${GF_DOWNLOAD_DIR}/CMakeLists.txt 
+  "cmake_minimum_required(VERSION 2.8.12)...")
+```
+
+**Modern Approach**:
+```cmake
+# ✅ Single, modern version requirement
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
+```
+
+#### Legacy Pattern: Global Cache Variable Pollution
+
+**Current Issues**:
+```cmake
+# ❌ Multiple global cache modifications scattered across files
+set(GISMO_INCLUDE_DIRS ${GISMO_INCLUDE_DIRS} ${NEW_DIR}
+  CACHE INTERNAL "Gismo include directories" FORCE)
+
+set(GISMO_EXTRA_INSTANCE ${GISMO_EXTRA_INSTANCE} ${NEW_INSTANCE}
+  CACHE INTERNAL "Additional instantiations" FORCE)
+
+set(GISMO_SEARCH_PATHS "${GISMO_SEARCH_PATHS};${NEW_PATH}" 
+  CACHE INTERNAL "File search paths")
+```
+
+**Modern Target-Based Approach**:
+```cmake
+# ✅ Target-specific properties (no global state)
+target_include_directories(gsModule
+  INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+
+target_compile_definitions(gsModule
+  INTERFACE
+    MODULE_SPECIFIC_DEFINITION
+)
+```
+
+#### Legacy Pattern: Custom Utility Macros
+
+**Current** (`cmake/gismoUse.cmake`):
+```cmake
+# ❌ Complex custom macros with multiple code paths
+macro(add_gismo_executable FILE)
+  if( GISMO_BUILD_LIB )
+    add_gismo_shared_executable(${FILE} ${ExtraMacroArgs})
+  else ( GISMO_BUILD_LIB )
+    add_gismo_pure_executable(${FILE} ${ExtraMacroArgs})
+  endif( GISMO_BUILD_LIB )
+endmacro(add_gismo_executable)
+
+# ❌ Platform-specific link libraries scattered throughout
+if(UNIX AND NOT APPLE)
+  target_link_libraries(${FNAME} dl)
+endif(UNIX AND NOT APPLE)
+```
+
+**Modern Approach**:
+```cmake
+# ✅ Simple, direct target creation
+function(add_gismo_executable FILE)
+  get_filename_component(TARGET_NAME ${FILE} NAME_WE)
+  add_executable(${TARGET_NAME} ${FILE})
+  target_link_libraries(${TARGET_NAME} 
+    PRIVATE 
+      gismo::gismo  # Single, well-defined target
+  )
+  add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME})
+endfunction()
+```
+
+#### Summary of Legacy Patterns to Modernize
+
+| Legacy Pattern | File(s) | Modern Replacement |
+|----------------|---------|-------------------|
+| `gismoFetch` custom functions | `cmake/gsFetch.cmake` | CMake `FetchContent` |
+| OBJECT libraries | `src/CMakeLists.txt`, optional modules | SHARED/STATIC/INTERFACE libraries |
+| Global cache pollution | Multiple files | Target-specific properties |
+| Ancient CMake versions | `CMakeLists.txt`, generated files | `cmake_minimum_required(VERSION 3.20)` |
+| Complex custom macros | `cmake/gismoUse.cmake` | Simple modern functions |
+| Manual ExternalProject | Optional modules | `FetchContent` declarations |
+| Mixed version requirements | Root and generated CMakeLists | Single version policy |
+
+### 1.6 Test and Example Analysis
 
 #### Examples Structure
 
@@ -939,9 +1123,110 @@ src/gismo/Domain/
 2. Migrate MPI/parallel implementations
 3. Depend on `Solver`
 
-### 4.7 Phase 7: Optional Modules Refactoring (Weeks 18-21)
+### 4.7 Phase 7: Legacy CMake Modernization (Weeks 17-18)
 
-#### Task 7.1: Audit Optional Dependencies (Week 18)
+#### Task 7.1: Replace gismoFetch with FetchContent (Week 17)
+
+**Objective**: Modernize external dependency management
+
+**Current Issues**:
+- `cmake/gsFetch.cmake` contains 230+ lines of custom ExternalProject code
+- Manual CMakeLists.txt generation with ancient CMake version (2.8.12)
+- Global cache variable pollution
+- Complex git/svn handling logic
+
+**Modernization Steps**:
+
+1. **Create modern FetchContent wrapper** (`cmake/gismoFetchContent.cmake`):
+   ```cmake
+   # Modern replacement for gsFetch.cmake
+   include(FetchContent)
+   
+   function(gismo_fetch_content NAME)
+     set(options GIT_SHALLOW)
+     set(oneValueArgs GIT_REPOSITORY GIT_TAG URL)
+     set(multiValueArgs "")
+     
+     cmake_parse_arguments(GFC "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+     
+     FetchContent_Declare(${NAME}
+       GIT_REPOSITORY ${GFC_GIT_REPOSITORY}
+       GIT_TAG ${GFC_GIT_TAG}
+       GIT_SHALLOW ${GFC_GIT_SHALLOW}
+       URL ${GFC_URL}
+     )
+     
+     FetchContent_MakeAvailable(${NAME})
+     
+     # Set variables for compatibility
+     set(${NAME}_SOURCE_DIR ${${NAME}_SOURCE_DIR} PARENT_SCOPE)
+   endfunction()
+   ```
+
+2. **Update optional modules** to use FetchContent:
+   - Replace `gismo_fetch_directory()` calls with `gismo_fetch_content()`
+   - Remove global `GISMO_INCLUDE_DIRS` modifications
+   - Use target-based include directories
+
+3. **Remove legacy files**:
+   - Delete `cmake/gsFetch.cmake` (230 lines of legacy code)
+   - Update all references to use new FetchContent wrapper
+
+#### Task 7.2: Modernize CMake Version Requirements (Week 17)
+
+**Objective**: Clean up contradictory version declarations
+
+**Issues**:
+```cmake
+# ❌ Contradictory version requirements
+cmake_minimum_required(VERSION 3.20.0)
+if(CMAKE_VERSION VERSION_LESS "3.19")
+  cmake_minimum_required(VERSION 2.8.12)  # Contradictory!
+endif()
+```
+
+**Steps**:
+1. Replace all version declarations with single requirement: `cmake_minimum_required(VERSION 3.20 FATAL_ERROR)`
+2. Remove conditional version logic from root CMakeLists.txt
+3. Update generated CMakeLists.txt in `gismoFetch` (before deletion)
+4. Verify all features work with CMake 3.20+
+
+#### Task 7.3: Modernize gismoUse.cmake Macros (Week 18)
+
+**Objective**: Simplify target creation macros
+
+**Current Issues**:
+- Complex `add_gismo_executable()` macro with multiple code paths
+- Platform-specific linking scattered throughout
+- Old-style macro instead of function
+
+**Modern Replacement**:
+```cmake
+# cmake/gismoUse.cmake - modernized
+function(add_gismo_executable FILE)
+  get_filename_component(TARGET_NAME ${FILE} NAME_WE)
+  add_executable(${TARGET_NAME} ${FILE})
+  
+  # Single, well-defined dependency
+  target_link_libraries(${TARGET_NAME} 
+    PRIVATE 
+      gismo::gismo
+  )
+  
+  # Automatic test registration
+  add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME})
+  
+  # Modern target properties
+  set_target_properties(${TARGET_NAME} PROPERTIES
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED ON
+  )
+endfunction()
+```
+
+### 4.8 Phase 8: Optional Modules Refactoring (Weeks 19-22)
+
+#### Task 8.1: Audit Optional Dependencies (Week 19)
 
 **Steps**:
 1. Create dependency matrix for each optional
@@ -949,7 +1234,7 @@ src/gismo/Domain/
 3. Document external library dependencies
 4. Create `optional/DEPENDENCIES.md`
 
-#### Task 7.2: Refactor Optional CMake (Weeks 19-20)
+#### Task 8.2: Refactor Optional CMake (Weeks 20-21)
 
 **Objective**: Modernize optional module builds
 
@@ -1027,16 +1312,16 @@ For the command `cmake ../ -D GISMO_OPTIONAL="gsModule;gsOpennurbs;gsSpectra;gsE
    message(STATUS "===========================================")
    ```
 
-#### Task 7.3: Document Optional Module System (Week 21)
+#### Task 8.3: Document Optional Module System (Week 22)
 
 **Create documentation**:
 1. `optional/README.md` - Overview of optional system
 2. `optional/DEPENDENCIES.md` - Dependency matrix
 3. Individual README per optional
 
-### 4.8 Phase 8: Testing & Validation (Weeks 22-25)
+### 4.9 Phase 9: Testing & Validation (Weeks 23-26)
 
-#### Task 8.1: Validate Use Cases (Week 22)
+#### Task 9.1: Validate Use Cases (Week 23)
 
 **Primary Validation Test**: `gsMatrixOp_test`
 
@@ -1107,9 +1392,9 @@ function(gismo_check_circular_dependencies)
 endfunction()
 ```
 
-### 4.9 Phase 9: Documentation & Migration (Weeks 26-27)
+### 4.10 Phase 10: Documentation & Migration (Weeks 27-28)
 
-#### Task 9.1: Update Build Documentation (Week 26)
+#### Task 10.1: Update Build Documentation (Week 27)
 
 **Documents to create/update**:
 1. `docs/BUILD.md` - Modern build instructions
@@ -1118,14 +1403,14 @@ endfunction()
 4. `docs/DEPENDENCIES.md` - Dependency graph
 5. `MIGRATION.md` - User migration guide
 
-#### Task 9.2: Create Migration Tools (Week 27)
+#### Task 10.2: Create Migration Tools (Week 28)
 
 **Tools**:
 1. `tools/migrate_includes.py` - Script to update includes
 2. `tools/analyze_deps.py` - Dependency analyzer
 3. `tools/check_naming.py` - Naming convention checker
 
-#### Task 9.3: Backward Compatibility Layer
+#### Task 10.3: Backward Compatibility Layer
 
 **Strategy**:
 - Keep old `gsCore/*.h` headers as forwarding headers
@@ -1424,7 +1709,7 @@ For each module:
 
 ## Part VIII: Timeline Summary
 
-**Total Duration**: 26 weeks (6.5 months)
+**Total Duration**: 28 weeks (7 months)
 
 | Phase | Weeks | Deliverable |
 |-------|-------|-------------|
@@ -1434,17 +1719,19 @@ For each module:
 | 4. Assembly | 9-11 | Assembler, PDE, Solver |
 | 5. High-Level | 12-14 | Modeling, Optimizer, MultiGrid |
 | 6. I/O & Parallel | 15-16 | IO, Parallel |
-| 7. Optionals | 17-20 | Refactored optional modules |
-| 8. Testing | 21-24 | Full test suite validation |
-| 9. Documentation | 25-26 | Docs, migration tools |
+| 7. Legacy CMake | 17-18 | FetchContent, modern CMake patterns |
+| 8. Optionals | 19-22 | Refactored optional modules |
+| 9. Testing | 23-26 | Full test suite validation |
+| 10. Documentation | 27-28 | Docs, migration tools |
 
 **Milestones**:
 - Week 4: Foundation modules complete, matrix use case validates
 - Week 11: Core functionality migrated
 - Week 16: All primary modules migrated
-- Week 20: Optional modules modernized
-- Week 24: All tests passing, complex multi-optional build validates
-- Week 26: Production-ready
+- Week 18: Legacy CMake patterns modernized
+- Week 22: Optional modules modernized
+- Week 26: All tests passing, complex multi-optional build validates
+- Week 28: Production-ready
 
 ---
 

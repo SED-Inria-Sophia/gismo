@@ -140,6 +140,7 @@ public:
         if ( this == &o )
             return *this;
 
+        delete m_root;
         m_root = new node(*o.m_root);
 
         m_upperIndex  = o.m_upperIndex;

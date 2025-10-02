@@ -1,6 +1,6 @@
 /** @file Assert.h
 
-    @brief Provides assertion macros for G+Smo
+    @brief Assertion macros for the Common module.
 
     This file is part of the G+Smo library.
 
@@ -13,7 +13,5 @@
 
 #pragma once
 
-#include <gismo/Common/Debug.h>
-
 // Assertions are defined in Debug.h
-// This header exists for backward compatibility and future extensions
+#include "gismo/Common/Debug.h"

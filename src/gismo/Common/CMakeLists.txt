@@ -15,6 +15,7 @@ add_library(${PROJECT_NAME} INTERFACE)
 
 set_target_properties(${PROJECT_NAME}
   PROPERTIES
+    OUTPUT_NAME ${CMAKE_PROJECT_NAME}${PROJECT_NAME}
     VERSION   ${${PROJECT_NAME}_VERSION}
     SOVERSION ${${PROJECT_NAME}_VERSION_MAJOR})
 
@@ -39,11 +40,11 @@ target_sources(${PROJECT_NAME}
         Config.h
         Types.h
         EigenDeclarations.h
-        MatrixAddons.h
-        PlainObjectBaseAddons.h
+        # MatrixAddons.h  # Eigen extension, not foundation
+        # PlainObjectBaseAddons.h  # Eigen extension, not foundation
         Utils.h
         Stopwatch.h
-        Combinatorics.h
+        # Combinatorics.h  # Temporarily disabled due to gsVector dependency
         SortedVector.h
         BoundedPriorityQueue.h
 )

@@ -1,6 +1,6 @@
 /** @file Types.h
 
-    @brief Fundamental type definitions for G+Smo
+    @brief Fundamental type definitions.
 
     This file is part of the G+Smo library.
 
@@ -13,9 +13,9 @@
 
 #pragma once
 
-#include <gismo/Common/Config.h>
+#include "Config.h"
 
-// Fundamental type aliases
-using real_t = GISMO_COEFF_TYPE;
-using index_t = int;
-using short_t = short;
+// Fundamental type definitions
+// real_t, index_t, short_t are defined in Config.h
+
+// Additional basic types can be added here if needed

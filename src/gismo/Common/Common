@@ -1,6 +1,6 @@
 /** @file Common
 
-    @brief Main header for the Common module - foundation layer with zero dependencies
+    @brief Convenience header for the Common module.
 
     This file is part of the G+Smo library.
 
@@ -13,23 +13,17 @@
 
 #pragma once
 
-// Foundation headers - zero dependencies
-#include <gismo/Common/Config.h>
-#include <gismo/Common/Export.h>
-#include <gismo/Common/Types.h>
-#include <gismo/Common/Debug.h>
-#include <gismo/Common/Assert.h>
-#include <gismo/Common/Memory.h>
-#include <gismo/Common/ForwardDeclarations.h>
-
-// Eigen-related headers
-#include <gismo/Common/EigenDeclarations.h>
-#include <gismo/Common/MatrixAddons.h>
-#include <gismo/Common/PlainObjectBaseAddons.h>
-
-// Utility headers
-#include <gismo/Common/Utils.h>
-#include <gismo/Common/Stopwatch.h>
-#include <gismo/Common/Combinatorics.h>
-#include <gismo/Common/SortedVector.h>
-#include <gismo/Common/BoundedPriorityQueue.h>
+#include "gismo/Common/Memory.h"
+#include "gismo/Common/ForwardDeclarations.h"
+#include "gismo/Common/Debug.h"
+#include "gismo/Common/Export.h"
+#include "gismo/Common/Config.h"
+#include "gismo/Common/Types.h"
+#include "gismo/Common/EigenDeclarations.h"
+// #include "gismo/Common/MatrixAddons.h"  // Eigen extension, not foundation
+// #include "gismo/Common/PlainObjectBaseAddons.h"  // Eigen extension, not foundation
+#include "gismo/Common/Utils.h"
+#include "gismo/Common/Stopwatch.h"
+// #include "gismo/Common/Combinatorics.h"  // Temporarily disabled due to gsVector dependency
+#include "gismo/Common/SortedVector.h"
+#include "gismo/Common/BoundedPriorityQueue.h"

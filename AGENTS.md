@@ -206,10 +206,10 @@ add_subdirectory(gismo)
 **Issues**:
 ```cmake
 # ❌ Manual CMakeLists.txt creation
-file(WRITE ${GF_DOWNLOAD_DIR}/CMakeLists.txt 
+file(WRITE ${GF_DOWNLOAD_DIR}/CMakeLists.txt
   "cmake_minimum_required(VERSION 2.8.12)...")  # Ancient CMake version
 
-# ❌ Global include directory pollution  
+# ❌ Global include directory pollution
 set (GISMO_INCLUDE_DIRS ${GISMO_INCLUDE_DIRS} ${EXTERNAL_INCLUDE_DIR}
   CACHE INTERNAL "Gismo include directories" FORCE)
 
@@ -231,8 +231,8 @@ FetchContent_Declare(Spectra
 FetchContent_MakeAvailable(Spectra)
 
 # ✅ Target-based dependencies (no global pollution)
-target_link_libraries(gsSpectra 
-  INTERFACE 
+target_link_libraries(gsSpectra
+  INTERFACE
     Spectra::Spectra
 )
 ```
@@ -271,8 +271,8 @@ FetchContent_Declare(Spectra
 FetchContent_MakeAvailable(Spectra)
 
 # ✅ Target-based include directories
-target_link_libraries(gsSpectra 
-  INTERFACE 
+target_link_libraries(gsSpectra
+  INTERFACE
     gismo::Common
     gismo::Math
     Spectra::Spectra
@@ -292,7 +292,7 @@ else()
 endif()
 
 # gsFetch.cmake - ❌ Ancient version in generated CMakeLists.txt
-file(WRITE ${GF_DOWNLOAD_DIR}/CMakeLists.txt 
+file(WRITE ${GF_DOWNLOAD_DIR}/CMakeLists.txt
   "cmake_minimum_required(VERSION 2.8.12)...")
 ```
 
@@ -313,7 +313,7 @@ set(GISMO_INCLUDE_DIRS ${GISMO_INCLUDE_DIRS} ${NEW_DIR}
 set(GISMO_EXTRA_INSTANCE ${GISMO_EXTRA_INSTANCE} ${NEW_INSTANCE}
   CACHE INTERNAL "Additional instantiations" FORCE)
 
-set(GISMO_SEARCH_PATHS "${GISMO_SEARCH_PATHS};${NEW_PATH}" 
+set(GISMO_SEARCH_PATHS "${GISMO_SEARCH_PATHS};${NEW_PATH}"
   CACHE INTERNAL "File search paths")
 ```
 
@@ -357,8 +357,8 @@ endif(UNIX AND NOT APPLE)
 function(add_gismo_executable FILE)
   get_filename_component(TARGET_NAME ${FILE} NAME_WE)
   add_executable(${TARGET_NAME} ${FILE})
-  target_link_libraries(${TARGET_NAME} 
-    PRIVATE 
+  target_link_libraries(${TARGET_NAME}
+    PRIVATE
       gismo::gismo  # Single, well-defined target
   )
   add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME})
@@ -649,33 +649,50 @@ Following `src/gismo/NAMING_CONVENTIONS.md`:
 Each module follows standardized pattern:
 
 ```cmake
+
 ### Module CMakeLists.txt Template
 
-project(ModuleName
-  VERSION ${${CMAKE_PROJECT_NAME}_VERSION}
-  LANGUAGES CXX)
+project(Common
+VERSION
+  ${${CMAKE_PROJECT_NAME}_VERSION}
+LANGUAGES
+  CXX)
 
-## Choose library type
+## #################################################################
+## Create target
+## #################################################################
+
 add_library(${PROJECT_NAME} SHARED)  # or INTERFACE for header-only
 
-## Namespace alias
+set_target_properties(${PROJECT_NAME}
+  PROPERTIES
+    OUTPUT_NAME ${CMAKE_PROJECT_NAME}${PROJECT_NAME} # only for SHARED or STATIC target
+    VERSION   ${${PROJECT_NAME}_VERSION}
+    SOVERSION ${${PROJECT_NAME}_VERSION_MAJOR})
+
 add_library(${CMAKE_PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
-## Source files
+## #################################################################
+## Build rules
+## #################################################################
+
 target_sources(${PROJECT_NAME}
   PRIVATE
     Implementation.cpp
   PUBLIC
     FILE_SET HEADERS
       BASE_DIRS
-        ${PROJECT_BINARY_DIR}
+        ${PROJECT_BINARY_DIR} # when a generated header is required
         ${CMAKE_CURRENT_SOURCE_DIR}
       FILES
         PublicHeader.h
         ${PROJECT_NAME}  # Main module header
 )
 
-## Dependencies
+target_include_directories(${PROJECT_NAME} INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>
+)
+
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
     ${CMAKE_PROJECT_NAME}::PublicDep
@@ -683,12 +700,36 @@ target_link_libraries(${PROJECT_NAME}
     ${CMAKE_PROJECT_NAME}::PrivateDep
 )
 
-## Installation
-install(TARGETS ${PROJECT_NAME}
-  EXPORT ${CMAKE_PROJECT_NAME}${PROJECT_NAME}-targets
+## ###################################################################
+## Install rules
+## ###################################################################
+
+install(
+  TARGETS
+    ${PROJECT_NAME}
+  EXPORT
+    ${CMAKE_PROJECT_NAME}${PROJECT_NAME}-targets
   FILE_SET HEADERS
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${CMAKE_PROJECT_NAME}/${PROJECT_NAME}
+  INCLUDES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
+
+install(
+  EXPORT      ${CMAKE_PROJECT_NAME}${PROJECT_NAME}-targets
+  FILE        ${CMAKE_PROJECT_NAME}${PROJECT_NAME}Targets.cmake
+  NAMESPACE   ${CMAKE_PROJECT_NAME}::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${CMAKE_PROJECT_NAME}
+)
+
+export(
+  EXPORT    ${CMAKE_PROJECT_NAME}${PROJECT_NAME}-targets
+  NAMESPACE ${CMAKE_PROJECT_NAME}::
+  FILE      ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}${PROJECT_NAME}Targets.cmake
+)
+
+######################################################################
+### CMakeLists.txt ends here
 ```
 
 ### 3.4 Dependency Layers (Target Architecture)
@@ -743,34 +784,46 @@ Layer 8 (I/O):
 
 #### Task 1.0: Create Common Module (Week 1)
 
-**Objective**: Establish foundation layer with zero dependencies
+**Objective**: Establish foundation layer with zero external dependencies (no Eigen, no mathematical concepts)
 
 **Steps**:
 1. Create `src/gismo/Common/` directory structure
 2. Extract from `gsCore/`:
-   - `gsMemory.h` → `Common/Memory.h`
-   - `gsForwardDeclarations.h` → `Common/ForwardDeclarations.h`
-   - `gsDebug.h` → `Common/Debug.h`
-   - `gsExport.h` → `Common/Export.h`
-   - `gsAssert.h` → `Common/Assert.h`
-   - `gsConfig.h` → `Common/Config.h`
-3. Extract from `gsMatrix/`:
-   - `gsEigenDeclarations.h` → `Common/EigenDeclarations.h` (Eigen forward declarations)
-   - `gsMatrixAddons.h` → `Common/MatrixAddons.h` (Eigen MatrixBase extensions)
-   - `gsPlainObjectBaseAddons.h` → `Common/PlainObjectBaseAddons.h` (Eigen PlainObjectBase extensions)
-4. Extract from `gsUtils/`:
-   - `gsUtils.h` → `Common/Utils.h` (string utilities, type utilities, macros)
-   - `gsStopwatch.h` → `Common/Stopwatch.h` (timing utilities)
-   - `gsCombinatorics.h` → `Common/Combinatorics.h` (mathematical utilities)
-   - `gsSortedVector.h` → `Common/SortedVector.h` (container utilities)
-   - `gsBoundedPriorityQueue.h` → `Common/BoundedPriorityQueue.h` (container utilities)
-5. Remove all non-foundation dependencies from extracted headers
-6. Create `Common/CMakeLists.txt` following template
+   - `gsMemory.h` → `Common/Memory.h` (memory utilities, smart pointers)
+   - `gsForwardDeclarations.h` → `Common/ForwardDeclarations.h` (clean forward declarations only)
+   - `gsDebug.h` → `Common/Debug.h` (debug macros and utilities)
+   - `gsExport.h` → `Common/Export.h` (symbol export/import macros)
+   - `gsConfig.h` → `Common/Config.h` (build configuration)
+   - `gsTemplateTools.h` → `Common/TemplateTools.h` (template metaprogramming utilities)
+3. Extract from `gsUtils/` (non-mathematical utilities only):
+   - Core utilities from `gsUtils.h` → `Common/Utils.h` (string utilities, type utilities, macros - no math)
+   - `gsStopwatch.h` → `Common/Stopwatch.h` (timing and profiling utilities)
+   - `gsThreaded.h` → `Common/Threaded.h` (threading utilities if no dependencies)
+4. Create new foundational headers:
+   - `Common/Assert.h` (assertion macros)
+   - `Common/Types.h` (fundamental type definitions, no Eigen)
+   - `Common/Macros.h` (utility macros)
+5. Remove all external dependencies from extracted headers
+6. Create `Common/CMakeLists.txt` following template (INTERFACE library)
 7. Establish clean PascalCase naming convention
 
-**Note**: Other gsUtils files will be migrated to appropriate higher layers:
+**CRITICAL CONSTRAINT - Eigen Namespace Redirection**:
+The original `gsForwardDeclarations.h` contains the macro `#define Eigen gsEigen` at line 26. This means:
+- **All Eigen namespace usage in GISMO is redirected to `gsEigen`**
+- **This macro must be preserved in `Common/ForwardDeclarations.h`**
+- **Any code using Eigen functionality must use `gsEigen::` instead of `Eigen::`**
+- **The Math module must account for this namespace redirection**
+- **Breaking this constraint would break the entire GISMO codebase**
+
+**Note**: Eigen-related and mathematical files will be migrated to appropriate higher layers:
+- `gsEigenDeclarations.h` → `Math/EigenDeclarations.h` (Eigen forward declarations)
+- `gsMatrixAddons.h` → `Math/MatrixAddons.h` (Eigen MatrixBase extensions)
+- `gsPlainObjectBaseAddons.h` → `Math/PlainObjectBaseAddons.h` (Eigen PlainObjectBase extensions)
+- `gsCombinatorics.h` → `Math/Combinatorics.h` (mathematical combinatorial functions)
+- `gsSortedVector.h` → `Math/SortedVector.h` (mathematical container utilities)
+- `gsBoundedPriorityQueue.h` → `Math/BoundedPriorityQueue.h` (mathematical priority queue)
 - `gsFunctionWithDerivatives.h` → `Function/` module (depends on gsFunction)
-- `gsPointGrid.h` → `Geometry/` or `Math/` module (depends on linear algebra)
+- `gsPointGrid.h` → `Math/` or `Geometry/` module (depends on linear algebra)
 - `gsL2Projection.h` → `Assembler/` module (depends on gsExprAssembler)
 - `gsQuasiInterpolate.h` → `Assembler/` module (likely depends on assembly)
 - `gsMesh/*` → `Geometry/` or separate `Mesh/` module (geometric structures)
@@ -780,34 +833,51 @@ Layer 8 (I/O):
 src/gismo/Common/
 ├── CMakeLists.txt
 ├── Common                      # Main header (convenience include)
-├── Memory.h                    # Memory management utilities
-├── ForwardDeclarations.h       # Forward declarations
+├── Memory.h                    # Memory management utilities (smart pointers, allocators)
+├── ForwardDeclarations.h       # Forward declarations (no Eigen dependencies)
 ├── Debug.h                     # Debug macros and utilities
 ├── Export.h                    # Symbol export/import macros
 ├── Assert.h                    # Assertion macros
 ├── Config.h                    # Build configuration
-├── Types.h                     # Fundamental type definitions
-├── EigenDeclarations.h         # Eigen forward declarations
-├── MatrixAddons.h              # Eigen MatrixBase extensions
-├── PlainObjectBaseAddons.h     # Eigen PlainObjectBase extensions
-├── Utils.h                     # String utilities, type utilities, macros
+├── Types.h                     # Fundamental type definitions (no Eigen)
+├── TemplateTools.h             # Template metaprogramming utilities
+├── Utils.h                     # String utilities, type utilities, macros (no math)
 ├── Stopwatch.h                 # Timing and profiling utilities
-├── Combinatorics.h             # Mathematical combinatorial functions
-├── SortedVector.h              # Sorted container utilities
-└── BoundedPriorityQueue.h      # Priority queue utilities
+├── Threaded.h                  # Threading utilities (if no dependencies)
+└── Macros.h                    # Utility macros
 ```
 
 **CMakeLists.txt**:
 ```cmake
-project(Common VERSION ${${CMAKE_PROJECT_NAME}_VERSION} LANGUAGES CXX)
+project(Common
+VERSION
+  ${${CMAKE_PROJECT_NAME}_VERSION}
+LANGUAGES
+  CXX)
+
+## #################################################################
+## Create target
+## #################################################################
 
 add_library(${PROJECT_NAME} INTERFACE)
+
+set_target_properties(${PROJECT_NAME}
+  PROPERTIES
+    OUTPUT_NAME ${CMAKE_PROJECT_NAME}${PROJECT_NAME}
+    VERSION   ${${PROJECT_NAME}_VERSION}
+    SOVERSION ${${PROJECT_NAME}_VERSION_MAJOR})
+
 add_library(${CMAKE_PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
+## #################################################################
+## Build rules
+## #################################################################
 
 target_sources(${PROJECT_NAME}
   INTERFACE
     FILE_SET HEADERS
-      BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}
+      BASE_DIRS
+        ${CMAKE_CURRENT_SOURCE_DIR}
       FILES
         Common
         Memory.h
@@ -817,53 +887,88 @@ target_sources(${PROJECT_NAME}
         Assert.h
         Config.h
         Types.h
-        EigenDeclarations.h
-        MatrixAddons.h
-        PlainObjectBaseAddons.h
+        TemplateTools.h
         Utils.h
         Stopwatch.h
-        Combinatorics.h
-        SortedVector.h
-        BoundedPriorityQueue.h
+        Threaded.h
+        Macros.h
 )
 
-# No dependencies - this is the foundation layer
-target_compile_features(${PROJECT_NAME}
-  INTERFACE
-    cxx_std_17
+target_include_directories(${PROJECT_NAME} INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>
 )
 
-# Installation rules
-install(TARGETS ${PROJECT_NAME}
-  EXPORT ${CMAKE_PROJECT_NAME}${PROJECT_NAME}-targets
+## ###################################################################
+## Install rules
+## ###################################################################
+
+install(
+  TARGETS
+    ${PROJECT_NAME}
+  EXPORT
+    ${CMAKE_PROJECT_NAME}${PROJECT_NAME}-targets
   FILE_SET HEADERS
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${CMAKE_PROJECT_NAME}/${PROJECT_NAME}
+  INCLUDES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
+
+install(
+  EXPORT      ${CMAKE_PROJECT_NAME}${PROJECT_NAME}-targets
+  FILE        ${CMAKE_PROJECT_NAME}${PROJECT_NAME}Targets.cmake
+  NAMESPACE   ${CMAKE_PROJECT_NAME}::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${CMAKE_PROJECT_NAME}
+)
+
+export(
+  EXPORT    ${CMAKE_PROJECT_NAME}${PROJECT_NAME}-targets
+  NAMESPACE ${CMAKE_PROJECT_NAME}::
+  FILE      ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}${PROJECT_NAME}Targets.cmake
+)
+
+######################################################################
+### CMakeLists.txt ends here
 ```
 
 **Validation**:
-- Compile standalone without any GISMO dependencies
+- Compile standalone without any external dependencies (no Eigen, no mathematical libraries)
 - Verify clean header includes (no circular references)
 - Check naming convention compliance
+- Ensure zero external dependencies in Common module
+
+**Key Improvements**:
+- **Zero Dependencies**: Common module has no external dependencies (no Eigen)
+- **True Foundation**: Only basic C++ utilities, memory management, debugging, configuration
+- **Clean Architecture**: Mathematical concepts properly separated into Math layer
+- **Maintainable**: Clear separation of concerns between foundational and mathematical utilities
+- **Scalable**: Other modules can depend on Common without pulling in heavy dependencies
 
 #### Task 1.1: Create Math Module (Week 2)
 
-**Objective**: Break gsCore ↔ gsMatrix circular dependency
+**Objective**: Break gsCore ↔ gsMatrix circular dependency and collect Eigen-related code
 
 **Steps**:
 1. Create `src/gismo/Math/` directory
 2. Extract from `gsCore/`:
    - `gsLinearAlgebra.h` → `Math/LinearAlgebra.h`
    - `gsMath.h` → `Math/Constants.h`
-   - `gsVector.h`, `gsMatrix.h` from `gsMatrix/`
 3. Extract from `gsMatrix/`:
+   - `gsEigenDeclarations.h` → `Math/EigenDeclarations.h` (Eigen forward declarations)
+   - `gsMatrixAddons.h` → `Math/MatrixAddons.h` (Eigen MatrixBase extensions)
+   - `gsPlainObjectBaseAddons.h` → `Math/PlainObjectBaseAddons.h` (Eigen PlainObjectBase extensions)
    - Core matrix classes → `Math/Matrix.h`
+   - `gsVector.h` → `Math/Vector.h`
    - Matrix views → `Math/MatrixView.h`
-   - Sparse matrix → `Math/SparseMatrix.h`
-4. Extract from `gsUtils/`:
+   - `gsSparseMatrix.h` → `Math/SparseMatrix.h`
+4. Extract from `gsUtils/` (mathematical utilities):
+   - `gsCombinatorics.h` → `Math/Combinatorics.h` (mathematical combinatorial functions)
+   - `gsSortedVector.h` → `Math/SortedVector.h` (mathematical container utilities)
+   - `gsBoundedPriorityQueue.h` → `Math/BoundedPriorityQueue.h` (mathematical priority queue)
    - `gsPointGrid.h` → `Math/PointGrid.h` (structured point generation)
 5. Create `Math/CMakeLists.txt` following template
-6. Update `Common` to remove matrix dependencies
+6. Update dependencies to use new Math module
+
+**Important**: The Math module must work with the `gsEigen` namespace (due to `#define Eigen gsEigen` in Common/ForwardDeclarations.h). All Eigen-related code should use `gsEigen::` prefix.
 
 **Files to create**:
 ```
@@ -872,32 +977,69 @@ src/gismo/Math/
 ├── Math                    # Main header
 ├── LinearAlgebra.h         # Eigen integration
 ├── Constants.h             # Mathematical constants
+├── EigenDeclarations.h     # Eigen forward declarations
+├── MatrixAddons.h          # Eigen MatrixBase extensions
+├── PlainObjectBaseAddons.h # Eigen PlainObjectBase extensions
 ├── Matrix.h                # Dense matrix
 ├── Vector.h                # Vector operations
 ├── SparseMatrix.h          # Sparse matrix
 ├── MatrixView.h            # Matrix views
+├── Combinatorics.h         # Mathematical combinatorial functions
+├── SortedVector.h          # Mathematical container utilities
+├── BoundedPriorityQueue.h  # Mathematical priority queue
 └── PointGrid.h             # Structured point generation
 ```
 
 **CMakeLists.txt**:
 ```cmake
-project(Math VERSION ${${CMAKE_PROJECT_NAME}_VERSION} LANGUAGES CXX)
+project(Math
+VERSION
+  ${${CMAKE_PROJECT_NAME}_VERSION}
+LANGUAGES
+  CXX)
+
+## #################################################################
+## Create target
+## #################################################################
 
 add_library(${PROJECT_NAME} INTERFACE)
+
+set_target_properties(${PROJECT_NAME}
+  PROPERTIES
+    OUTPUT_NAME ${CMAKE_PROJECT_NAME}${PROJECT_NAME}
+    VERSION   ${${PROJECT_NAME}_VERSION}
+    SOVERSION ${${PROJECT_NAME}_VERSION_MAJOR})
+
 add_library(${CMAKE_PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
+## #################################################################
+## Build rules
+## #################################################################
 
 target_sources(${PROJECT_NAME}
   INTERFACE
     FILE_SET HEADERS
-      BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}
+      BASE_DIRS
+        ${CMAKE_CURRENT_SOURCE_DIR}
       FILES
         Math
         LinearAlgebra.h
         Constants.h
+        EigenDeclarations.h
+        MatrixAddons.h
+        PlainObjectBaseAddons.h
         Matrix.h
         Vector.h
         SparseMatrix.h
         MatrixView.h
+        Combinatorics.h
+        SortedVector.h
+        BoundedPriorityQueue.h
+        PointGrid.h
+)
+
+target_include_directories(${PROJECT_NAME} INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -906,7 +1048,36 @@ target_link_libraries(${PROJECT_NAME}
     Eigen3::Eigen
 )
 
-# Installation omitted for brevity (follows pattern)
+## ###################################################################
+## Install rules
+## ###################################################################
+
+install(
+  TARGETS
+    ${PROJECT_NAME}
+  EXPORT
+    ${CMAKE_PROJECT_NAME}${PROJECT_NAME}-targets
+  FILE_SET HEADERS
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${CMAKE_PROJECT_NAME}/${PROJECT_NAME}
+  INCLUDES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(
+  EXPORT      ${CMAKE_PROJECT_NAME}${PROJECT_NAME}-targets
+  FILE        ${CMAKE_PROJECT_NAME}${PROJECT_NAME}Targets.cmake
+  NAMESPACE   ${CMAKE_PROJECT_NAME}::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${CMAKE_PROJECT_NAME}
+)
+
+export(
+  EXPORT    ${CMAKE_PROJECT_NAME}${PROJECT_NAME}-targets
+  NAMESPACE ${CMAKE_PROJECT_NAME}::
+  FILE      ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}${PROJECT_NAME}Targets.cmake
+)
+
+######################################################################
+### CMakeLists.txt ends here
 ```
 
 **Validation**:
@@ -1141,23 +1312,23 @@ src/gismo/Domain/
    ```cmake
    # Modern replacement for gsFetch.cmake
    include(FetchContent)
-   
+
    function(gismo_fetch_content NAME)
      set(options GIT_SHALLOW)
      set(oneValueArgs GIT_REPOSITORY GIT_TAG URL)
      set(multiValueArgs "")
-     
+
      cmake_parse_arguments(GFC "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
-     
+
      FetchContent_Declare(${NAME}
        GIT_REPOSITORY ${GFC_GIT_REPOSITORY}
        GIT_TAG ${GFC_GIT_TAG}
        GIT_SHALLOW ${GFC_GIT_SHALLOW}
        URL ${GFC_URL}
      )
-     
+
      FetchContent_MakeAvailable(${NAME})
-     
+
      # Set variables for compatibility
      set(${NAME}_SOURCE_DIR ${${NAME}_SOURCE_DIR} PARENT_SCOPE)
    endfunction()
@@ -1206,16 +1377,16 @@ endif()
 function(add_gismo_executable FILE)
   get_filename_component(TARGET_NAME ${FILE} NAME_WE)
   add_executable(${TARGET_NAME} ${FILE})
-  
+
   # Single, well-defined dependency
-  target_link_libraries(${TARGET_NAME} 
-    PRIVATE 
+  target_link_libraries(${TARGET_NAME}
+    PRIVATE
       gismo::gismo
   )
-  
+
   # Automatic test registration
   add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME})
-  
+
   # Modern target properties
   set_target_properties(${TARGET_NAME} PROPERTIES
     CXX_STANDARD 17

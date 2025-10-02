@@ -800,6 +800,7 @@ During file migration in ANY task, the original code content must remain **uncha
 - **Verify code equivalence**: Migrated code must produce identical behavior to original
 - Run existing tests to ensure no regressions
 - Check naming convention compliance
+- **Create detailed README.md**: Document migration decisions, architecture rationale, and task reference
 
 **Eigen Namespace Constraint (Apply to ALL Tasks)**:
 The macro `#define Eigen gsEigen` in `Common/ForwardDeclarations.h` means:
@@ -853,6 +854,7 @@ The macro `#define Eigen gsEigen` in `Common/ForwardDeclarations.h` means:
 ```
 src/gismo/Common/
 ├── CMakeLists.txt
+├── README.md                   # Detailed module documentation (see template below)
 ├── Common                      # Main header (convenience include)
 ├── Memory.h                    # Memory management utilities (smart pointers, allocators)
 ├── ForwardDeclarations.h       # Forward declarations (no Eigen dependencies)
@@ -951,6 +953,98 @@ export(
 ### CMakeLists.txt ends here
 ```
 
+**README.md Template**:
+```markdown
+# GISMO Common Module
+
+## Overview
+This module provides the foundational layer for the GISMO library with zero external dependencies. It contains only basic C++ utilities, memory management, debugging facilities, and build configuration.
+
+## Task Reference
+Created as part of **Task 1.0: Create Common Module** from the GISMO Architecture Refactoring Plan.
+
+## Architecture Decision
+This module was designed to be the foundation layer (Layer 0) with **zero external dependencies**:
+- No Eigen dependencies
+- No mathematical concepts
+- No computational algorithms
+- Only basic C++ standard library usage
+
+## Migration Summary
+
+### Files Migrated From gsCore:
+- `gsMemory.h` → `Memory.h` - Memory management utilities and smart pointers
+- `gsForwardDeclarations.h` → `ForwardDeclarations.h` - Clean forward declarations (preserves `#define Eigen gsEigen`)
+- `gsDebug.h` → `Debug.h` - Debug macros and logging utilities
+- `gsExport.h` → `Export.h` - Symbol export/import macros for shared libraries
+- `gsConfig.h` → `Config.h` - Build configuration and preprocessor definitions
+- `gsTemplateTools.h` → `TemplateTools.h` - Template metaprogramming utilities
+
+### Files Migrated From gsUtils (Non-Mathematical Only):
+- Core utilities from `gsUtils.h` → `Utils.h` - String utilities, type utilities, macros (no math)
+- `gsStopwatch.h` → `Stopwatch.h` - Timing and profiling utilities
+- `gsThreaded.h` → `Threaded.h` - Threading utilities (if no dependencies)
+
+### New Foundational Headers Created:
+- `Assert.h` - Assertion macros for debugging
+- `Types.h` - Fundamental type definitions (no Eigen types)
+- `Macros.h` - General utility macros
+
+### Files NOT Migrated (Moved to Higher Layers):
+Mathematical and Eigen-related files were intentionally moved to the Math module:
+- `gsEigenDeclarations.h` → `Math/EigenDeclarations.h`
+- `gsMatrixAddons.h` → `Math/MatrixAddons.h`
+- `gsPlainObjectBaseAddons.h` → `Math/PlainObjectBaseAddons.h`
+- `gsCombinatorics.h` → `Math/Combinatorics.h`
+- `gsSortedVector.h` → `Math/SortedVector.h`
+- `gsBoundedPriorityQueue.h` → `Math/BoundedPriorityQueue.h`
+
+## Critical Constraints Preserved
+
+### Eigen Namespace Redirection
+The `#define Eigen gsEigen` macro from the original `gsForwardDeclarations.h` is preserved in `ForwardDeclarations.h`. This is critical because:
+- All GISMO code uses `gsEigen::` instead of `Eigen::`
+- Breaking this would break the entire GISMO codebase
+- This constraint affects all modules that use Eigen functionality
+
+### Minimal Code Modification
+All files were migrated with minimal changes:
+- Original logic, formatting, and comments preserved
+- Only `#include` paths modified to point to new locations
+- No refactoring or optimization during migration
+- Identical behavior to original code validated
+
+## Dependencies
+- **External**: None (by design)
+- **Internal**: None (foundation layer)
+
+## Public Interface
+- `Common` - Main convenience header that includes all Common module functionality
+- All headers use clean PascalCase naming (no `gs` prefix)
+- Modern CMake target: `gismo::Common`
+
+## Usage
+```cpp
+#include <gismo/Common/Common>  // Include all Common functionality
+// or
+#include <gismo/Common/Memory.h>  // Include specific header
+```
+
+## Validation Results
+- ✅ Compiles standalone without external dependencies
+- ✅ Zero circular dependencies
+- ✅ Naming conventions followed
+- ✅ Code equivalence validated (identical behavior to original)
+- ✅ All existing tests pass
+
+## Benefits Achieved
+- **Zero Dependencies**: True foundation that any module can safely depend on
+- **Clean Architecture**: Mathematical concepts separated into appropriate layers
+- **Maintainable**: Clear separation of concerns
+- **Scalable**: Other modules don't inherit heavy dependencies
+- **Modern**: Follows Generic C++ Build Pattern and modern CMake practices
+```
+
 **Validation**:
 - Compile standalone without any external dependencies (no Eigen, no mathematical libraries)
 - Verify clean header includes (no circular references)
@@ -993,6 +1087,7 @@ export(
 ```
 src/gismo/Math/
 ├── CMakeLists.txt
+├── README.md               # Detailed module documentation (see template below)
 ├── Math                    # Main header
 ├── LinearAlgebra.h         # Eigen integration
 ├── Constants.h             # Mathematical constants
@@ -1099,6 +1194,96 @@ export(
 ### CMakeLists.txt ends here
 ```
 
+**README.md Template**:
+```markdown
+# GISMO Math Module
+
+## Overview
+This module provides mathematical operations and linear algebra functionality for the GISMO library. It integrates with Eigen library and contains all matrix operations, mathematical utilities, and computational algorithms.
+
+## Task Reference
+Created as part of **Task 1.1: Create Math Module** from the GISMO Architecture Refactoring Plan.
+
+## Architecture Decision
+This module was designed as Layer 1 of the architecture, depending only on the Common module:
+- Primary integration point for Eigen library
+- Contains all mathematical and computational concepts
+- Serves as foundation for geometry and higher-level mathematical operations
+- Breaks circular dependency between gsCore and gsMatrix
+
+## Migration Summary
+
+### Files Migrated From gsCore:
+- `gsLinearAlgebra.h` → `LinearAlgebra.h` - Main Eigen integration and linear algebra operations
+- `gsMath.h` → `Constants.h` - Mathematical constants and basic math utilities
+
+### Files Migrated From gsMatrix:
+- `gsEigenDeclarations.h` → `EigenDeclarations.h` - Eigen forward declarations (moved from Common)
+- `gsMatrixAddons.h` → `MatrixAddons.h` - Eigen MatrixBase extensions (moved from Common)
+- `gsPlainObjectBaseAddons.h` → `PlainObjectBaseAddons.h` - Eigen PlainObjectBase extensions (moved from Common)
+- Core matrix classes → `Matrix.h` - Dense matrix operations
+- `gsVector.h` → `Vector.h` - Vector operations and utilities
+- Matrix views → `MatrixView.h` - Matrix view and block operations
+- `gsSparseMatrix.h` → `SparseMatrix.h` - Sparse matrix operations
+
+### Files Migrated From gsUtils (Mathematical Only):
+- `gsCombinatorics.h` → `Combinatorics.h` - Mathematical combinatorial functions (moved from Common)
+- `gsSortedVector.h` → `SortedVector.h` - Mathematical container utilities (moved from Common)
+- `gsBoundedPriorityQueue.h` → `BoundedPriorityQueue.h` - Mathematical priority queue (moved from Common)
+- `gsPointGrid.h` → `PointGrid.h` - Structured point generation for mathematical operations
+
+## Critical Constraints Addressed
+
+### Circular Dependency Resolution
+This module specifically addresses the circular dependency between gsCore and gsMatrix:
+- **Before**: gsCore included gsMatrix headers, while gsMatrix depended on gsCore
+- **After**: Clean dependency Math → Common, with no reverse dependencies
+- All Eigen-related code consolidated in Math module
+
+### Eigen Namespace Compliance
+All code in this module works with the `gsEigen::` namespace due to the `#define Eigen gsEigen` macro in Common/ForwardDeclarations.h:
+- All matrix operations use `gsEigen::` prefix
+- Eigen extensions properly integrated with namespace redirection
+- Maintains compatibility with existing GISMO codebase
+
+### Minimal Code Modification
+All mathematical files were migrated with minimal changes:
+- Original algorithms and logic preserved exactly
+- Only `#include` paths updated to point to new module locations
+- No optimization or refactoring during migration
+- Identical computational behavior validated
+
+## Dependencies
+- **External**: Eigen3::Eigen (linear algebra library)
+- **Internal**: gismo::Common (foundational utilities)
+
+## Public Interface
+- `Math` - Main convenience header that includes all Math module functionality
+- All headers use clean PascalCase naming (no `gs` prefix)
+- Modern CMake target: `gismo::Math`
+
+## Usage
+```cpp
+#include <gismo/Math/Math>  // Include all Math functionality
+// or
+#include <gismo/Math/Matrix.h>  // Include specific functionality
+```
+
+## Validation Results
+- ✅ gsMatrixOp_test compiles and passes with new Math module
+- ✅ No circular dependencies with any other module
+- ✅ All Eigen functionality works correctly with gsEigen namespace
+- ✅ Code equivalence validated (identical computational results)
+- ✅ Build time improved due to cleaner dependencies
+
+## Benefits Achieved
+- **Circular Dependency Eliminated**: Clean separation between foundation and mathematical layers
+- **Eigen Integration**: Single point of Eigen integration for entire GISMO library
+- **Mathematical Foundation**: Solid base for geometry, basis functions, and higher-level operations
+- **Maintainable**: Clear ownership of all mathematical and computational functionality
+- **Scalable**: Other modules can depend on Math without inheriting circular dependencies
+```
+
 **Validation**:
 - Compile `gsMatrixOp_test` with new `Math` module
 - Verify no circular includes
@@ -1119,6 +1304,7 @@ export(
 ```
 src/gismo/Geometry/
 ├── CMakeLists.txt
+├── README.md              # Detailed module documentation (Task 1.2 reference)
 ├── Geometry               # Main header
 ├── Point.h                # Point types
 ├── Curve.h                # Curve interface
@@ -1143,6 +1329,7 @@ src/gismo/Geometry/
 ```
 src/gismo/Basis/
 ├── CMakeLists.txt
+├── README.md              # Detailed module documentation (Task 1.3 reference)
 ├── Basis                  # Main header
 ├── Basis.h                # Basis interface
 ├── References.h           # Basis references
@@ -1165,6 +1352,7 @@ src/gismo/Basis/
 ```
 src/gismo/Function/
 ├── CMakeLists.txt
+├── README.md              # Detailed module documentation (Task 1.4 reference)
 ├── Function               # Main header
 ├── Function.h             # Function interface
 ├── FunctionData.h         # Function data
@@ -1946,6 +2134,59 @@ For each module:
 7. **Document changes** in module README
 8. **Code review** before merge (focusing on equivalence validation)
 9. **Update progress** in this document
+
+### Module README.md Template
+
+Each module should include a comprehensive README.md file with the following structure:
+
+```markdown
+# GISMO [ModuleName] Module
+
+## Overview
+Brief description of the module's purpose and functionality.
+
+## Task Reference
+Created as part of **Task X.Y: Create [ModuleName] Module** from the GISMO Architecture Refactoring Plan.
+
+## Architecture Decision
+Explanation of why this module exists and its position in the architecture:
+- Layer in the dependency hierarchy
+- Dependencies on other modules
+- Key architectural decisions made
+
+## Migration Summary
+
+### Files Migrated From [SourceModule]:
+- `originalFile.h` → `NewFile.h` - Description of functionality migrated
+
+### New Files Created:
+- `NewFile.h` - Description of new functionality added
+
+### Files NOT Migrated (Moved to Other Layers):
+- `otherFile.h` → `OtherModule/File.h` - Rationale for moving elsewhere
+
+## Critical Constraints Preserved
+Document any critical constraints that were preserved during migration:
+- Eigen namespace usage
+- API compatibility
+- Build system requirements
+
+## Dependencies
+- **External**: List external library dependencies
+- **Internal**: List internal GISMO module dependencies
+
+## Public Interface
+- Description of main headers and CMake targets
+- Usage examples
+
+## Validation Results
+- ✅ Compilation results
+- ✅ Test results
+- ✅ Equivalence validation results
+
+## Benefits Achieved
+- List of improvements gained by creating this module
+```
 
 ### Communication Plan
 

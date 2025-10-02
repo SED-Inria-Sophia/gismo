@@ -780,6 +780,35 @@ Layer 8 (I/O):
 
 ## Part IV: Implementation Plan
 
+### **CRITICAL MIGRATION PRINCIPLES (Apply to ALL Tasks)**
+
+**Minimal Code Modification Rule**:
+During file migration in ANY task, the original code content must remain **unchanged** except when absolutely necessary to break circular dependencies:
+
+- ✅ **Copy files as-is**: Preserve original logic, formatting, comments, and behavior
+- ✅ **Only modify includes**: Change `#include` statements to point to new module locations
+- ✅ **Preserve compatibility**: Maintain exact same public API and behavior
+- ✅ **Break cycles minimally**: Only make the smallest changes needed to eliminate circular dependencies
+- ✅ **Validate equivalence**: Ensure migrated code produces identical results to original
+- ❌ **No logic changes**: Do not refactor, optimize, or "improve" code during migration
+- ❌ **No algorithm changes**: Do not modify computational logic or algorithms
+- ❌ **No interface changes**: Do not modify public interfaces during migration
+
+**Validation Requirements for Every Task**:
+- Compile migrated module standalone
+- Verify no new circular dependencies introduced
+- **Verify code equivalence**: Migrated code must produce identical behavior to original
+- Run existing tests to ensure no regressions
+- Check naming convention compliance
+
+**Eigen Namespace Constraint (Apply to ALL Tasks)**:
+The macro `#define Eigen gsEigen` in `Common/ForwardDeclarations.h` means:
+- **All Eigen namespace usage must use `gsEigen::` instead of `Eigen::`**
+- **This constraint applies to every module that uses Eigen functionality**
+- **Breaking this constraint would break the entire GISMO codebase**
+
+---
+
 ### 4.1 Phase 1: Foundation Modules (Weeks 1-5)
 
 #### Task 1.0: Create Common Module (Week 1)
@@ -806,14 +835,6 @@ Layer 8 (I/O):
 5. Remove all external dependencies from extracted headers
 6. Create `Common/CMakeLists.txt` following template (INTERFACE library)
 7. Establish clean PascalCase naming convention
-
-**CRITICAL CONSTRAINT - Eigen Namespace Redirection**:
-The original `gsForwardDeclarations.h` contains the macro `#define Eigen gsEigen` at line 26. This means:
-- **All Eigen namespace usage in GISMO is redirected to `gsEigen`**
-- **This macro must be preserved in `Common/ForwardDeclarations.h`**
-- **Any code using Eigen functionality must use `gsEigen::` instead of `Eigen::`**
-- **The Math module must account for this namespace redirection**
-- **Breaking this constraint would break the entire GISMO codebase**
 
 **Note**: Eigen-related and mathematical files will be migrated to appropriate higher layers:
 - `gsEigenDeclarations.h` → `Math/EigenDeclarations.h` (Eigen forward declarations)
@@ -967,8 +988,6 @@ export(
    - `gsPointGrid.h` → `Math/PointGrid.h` (structured point generation)
 5. Create `Math/CMakeLists.txt` following template
 6. Update dependencies to use new Math module
-
-**Important**: The Math module must work with the `gsEigen` namespace (due to `#define Eigen gsEigen` in Common/ForwardDeclarations.h). All Eigen-related code should use `gsEigen::` prefix.
 
 **Files to create**:
 ```
@@ -1919,12 +1938,14 @@ For each module:
 ### Development Workflow
 
 1. **Create module** following template
-2. **Update dependencies** in existing code
-3. **Write/update tests** for module
-4. **Run validation suite** (tests + examples)
-5. **Document changes** in module README
-6. **Code review** before merge
-7. **Update progress** in this document
+2. **Migrate files with minimal changes**: Copy original code as-is, only modify `#include` statements
+3. **Verify equivalence**: Ensure migrated code produces identical results to original
+4. **Update dependencies** in existing code to use new module locations
+5. **Write/update tests** for module
+6. **Run validation suite** (tests + examples)
+7. **Document changes** in module README
+8. **Code review** before merge (focusing on equivalence validation)
+9. **Update progress** in this document
 
 ### Communication Plan
 
@@ -1960,6 +1981,15 @@ For each module:
 | IO | 8 | Function, Geometry (minimal deps) |
 
 ### Appendix B: File Migration Checklist
+
+**Migration Principles**:
+- ✅ Copy file content as-is (preserve all logic, formatting, comments)
+- ✅ Only change `#include` paths to point to new module locations
+- ✅ Preserve exact API and behavior (no refactoring during migration)
+- ✅ Validate that migrated code produces identical results
+- ❌ Do not optimize, refactor, or "improve" code during migration
+- ❌ Do not change logic or algorithms
+- ❌ Do not modify public interfaces
 
 For each file in gsCore:
 

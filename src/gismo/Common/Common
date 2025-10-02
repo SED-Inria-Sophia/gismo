@@ -1,0 +1,48 @@
+/** @file Common
+
+    @brief Main header for GISMO Common module - includes all Common functionality.
+
+    This file is part of the G+Smo library.
+
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+    Author(s): A. Mantzaflaris
+*/
+
+#pragma once
+
+// Core configuration and fundamental definitions
+#include <gismo/Common/Config.h>
+#include <gismo/Common/Types.h>
+#include <gismo/Common/Macros.h>
+
+// Template programming utilities
+#include <gismo/Common/TemplateTools.h>
+
+// Memory management
+#include <gismo/Common/Memory.h>
+
+// Export/import macros for shared libraries
+#include <gismo/Common/Export.h>
+
+// Debugging and assertion facilities
+#include <gismo/Common/Debug.h>
+#include <gismo/Common/Assert.h>
+
+// Forward declarations and enums
+#include <gismo/Common/ForwardDeclarations.h>
+
+// Utility functions
+#include <gismo/Common/Utils.h>
+
+// Timing utilities
+#include <gismo/Common/Stopwatch.h>
+
+// Threading utilities
+#include <gismo/Common/Threaded.h>
+
+// Container utilities
+#include <gismo/Common/SortedVector.h>
+#include <gismo/Common/BoundedPriorityQueue.h>

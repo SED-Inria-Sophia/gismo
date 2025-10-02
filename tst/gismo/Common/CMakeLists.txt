@@ -16,12 +16,6 @@ target_link_libraries(${PROJECT_NAME}
     gismo::Common
 )
 
-# Set C++ standard
-target_compile_features(${PROJECT_NAME}
-  PRIVATE
-    cxx_std_17
-)
-
 # Register with ctest
 add_test(
   NAME ${PROJECT_NAME}

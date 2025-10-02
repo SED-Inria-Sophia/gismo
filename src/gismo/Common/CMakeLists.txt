@@ -32,19 +32,18 @@ target_sources(${PROJECT_NAME}
         ${CMAKE_CURRENT_SOURCE_DIR}
       FILES
         Common
-        Memory.h
-        ForwardDeclarations.h
-        Debug.h
-        Export.h
-        Assert.h
         Config.h
         Types.h
-        EigenDeclarations.h
-        # MatrixAddons.h  # Eigen extension, not foundation
-        # PlainObjectBaseAddons.h  # Eigen extension, not foundation
+        Macros.h
+        TemplateTools.h
+        Memory.h
+        Export.h
+        Debug.h
+        Assert.h
+        ForwardDeclarations.h
         Utils.h
         Stopwatch.h
-        # Combinatorics.h  # Temporarily disabled due to gsVector dependency
+        Threaded.h
         SortedVector.h
         BoundedPriorityQueue.h
 )

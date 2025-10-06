@@ -49,8 +49,7 @@ Common (zero dependencies)
 - **Export.h**: Symbol export/import macros for shared libraries
 
 ### Debugging & Assertions
-- **Debug.h**: Debugging macros and message system
-- **Assert.h**: Assertion macros with error handling
+- **DebugAssert.h**: Unified debugging and assertion system (merged from Debug.h and GismoAssert.h)
 
 ### Forward Declarations
 - **ForwardDeclarations.h**: Core enums and basic forward declarations
@@ -75,7 +74,7 @@ Common (zero dependencies)
 |---------------|-------------|---------|
 | gsConfig.h.in | Config.h | Simplified with safe defaults |
 | gsExport.h.in | Export.h | Updated include paths |
-| gsDebug.h | Debug.h | Minimal changes, updated includes |
+| gsDebug.h | DebugAssert.h | Merged with assertion macros, unified debugging system |
 | gsMemory.h | Memory.h | Updated include paths |
 | gsForwardDeclarations.h | ForwardDeclarations.h | Preserved Eigen redirection, removed mathematical dependencies |
 | gsTemplateTools.h | TemplateTools.h | Updated include paths |
@@ -92,7 +91,7 @@ Common (zero dependencies)
 ### New Files
 - **Types.h**: New comprehensive type definitions
 - **Macros.h**: New utility macro collection
-- **Assert.h**: New assertion system with modern C++ support
+- **DebugAssert.h**: Unified debugging and assertion system with modern C++ support
 
 ## Key Features
 

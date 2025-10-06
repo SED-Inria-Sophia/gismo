@@ -38,8 +38,7 @@ target_sources(${PROJECT_NAME}
         TemplateTools.h
         Memory.h
         Export.h
-        Debug.h
-        Assert.h
+        DebugAssert.h
         ForwardDeclarations.h
         Utils.h
         Stopwatch.h

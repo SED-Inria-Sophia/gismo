@@ -830,7 +830,7 @@ The macro `#define Eigen gsEigen` in `Common/ForwardDeclarations.h` means:
    - `gsStopwatch.h` → `Common/Stopwatch.h` (timing and profiling utilities)
    - `gsThreaded.h` → `Common/Threaded.h` (threading utilities if no dependencies)
 4. Create new foundational headers:
-   - `Common/Assert.h` (assertion macros)
+   - `Common/DebugAssert.h` (debugging and assertion macros)
    - `Common/Types.h` (fundamental type definitions, no Eigen)
    - `Common/Macros.h` (utility macros)
 5. Remove all external dependencies from extracted headers
@@ -860,7 +860,7 @@ src/gismo/Common/
 ├── ForwardDeclarations.h       # Forward declarations (no Eigen dependencies)
 ├── Debug.h                     # Debug macros and utilities
 ├── Export.h                    # Symbol export/import macros
-├── Assert.h                    # Assertion macros
+├── DebugAssert.h               # Debugging and assertion system
 ├── Config.h                    # Build configuration
 ├── Types.h                     # Fundamental type definitions (no Eigen)
 ├── TemplateTools.h             # Template metaprogramming utilities
@@ -907,7 +907,7 @@ target_sources(${PROJECT_NAME}
         ForwardDeclarations.h
         Debug.h
         Export.h
-        Assert.h
+        DebugAssert.h
         Config.h
         Types.h
         TemplateTools.h
@@ -986,7 +986,7 @@ This module was designed to be the foundation layer (Layer 0) with **zero extern
 - `gsThreaded.h` → `Threaded.h` - Threading utilities (if no dependencies)
 
 ### New Foundational Headers Created:
-- `Assert.h` - Assertion macros for debugging
+- `DebugAssert.h` - Unified debugging and assertion system (merged from Debug.h and Assert.h)
 - `Types.h` - Fundamental type definitions (no Eigen types)
 - `Macros.h` - General utility macros
 

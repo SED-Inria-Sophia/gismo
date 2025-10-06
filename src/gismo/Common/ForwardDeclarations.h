@@ -28,7 +28,7 @@
 #define Eigen gsEigen
 
 #include <gismo/Common/Config.h>
-#include <gismo/Common/Debug.h>
+#include <gismo/Common/DebugAssert.h>
 #include <gismo/Common/Memory.h>
 
 // Optional extensions will be handled by higher layers

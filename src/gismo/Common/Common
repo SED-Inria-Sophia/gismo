@@ -28,8 +28,7 @@
 #include <gismo/Common/Export.h>
 
 // Debugging and assertion facilities
-#include <gismo/Common/Debug.h>
-#include <gismo/Common/Assert.h>
+#include <gismo/Common/DebugAssert.h>
 
 // Forward declarations and enums
 #include <gismo/Common/ForwardDeclarations.h>

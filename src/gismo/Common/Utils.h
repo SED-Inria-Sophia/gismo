@@ -17,7 +17,7 @@
 #include <numeric>
 
 #include <gismo/Common/Export.h>
-#include <gismo/Common/Debug.h>
+#include <gismo/Common/DebugAssert.h>
 #include <gismo/Common/Memory.h>
 
 #ifdef __GNUC__

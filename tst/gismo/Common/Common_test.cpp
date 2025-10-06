@@ -21,8 +21,7 @@
 #include <gismo/Common/Types.h>
 #include <gismo/Common/Macros.h>
 #include <gismo/Common/Export.h>
-#include <gismo/Common/Debug.h>
-#include <gismo/Common/Assert.h>
+#include <gismo/Common/DebugAssert.h>
 #include <gismo/Common/TemplateTools.h>
 #include <gismo/Common/Memory.h>
 #include <gismo/Common/ForwardDeclarations.h>
@@ -72,7 +71,7 @@ int main()
     (void)42; // Test that we can suppress unused variable warnings
     std::cout << "✓ Debug macros work" << std::endl;
 
-    // Test assertion macros from Assert.h (only test that they exist, don't trigger them)
+    // Test assertion macros from DebugAssert.h (only test that they exist, don't trigger them)
     GISMO_STATIC_ASSERT(true, "Static assertions work");
     std::cout << "✓ Assertion macros available" << std::endl;
 

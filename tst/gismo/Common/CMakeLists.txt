@@ -1,30 +1,24 @@
 # Common Module Test CMakeLists.txt
 # Tests for the Common module - foundation layer
 
-project(Common_test
-VERSION
-  ${${CMAKE_PROJECT_NAME}_VERSION}
-LANGUAGES
-  CXX)
-
-# Create test executable
-add_executable(${PROJECT_NAME} Common_test.cpp)
+# Create test executable (no need to declare project, we're part of main gismo project)
+add_executable(Common_test Common_test.cpp)
 
 # Link against Common module only
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(Common_test
   PRIVATE
     gismo::Common
 )
 
 # Register with ctest
 add_test(
-  NAME ${PROJECT_NAME}
-  COMMAND ${PROJECT_NAME}
+  NAME Common_test
+  COMMAND Common_test
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
 # Set test properties
-set_tests_properties(${PROJECT_NAME}
+set_tests_properties(Common_test
   PROPERTIES
     LABELS "Common"
     TIMEOUT 30

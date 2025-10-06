@@ -1,0 +1,44 @@
+/** @file Math
+    @brief Main header for the GISMO Math module
+
+    This header provides convenient access to all Math module functionality.
+    It includes linear algebra operations, mathematical constants, matrix
+    operations, and mathematical utilities.
+
+    Created as part of Task 1.1: Create Math Module from the GISMO
+    Architecture Refactoring Plan.
+
+    @ingroup Math
+*/
+
+#pragma once
+
+// Linear algebra and Eigen integration
+#include <gismo/Math/LinearAlgebra.h>
+
+// Mathematical constants and utilities
+#include <gismo/Math/Constants.h>
+
+// Eigen declarations and extensions
+#include <gismo/Math/EigenDeclarations.h>
+#include <gismo/Math/MatrixAddons.h>
+#include <gismo/Math/PlainObjectBaseAddons.h>
+
+// Matrix and vector operations
+#include <gismo/Math/Matrix.h>
+#include <gismo/Math/Vector.h>
+#include <gismo/Math/SparseMatrix.h>
+#include <gismo/Math/SparseVector.h>
+#include <gismo/Math/SparseSolver.h>
+#include <gismo/Math/MatrixBlockView.h>
+#include <gismo/Math/AsMatrix.h>
+#include <gismo/Math/Point.h>
+
+// Eigen extensions
+#include <gismo/Math/Adjugate.h>
+#include <gismo/Math/BlockDiag.h>
+#include <gismo/Math/BlockTranspose.h>
+
+// Mathematical utilities and containers
+#include <gismo/Math/Combinatorics.h>
+#include <gismo/Math/PointGrid.h>

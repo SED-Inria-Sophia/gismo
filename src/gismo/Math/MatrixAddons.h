@@ -11,7 +11,9 @@
     Author(s): A. Mantzaflaris
 
     Migrated from gsMatrix/gsMatrixAddons.h as part of Task 1.1: Create Math Module.
-    Content preserved exactly - no changes made to original code.
+    Updated as part of Task 2.1.1: Fix Namespace Issues:
+    - Plugin methods use unqualified names (Index, internal, etc.) as available in Eigen plugin context
+    - RowSelection method commented out until RowSelection class is implemented
 */
 
 inline const internal::adjugate_impl<Derived> adjugate() const;
@@ -24,8 +26,9 @@ inline const BlockDiagReturnType blockDiag(Index rowFactor) const;
 typedef BlockTranspose<Derived,Dynamic> BlockTransposeReturnType;
 inline const BlockTransposeReturnType blockTranspose(Index rowFactor) const;
 
-template<typename IndicesType>
-const RowSelection<Derived,IndicesType> selectRows(const IndicesType & ind) const;
+// TODO: RowSelection class not yet implemented - commented out to prevent linker errors
+// template<typename IndicesType>
+// const RowSelection<Derived,IndicesType> selectRows(const IndicesType & ind) const;
 
 
 /**

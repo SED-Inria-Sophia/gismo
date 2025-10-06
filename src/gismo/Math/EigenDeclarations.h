@@ -11,7 +11,8 @@
     Author(s): A. Mantzaflaris
 
     Migrated from gsMatrix/gsEigenDeclarations.h as part of Task 1.1: Create Math Module.
-    Content preserved exactly - no changes made to original code.
+    Updated as part of Task 2.1.1: Fix Namespace Issues:
+    - RowSelection forward declaration commented out until class is implemented
 */
 
 namespace gsEigen
@@ -25,6 +26,7 @@ namespace internal
 template<typename MatrixType> struct adjugate_impl;
 }
 
-template<typename XprType, typename IndicesType> class RowSelection;
+// TODO: RowSelection class not yet implemented - forward declaration commented out
+// template<typename XprType, typename IndicesType> class RowSelection;
 
 }

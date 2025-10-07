@@ -47,9 +47,12 @@ target_sources(${PROJECT_NAME}
         SparseSolver.h
         MatrixBlockView.h
         AsMatrix.h
+        FiberMatrix.h
         Point.h
         Combinatorics.h
         PointGrid.h
+        MatrixTypeAliases.h
+        VecAsSymmMatrix.h
 )
 
 target_include_directories(${PROJECT_NAME} INTERFACE

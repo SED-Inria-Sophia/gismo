@@ -33,8 +33,8 @@ namespace gismo
 
     \ingroup Matrix
 */
-template<class T, int _Rows=Dynamic, int _Cols=Dynamic, int _Options=0>
-class gsMatrix : public gsEigen::Matrix<T,_Rows, _Cols, _Options>
+template<class T, int _Rows, int _Cols, int _Options>
+class gsMatrixImpl : public gsEigen::Matrix<T,_Rows, _Cols, _Options>
 //i.e. Eigen::PlainObjectBase<gsEigen::Matrix>
 //i.e. Eigen::EigenBase<gsEigen::Matrix>
 {
@@ -43,7 +43,7 @@ public:
     typedef gsEigen::Matrix<T,_Rows, _Cols, _Options> Base;
 
     // Self type
-    typedef gsMatrix<T,_Rows, _Cols, _Options> Self;
+    typedef gsMatrixImpl<T,_Rows, _Cols, _Options> Self;
 
     // The type of the coefficients of the matrix
     typedef T Scalar_t;
@@ -97,22 +97,22 @@ public:
     // copied into a gsMatrix
     typedef const gsEigen::Ref<const Base> constRef;
 
-    /// Shared pointer for gsMatrix
-    typedef memory::shared_ptr<gsMatrix> Ptr;
+    /// Shared pointer for gsMatrixImpl
+    typedef memory::shared_ptr<gsMatrixImpl> Ptr;
 
-    /// Unique pointer for gsMatrix
-    typedef memory::unique_ptr<gsMatrix> uPtr;
+    /// Unique pointer for gsMatrixImpl
+    typedef memory::unique_ptr<gsMatrixImpl> uPtr;
 
     // type of first minor matrix: rows and cols reduced by one
-    typedef gsMatrix< T, ChangeDim<_Rows, -1>::D, ChangeDim<_Cols, -1>::D>
+    typedef gsMatrixImpl< T, ChangeDim<_Rows, -1>::D, ChangeDim<_Cols, -1>::D, _Options>
         FirstMinorMatrixType;
 
     // type of row minor matrix: rows reduced by one
-    typedef gsMatrix< T, ChangeDim<_Rows, -1>::D, _Cols>
+    typedef gsMatrixImpl< T, ChangeDim<_Rows, -1>::D, _Cols, _Options>
         RowMinorMatrixType;
 
     // type of col minor matrix: cols reduced by one
-    typedef gsMatrix< T, _Rows, ChangeDim<_Cols, -1>::D>
+    typedef gsMatrixImpl< T, _Rows, ChangeDim<_Cols, -1>::D, _Options>
         ColMinorMatrixType;
 
     // block of fixed size 3
@@ -136,26 +136,26 @@ public:  // Solvers related to gsMatrix
 
 public:
 
-    gsMatrix() { }
+    gsMatrixImpl() { }
 
-    gsMatrix(const Base& a) ;
+    gsMatrixImpl(const Base& a) ;
 
     // implicitly deleted in C++11
-    //gsMatrix(const gsMatrix& a) : Base(a) { }
+    //gsMatrixImpl(const gsMatrixImpl& a) : Base(a) { }
 
-    gsMatrix(int rows, int cols) ;
+    gsMatrixImpl(int rows, int cols) ;
 
-    /// This constructor allows constructing a gsMatrix from gsEigen expressions
+    /// This constructor allows constructing a gsMatrixImpl from gsEigen expressions
     template<typename OtherDerived>
-    gsMatrix(const gsEigen::EigenBase<OtherDerived>& other) : Base(other) { }
+    gsMatrixImpl(const gsEigen::EigenBase<OtherDerived>& other) : Base(other) { }
 
-    /// This constructor allows constructing a gsMatrix from Eigen expressions
+    /// This constructor allows constructing a gsMatrixImpl from Eigen expressions
     template<typename OtherDerived>
-    gsMatrix(const gsEigen::MatrixBase<OtherDerived>& other) : Base(other) { }
+    gsMatrixImpl(const gsEigen::MatrixBase<OtherDerived>& other) : Base(other) { }
 
-    /// This constructor allows constructing a gsMatrix from Eigen expressions
+    /// This constructor allows constructing a gsMatrixImpl from Eigen expressions
     template<typename OtherDerived>
-    gsMatrix(const gsEigen::ReturnByValue<OtherDerived>& other) : Base(other) { }
+    gsMatrixImpl(const gsEigen::ReturnByValue<OtherDerived>& other) : Base(other) { }
 
     inline operator Ref () { return Ref(*this); }
 
@@ -168,10 +168,10 @@ public:
      */
     uPtr moveToPtr()
     {
-        uPtr m(new gsMatrix);
+        uPtr m(new gsMatrixImpl);
         m->swap(*this);
         return m;
-        //return uPtr(new gsMatrix<T>(give(*this)));
+        //return uPtr(new gsMatrixImpl<T>(give(*this)));
     }
 
     void clear() { this->resize(0,0); }
@@ -180,7 +180,7 @@ public:
     // Note: using Base::operator=; is ambiguous in MSVC
 #ifdef _MSC_VER // && !__INTEL_COMPILER
     template <class EigenExpr>
-    gsMatrix& operator= (const EigenExpr & other)
+    gsMatrixImpl& operator= (const EigenExpr & other)
     {
         this->Base::operator=(other);
         return *this;
@@ -192,8 +192,8 @@ public:
 
 #if !EIGEN_HAS_RVALUE_REFERENCES
     // swap assignment operator
-    gsMatrix & operator=(typename gsEigen::internal::conditional<
-                         -1==_Rows,gsMatrix, const gsMatrix &>::type other)
+    gsMatrixImpl & operator=(typename gsEigen::internal::conditional<
+                         -1==_Rows,gsMatrixImpl, const gsMatrixImpl &>::type other)
     {
         if (-1==_Rows)
             this->swap(other);
@@ -217,50 +217,50 @@ public:
 
     /// \brief Returns the matrix resized to n x m matrix (data is not copied)
     /// This function assumes that the matrix is size n*m, ie. already allocated
-    gsAsMatrix<T, Dynamic, Dynamic> reshape(index_t n, index_t m )
-    { return gsAsMatrix<T, Dynamic, Dynamic>(this->data(), n, m); }
+    gsAsMatrixImpl<T, Dynamic, Dynamic> reshape(index_t n, index_t m )
+    { return gsAsMatrixImpl<T, Dynamic, Dynamic>(this->data(), n, m); }
 
     /// \brief Returns the matrix resized to n x m matrix (data is not copied)
     /// This function assumes that the matrix is size n*m, ie. already allocated
-    gsAsConstMatrix<T, Dynamic, Dynamic> reshape(index_t n, index_t m ) const
-    { return gsAsConstMatrix<T, Dynamic, Dynamic>(this->data(), n, m); }
+    gsAsConstMatrixImpl<T, Dynamic, Dynamic> reshape(index_t n, index_t m ) const
+    { return gsAsConstMatrixImpl<T, Dynamic, Dynamic>(this->data(), n, m); }
 
     /// \brief Returns column \a c of the matrix resized to n x m matrix
     /// This function assumes that the matrix is size n*m, ie. already allocated
-    gsAsMatrix<T, Dynamic, Dynamic> reshapeCol( index_t c, index_t n, index_t m )
-    { return gsAsMatrix<T, Dynamic, Dynamic>(this->col(c).data(), n, m); }
+    gsAsMatrixImpl<T, Dynamic, Dynamic> reshapeCol( index_t c, index_t n, index_t m )
+    { return gsAsMatrixImpl<T, Dynamic, Dynamic>(this->col(c).data(), n, m); }
 
     /// \brief Returns column \a c of the matrix resized to n x m matrix
     /// This function assumes that the matrix is size n*m, ie. already allocated
-    gsAsConstMatrix<T, Dynamic, Dynamic> reshapeCol( index_t c, index_t n, index_t m ) const
-    { return gsAsConstMatrix<T, Dynamic, Dynamic>(this->col(c).data(), n, m); }
+    gsAsConstMatrixImpl<T, Dynamic, Dynamic> reshapeCol( index_t c, index_t n, index_t m ) const
+    { return gsAsConstMatrixImpl<T, Dynamic, Dynamic>(this->col(c).data(), n, m); }
 
     /// \brief Returns the entries of the matrix resized to a n*m vector column-wise
-    gsAsVector<T, Dynamic> asVector()
-    { return gsAsVector<T, Dynamic>(this->data(), this->rows()*this->cols() ); }
+    gsAsVectorImpl<T, Dynamic> asVector()
+    { return gsAsVectorImpl<T, Dynamic>(this->data(), this->rows()*this->cols() ); }
 
     /// \brief Returns column \a c as a fixed-size 3D vector
     Col3DType  col3d(index_t c) { return this->col(c).template head<3>(); }
     CCol3DType col3d(index_t c) const { return this->col(c).template head<3>(); }
 
     /// \brief Returns the entries of the matrix resized to a (const) n*m vector column-wise
-    gsAsConstVector<T, Dynamic> asVector() const
-    { return gsAsConstVector<T, Dynamic>(this->data(), this->rows()*this->cols() ); }
+    gsAsConstVectorImpl<T, Dynamic> asVector() const
+    { return gsAsConstVectorImpl<T, Dynamic>(this->data(), this->rows()*this->cols() ); }
 
     /// Returns the entries of the matrix resized to a 1 x n*m
     /// row-vector column-wise
-    gsAsMatrix<T, 1, Dynamic> asRowVector()
-    { return gsAsMatrix<T, 1, Dynamic>(this->data(), 1, this->rows()*this->cols() ); }
+    gsAsMatrixImpl<T, 1, Dynamic> asRowVector()
+    { return gsAsMatrixImpl<T, 1, Dynamic>(this->data(), 1, this->rows()*this->cols() ); }
 
     /// Returns the entries of the matrix resized to a (const) 1 x n*m
     /// row-vector column-wise
-    gsAsConstMatrix<T, 1, Dynamic> asRowVector() const
-    { return gsAsConstMatrix<T, 1, Dynamic>(this->data(), 1, this->rows()*this->cols() ); }
+    gsAsConstMatrixImpl<T, 1, Dynamic> asRowVector() const
+    { return gsAsConstMatrixImpl<T, 1, Dynamic>(this->data(), 1, this->rows()*this->cols() ); }
 
     /// Returns a submatrix consisting of the columns indexed by the
     /// vector container \a colInd
     template<class container>
-    void submatrixCols(const container & colInd, gsMatrix<T> & result) const
+    void submatrixCols(const container & colInd, Self & result) const
     {
         //GISMO_ASSERT(colInd.cols() == 1, "Invalid column index vector");
         const index_t nc = colInd.size();
@@ -272,7 +272,7 @@ public:
     /// Returns a submatrix consisting of the rows indexed by the
     /// vector container \a rowInd
     template<class container>
-    void submatrixRows(const container & rowInd, gsMatrix<T> & result) const
+    void submatrixRows(const container & rowInd, Self & result) const
     {
         //GISMO_ASSERT(rowInd.cols() == 1, "Invalid row index vector");
         const index_t nr = rowInd.size();
@@ -286,7 +286,7 @@ public:
     template<class container>
     void submatrix(const container & rowInd,
                    const container & colInd,
-                   gsMatrix<T> & result) const
+                   Self & result) const
     {
         //GISMO_ASSERT(rowInd.cols() == 1 && colInd.cols() == 1, "Invalid index vector");
         const index_t nr = rowInd.size();
@@ -392,7 +392,7 @@ public:
         index_t lastCheckIdx = lastSwapDone;
 
         bool didSwap;
-        gsMatrix<T> tmp(1, this->cols() );
+        gsMatrixImpl<T, Dynamic, Dynamic, _Options> tmp(1, this->cols() );
         do{ //caution! A stable sort algorithm is needed here for lexSortColumns function below
             didSwap = false;
             lastCheckIdx = lastSwapDone;
@@ -423,7 +423,7 @@ public:
           permutation.push_back(i);
 
         bool didSwap;
-        gsMatrix<T> tmp(1, this->cols() );
+        gsMatrixImpl<T, Dynamic, Dynamic, _Options> tmp(1, this->cols() );
 
         do{ //caution! A stable sort algorithm is needed here for lexSortColumns function below
             didSwap = false;
@@ -520,11 +520,11 @@ public:
 
     /// Returns the Kronecker product of \a this with \a other
     template<typename OtherDerived>
-    gsMatrix kron(const gsEigen::MatrixBase<OtherDerived>& other) const
+    gsMatrixImpl<T, Dynamic, Dynamic, _Options> kron(const gsEigen::MatrixBase<OtherDerived>& other) const
     {
         const index_t r  = this->rows(), c = this->cols();
         const index_t ro = other.rows(), co = other.cols();
-        gsMatrix result(r*ro, c*co);
+        gsMatrixImpl<T, Dynamic, Dynamic, _Options> result(r*ro, c*co);
         for (index_t i = 0; i != r; ++i) // for all rows
             for (index_t j = 0; j != c; ++j) // for all cols
                 result.block(i*ro, j*co, ro, co) = this->coeff(i,j) * other;
@@ -533,12 +533,12 @@ public:
 
     /// Returns the Khatri-Rao product of \a this with \a other
     template<typename OtherDerived>
-    gsMatrix khatriRao(const gsEigen::MatrixBase<OtherDerived>& other) const
+    gsMatrixImpl<T, Dynamic, Dynamic, _Options> khatriRao(const gsEigen::MatrixBase<OtherDerived>& other) const
     {
         const index_t r  = this->rows(), c = this->cols();
         const index_t ro = other.rows();
         GISMO_ASSERT(c==other.cols(), "Column sizes do not match.");
-        gsMatrix result(r*ro, c);
+        gsMatrixImpl<T, Dynamic, Dynamic, _Options> result(r*ro, c);
         for (index_t j = 0; j != c; ++j) // for all cols
             for (index_t i = 0; i != ro; ++i) // for all rows
                 result.block(i*r, j, r, 1) = this->coeff(i,j) * other.col(j);
@@ -645,23 +645,23 @@ private:
 
 /*
 template<class T, int _Rows, int _Cols, int _Options> inline
-gsMatrix<T,_Rows, _Cols, _Options>::gsMatrix() { }
+gsMatrixImpl<T,_Rows, _Cols, _Options>::gsMatrixImpl() { }
 */
 
 template<class T, int _Rows, int _Cols, int _Options> inline
-gsMatrix<T,_Rows, _Cols, _Options>::gsMatrix(const Base& a) : Base(a) { }
+gsMatrixImpl<T,_Rows, _Cols, _Options>::gsMatrixImpl(const Base& a) : Base(a) { }
 
 template<class T, int _Rows, int _Cols, int _Options> inline
-gsMatrix<T,_Rows, _Cols, _Options>::gsMatrix(int rows, int cols) : Base(rows,cols) { }
+gsMatrixImpl<T,_Rows, _Cols, _Options>::gsMatrixImpl(int rows, int cols) : Base(rows,cols) { }
 
 // template<class T, int _Rows, int _Cols, int _Options>
 //  template<typename OtherDerived>
-// gsMatrix<T,_Rows, _Cols, _Options>::gsMatrix(const gsEigen::MatrixBase<OtherDerived>& other) : Base(other) { }
+// gsMatrixImpl<T,_Rows, _Cols, _Options>::gsMatrixImpl(const gsEigen::MatrixBase<OtherDerived>& other) : Base(other) { }
 
 /* Clone function. Used to make a copy of the matrix
 template<class T, int _Rows, int _Cols, int _Options> inline
-gsMatrix<T,_Rows, _Cols, _Options> * gsMatrix<T,_Rows, _Cols, _Options>::clone() const
-{ return new gsMatrix<T,_Rows, _Cols, _Options>(*this); }
+gsMatrixImpl<T,_Rows, _Cols, _Options> * gsMatrixImpl<T,_Rows, _Cols, _Options>::clone() const
+{ return new gsMatrixImpl<T,_Rows, _Cols, _Options>(*this); }
 */
 
 

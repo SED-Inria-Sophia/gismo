@@ -54,6 +54,9 @@
 #include <gismo/Math/BlockTranspose.h>
 //#include <gismo/Math/RowSelection.h>
 
+// User-friendly type aliases (must be included before implementation headers)
+#include <gismo/Math/MatrixTypeAliases.h>
+
 #ifdef GISMO_WITH_SUPERLU
 #include <Eigen/SuperLUSupport>
 #endif
@@ -126,15 +129,16 @@ using gsEigen::RowMajor;//=0
 using gsEigen::ColMajor;//=1
 using gsEigen::AutoAlign;//=0
 
-template<class T, int _Rows, int _Cols> class gsAsMatrix ;
-template<class T, int _Rows, int _Cols> class gsAsConstMatrix ;
+// Forward declarations for AsMatrix implementation classes
+template<class T, int _Rows, int _Cols> class gsAsMatrixImpl ;
+template<class T, int _Rows, int _Cols> class gsAsConstMatrixImpl ;
 
-template<class T, int _Rows> class gsAsVector ;
-template<class T, int _Rows> class gsAsConstVector ;
+template<class T, int _Rows> class gsAsVectorImpl ;
+template<class T, int _Rows> class gsAsConstVectorImpl ;
 
-// Forward declarations for matrix types
-template<class T, int _Rows, int _Cols, int _Options> class gsMatrix;
-template<class T, int _Rows, int _Options> class gsVector;
+// Forward declarations for matrix types (implementation classes)
+template<class T, int _Rows, int _Cols, int _Options> class gsMatrixImpl;
+template<class T, int _Rows, int _Options> class gsVectorImpl;
 
 // helper template for changing the dimension of a matrix
 template <int Dim, int Change>

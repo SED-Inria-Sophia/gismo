@@ -13,6 +13,10 @@
 
 # pragma once
 
+#include <gismo/Common/Common>
+#include <vector>
+#include <algorithm>
+
 // Assumes that gsEigen library has been already included
 
 namespace gismo
@@ -170,7 +174,7 @@ protected:
 // Export the result to a file: saveAsBitmap(...);
 
 template<typename T, int _Options, typename _Index>
-class gsSparseMatrix : public gsEigen::SparseMatrix<T,_Options,_Index>
+class gsSparseMatrixImpl : public gsEigen::SparseMatrix<T,_Options,_Index>
 {
 public:
     typedef gsEigen::SparseMatrix<T,_Options,_Index> Base;
@@ -189,11 +193,11 @@ public:
     // Type pointing to a block view of the sparse matrix
     typedef gsMatrixBlockView<const Base> constBlockView;
 
-    /// Shared pointer for gsSparseMatrix
-    typedef memory::shared_ptr<gsSparseMatrix> Ptr;
+    /// Shared pointer for gsSparseMatrixImpl
+    typedef memory::shared_ptr<gsSparseMatrixImpl> Ptr;
 
-    /// Unique pointer for gsSparseMatrix
-    typedef memory::unique_ptr<gsSparseMatrix> uPtr;
+    /// Unique pointer for gsSparseMatrixImpl
+    typedef memory::unique_ptr<gsSparseMatrixImpl> uPtr;
 
     /// Type of the full view of the matrix, for the case when only
     /// the lower diagonal part is stored
@@ -204,30 +208,30 @@ public:
     typedef typename gsEigen::SparseSelfAdjointView<const Base, Lower> constFullView;
 
 public:
-    gsSparseMatrix() ;
+    gsSparseMatrixImpl() ;
 
-    gsSparseMatrix(_Index rows, _Index cols) ;
+    gsSparseMatrixImpl(_Index rows, _Index cols) ;
 
-    /// This constructor allows constructing a gsSparseMatrix from gsEigen expressions
+    /// This constructor allows constructing a gsSparseMatrixImpl from gsEigen expressions
     template<typename OtherDerived>
-    gsSparseMatrix(const gsEigen::EigenBase<OtherDerived>& other)  : Base(other) { }
+    gsSparseMatrixImpl(const gsEigen::EigenBase<OtherDerived>& other)  : Base(other) { }
 
-    /// This constructor allows constructing a gsSparseMatrix from a selfadjoint view
+    /// This constructor allows constructing a gsSparseMatrixImpl from a selfadjoint view
     template<typename OtherDerived, unsigned int UpLo>
-    gsSparseMatrix(const gsEigen::SparseSelfAdjointView<OtherDerived, UpLo>& other)
+    gsSparseMatrixImpl(const gsEigen::SparseSelfAdjointView<OtherDerived, UpLo>& other)
     : Base(other) { }
 
-    /// This constructor allows constructing a gsSparseMatrix from gsEigen expressions
+    /// This constructor allows constructing a gsSparseMatrixImpl from gsEigen expressions
     template<typename OtherDerived>
-    gsSparseMatrix(const gsEigen::MatrixBase<OtherDerived>& other)  : Base(other) { }
+    gsSparseMatrixImpl(const gsEigen::MatrixBase<OtherDerived>& other)  : Base(other) { }
 
-    /// This constructor allows constructing a gsSparseMatrix from another sparse expression
+    /// This constructor allows constructing a gsSparseMatrixImpl from another sparse expression
     template<typename OtherDerived>
-    gsSparseMatrix(const gsEigen::SparseMatrixBase<OtherDerived>& other)  : Base(other) { }
+    gsSparseMatrixImpl(const gsEigen::SparseMatrixBase<OtherDerived>& other)  : Base(other) { }
 
-    /// This constructor allows constructing a gsSparseMatrix from gsEigen expressions
+    /// This constructor allows constructing a gsSparseMatrixImpl from gsEigen expressions
     template<typename OtherDerived>
-    gsSparseMatrix(const gsEigen::ReturnByValue<OtherDerived>& other)  : Base(other) { }
+    gsSparseMatrixImpl(const gsEigen::ReturnByValue<OtherDerived>& other)  : Base(other) { }
 
 #if !EIGEN_HAS_RVALUE_REFERENCES
     // swap assignment operator
@@ -257,15 +261,15 @@ public:
 
     // Avoid default keyword for MSVC<2013
     // https://msdn.microsoft.com/en-us/library/hh567368.aspx
-    gsSparseMatrix(const gsSparseMatrix& other) : Base(other)
+    gsSparseMatrixImpl(const gsSparseMatrixImpl& other) : Base(other)
     { Base::operator=(other); }
-    gsSparseMatrix& operator= (const gsSparseMatrix & other)
+    gsSparseMatrixImpl& operator= (const gsSparseMatrixImpl & other)
     { Base::operator=(other); return *this; }
 
-    gsSparseMatrix(gsSparseMatrix&& other)
-    { gsSparseMatrix::operator=(std::forward<gsSparseMatrix>(other)); }
+    gsSparseMatrixImpl(gsSparseMatrixImpl&& other)
+    { gsSparseMatrixImpl::operator=(std::forward<gsSparseMatrixImpl>(other)); }
 
-    gsSparseMatrix & operator=(gsSparseMatrix&& other)
+    gsSparseMatrixImpl & operator=(gsSparseMatrixImpl&& other)
     {
         this->swap(other);
         other.clear();
@@ -281,7 +285,7 @@ public:
     */
     uPtr moveToPtr()
     {
-        uPtr m(new gsSparseMatrix);
+        uPtr m(new gsSparseMatrixImpl);
         m->swap(*this);
         return m;
     }
@@ -333,8 +337,8 @@ public:
 
     inline bool isExplicitZero(_Index row, _Index col) const
     {
-        const _Index outer = gsSparseMatrix::IsRowMajor ? row : col;
-        const _Index inner = gsSparseMatrix::IsRowMajor ? col : row;
+        const _Index outer = gsSparseMatrixImpl::IsRowMajor ? row : col;
+        const _Index inner = gsSparseMatrixImpl::IsRowMajor ? col : row;
         const _Index end = this->m_innerNonZeros ?
             this->m_outerIndex[outer] + this->m_innerNonZeros[outer] : this->m_outerIndex[outer+1];
         const _Index id = this->m_data.searchLowerIndex(this->m_outerIndex[outer], end-1, inner);
@@ -345,8 +349,8 @@ public:
     inline void insertExplicitZero(_Index row, _Index col)
     {
         GISMO_ASSERT(row>=0 && row<this->rows() && col>=0 && col<this->cols(), "Invalid row/col index.");
-        const _Index outer = gsSparseMatrix::IsRowMajor ? row : col;
-        const _Index inner = gsSparseMatrix::IsRowMajor ? col : row;
+        const _Index outer = gsSparseMatrixImpl::IsRowMajor ? row : col;
+        const _Index inner = gsSparseMatrixImpl::IsRowMajor ? col : row;
         const _Index start = this->m_outerIndex[outer];
         const _Index end   = this->m_innerNonZeros ?
             this->m_outerIndex[outer] + this->m_innerNonZeros[outer] : this->m_outerIndex[outer+1];
@@ -360,11 +364,11 @@ public:
     inline T& coeffUpdate(_Index row, _Index col)
     {
         GISMO_ASSERT(row>=0 && row<this->rows() && col>=0 && col<this->cols(), "Invalid row/col index.");
-        const _Index outer = gsSparseMatrix::IsRowMajor ? row : col;
+        const _Index outer = gsSparseMatrixImpl::IsRowMajor ? row : col;
         _Index start = this->m_outerIndex[outer];
         _Index end = this->m_innerNonZeros ? this->m_outerIndex[outer] + this->m_innerNonZeros[outer]
             : this->m_outerIndex[outer+1];
-        const _Index inner = gsSparseMatrix::IsRowMajor ? col : row;
+        const _Index inner = gsSparseMatrixImpl::IsRowMajor ? col : row;
         const _Index p = this->m_data.searchLowerIndex(start,end-1,inner);
         if((p<end) && (this->m_data.index(p)==inner))
             return this->m_data.value(p);
@@ -388,14 +392,14 @@ public:
     /// Returns a pointer wrapped as a gsAsConstVector, which contains
     /// the number of non-zero entries per column. Note that the
     /// matrix must be uncompressed format for this to work
-    gsAsConstVector<_Index> nonZerosPerCol()
+    gsAsConstVector<_Index, Dynamic> nonZerosPerCol()
     {
         if ( this->isCompressed() )
         {
             gsWarn<<"nonZerosPerCol(): Uncompressing the gsSparseMatrix.\n";
             this->uncompress();
         }
-        return gsAsConstVector<_Index>(this->innerNonZeroPtr(),this->innerSize());
+        return gsAsConstVector<_Index, Dynamic>(this->innerNonZeroPtr(),this->innerSize());
     }
 
     std::string printSparsity() const
@@ -426,7 +430,7 @@ public:
     container innerOf(const container & outer) const
     {
         std::vector<bool> v(this->innerSize(), false);
-        gsSparseMatrix<>::iterator mIt;
+        typename gsSparseMatrixImpl::iterator mIt;
         for (typename container::const_iterator k =
                  outer.begin(); k!=outer.end(); ++k )
             for( mIt = this->begin(*k); mIt; ++mIt)
@@ -493,19 +497,19 @@ public:
     }
 
     /// Returns the Kronecker product of \a this with \a other
-    gsSparseMatrix kron(const gsSparseMatrix& other)  const
+    gsSparseMatrixImpl<T, _Options, _Index> kron(const gsSparseMatrixImpl<T, _Options, _Index>& other)  const
     {
         const index_t r  = this->rows(), c = this->cols();
         const index_t ro = other.rows(), co = other.cols();
-        gsSparseMatrix result(r*ro, c*co);
+        gsSparseMatrixImpl<T, _Options, _Index> result(r*ro, c*co);
         if (0 == result.size()) return result;
         result.reserve(this->nonZerosPerInner()
                        .kron(other.nonZerosPerInner()));
 
         iterator it1, it2;
-        for (index_t k1=0; k1 != (gsSparseMatrix::IsRowMajor?r:c); ++k1)
+        for (index_t k1=0; k1 != (gsSparseMatrixImpl::IsRowMajor?r:c); ++k1)
             for (it1 = this->begin(k1); it1; ++it1)
-                for (index_t k2=0; k2 != (gsSparseMatrix::IsRowMajor?ro:co); ++k2)
+                for (index_t k2=0; k2 != (gsSparseMatrixImpl::IsRowMajor?ro:co); ++k2)
                     for (it2 = other.begin(k2); it2; ++it2)
                     {
                         const index_t i = it1.row() * ro + it2.row();
@@ -536,17 +540,17 @@ private:
 
 
 template<typename T, int _Options, typename _Index> inline
-gsSparseMatrix<T, _Options, _Index>::gsSparseMatrix() : Base() { }
+gsSparseMatrixImpl<T, _Options, _Index>::gsSparseMatrixImpl() : Base() { }
 
 template<typename T, int _Options, typename _Index> inline
-gsSparseMatrix<T, _Options, _Index>::gsSparseMatrix(_Index rows, _Index cols) : Base(rows,cols) { }
+gsSparseMatrixImpl<T, _Options, _Index>::gsSparseMatrixImpl(_Index rows, _Index cols) : Base(rows,cols) { }
 
 template<typename T, int _Options, typename _Index> inline
-void gsSparseMatrix<T, _Options, _Index>::setFrom( gsSparseEntries<T> const & entries)
+void gsSparseMatrixImpl<T, _Options, _Index>::setFrom( gsSparseEntries<T> const & entries)
 { this->setFromTriplets(entries.begin(),entries.end() ); }
 
 template<typename T, int _Options, typename _Index> void
-gsSparseMatrix<T, _Options, _Index>::rrefInPlace()
+gsSparseMatrixImpl<T, _Options, _Index>::rrefInPlace()
 {
     gsMatrix<T,1,Dynamic> R;
     index_t c_i, c_j;
@@ -647,7 +651,7 @@ gsSparseMatrix<T, _Options, _Index>::rrefInPlace()
 
 namespace gsEigen { namespace internal {
         template<typename T, int _Options, typename _Index>
-        struct traits<gismo::gsSparseMatrix<T,_Options,_Index> >:
+        struct traits<gismo::gsSparseMatrixImpl<T,_Options,_Index> >:
         gsEigen::internal::traits<gsEigen::SparseMatrix<T,_Options,_Index> > { };
 } }
 

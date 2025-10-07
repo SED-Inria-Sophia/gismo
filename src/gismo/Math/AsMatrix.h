@@ -1,26 +1,48 @@
-/** @file gsAsMatrix.h
+/** @file AsMatrix.h
 
     @brief Wraps pointers as matrix objects
 
-    This file is part of the G+Smo library. 
+    This file is part of the G+Smo library.
 
     This Source Code Form is subject to the terms of the Mozilla Public
     License, v. 2.0. If a copy of the MPL was not distributed with this
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
-    
+
     Author(s): A. Mantzaflaris
 */
 
 # pragma once
 
-// Assumes that Eigen library has been already included
+#include <gismo/Common/Common>
 
 namespace gismo
 {
 
+// =================== TYPE ALIAS DECLARATIONS ===================
+// Forward declarations for user-friendly type aliases
+// These will be defined after the implementation classes
+
+/// @brief User-friendly type alias for gsAsMatrix with defaults
+template<typename T, int Rows = gsEigen::Dynamic, int Cols = gsEigen::Dynamic>
+using gsAsMatrix = gsAsMatrixImpl<T, Rows, Cols>;
+
+/// @brief User-friendly type alias for gsAsConstMatrix with defaults
+template<typename T, int Rows = gsEigen::Dynamic, int Cols = gsEigen::Dynamic>
+using gsAsConstMatrix = gsAsConstMatrixImpl<T, Rows, Cols>;
+
+/// @brief User-friendly type alias for gsAsVector with defaults
+template<typename T, int Rows = gsEigen::Dynamic>
+using gsAsVector = gsAsVectorImpl<T, Rows>;
+
+/// @brief User-friendly type alias for gsAsConstVector with defaults
+template<typename T, int Rows = gsEigen::Dynamic>
+using gsAsConstVector = gsAsConstVectorImpl<T, Rows>;
+
+// =================== IMPLEMENTATION CLASSES ===================
+
 /** \brief Creates a mapped object or data pointer to a matrix without
     copying data.
-    
+
    This allows for re-indexing the matrix. No copying is taking place
    and the original matrix remains untached.
 
@@ -28,14 +50,14 @@ namespace gismo
    \ingroup Matrix
 */
 template<class T, int _Rows, int _Cols>
-class gsAsMatrix : public gsEigen::Map< gsEigen::Matrix<T,_Rows,_Cols> >
+class gsAsMatrixImpl : public gsEigen::Map< gsEigen::Matrix<T,_Rows,_Cols> >
 {
 public:
     typedef gsEigen::Map< gsEigen::Matrix<T,_Rows,_Cols> > Base;
 
     // type of first minor matrix: rows and cols reduced by one
     typedef typename gsMatrix< T, _Rows, _Cols>::FirstMinorMatrixType FirstMinorMatrixType;
-    
+
     // type of row minor matrix: rows reduced by one
     typedef typename gsMatrix< T, _Rows, _Cols>::RowMinorMatrixType RowMinorMatrixType;
 
@@ -49,20 +71,20 @@ public:
     typedef const gsEigen::Transpose<const Base> constTr;
 
 public:
-    gsAsMatrix( std::vector<T> & v, index_t n, index_t m)
+    gsAsMatrixImpl( std::vector<T> & v, index_t n, index_t m)
     : Base( v.data(), n, m)
-    { 
-        //GISMO_ASSERT( v.size() != 0, "Tried to map an empty vector." ); 
+    {
+        //GISMO_ASSERT( v.size() != 0, "Tried to map an empty vector." );
         GISMO_ASSERT( m*n <= (index_t)(v.size()), "Not enough coefficients in vector to map." );
     }
 
-    gsAsMatrix( std::vector<T> & v)
-    : Base( v.data(), 1, v.size() ) 
-    {  
-        //GISMO_ASSERT( v.size() != 0, "Tried to map an empty vector." ); 
+    gsAsMatrixImpl( std::vector<T> & v)
+    : Base( v.data(), 1, v.size() )
+    {
+        //GISMO_ASSERT( v.size() != 0, "Tried to map an empty vector." );
     }
 
-    gsAsMatrix( T * pt, unsigned n, unsigned m)
+    gsAsMatrixImpl( T * pt, unsigned n, unsigned m)
     : Base( pt, n, m) {  }
 
     gsMatrix<T> move()
@@ -71,10 +93,10 @@ public:
         a.swap(*this);
         return a;
     }
-    
+
 #ifdef _MSC_VER
     template <class gsEigenExpr>
-    gsAsMatrix& operator= (const gsEigenExpr & other)
+    gsAsMatrixImpl& operator= (const gsEigenExpr & other)
     {
         this->Base::operator=(other);
         return *this;
@@ -88,7 +110,7 @@ public:
     /// row and column size of the matrix is one less.
     void firstMinor(index_t i, index_t j, FirstMinorMatrixType & result ) const
     {
-        const index_t mrows = this->rows()-1, 
+        const index_t mrows = this->rows()-1,
             mcols = this->cols()-1;
         GISMO_ASSERT( i <= mrows, "Invalid row." );
         GISMO_ASSERT( j <= mcols, "Invalid column." );
@@ -110,7 +132,7 @@ public:
         result.topRows(i)          = this->topRows(i);
         result.bottomRows(mrows-i) = this->bottomRows(mrows-i);
     }
-    
+
     /// Returns the jth column minor, i.e. the matrix after removing row
     /// \a j from the matrix. After the operation the column size of the
     /// matrix is one less.
@@ -124,12 +146,12 @@ public:
     }
 
 private:
-    gsAsMatrix();
+    gsAsMatrixImpl();
 };
 
 /** \brief Creates a mapped object or data pointer to a const matrix without
     copying data.
-    
+
    This allows for re-indexing the matrix. No copying is taking place
    and the original matrix remains untached.
 
@@ -137,7 +159,7 @@ private:
    \ingroup Matrix
 */
 template<class T, int _Rows, int _Cols>
-class gsAsConstMatrix : public gsEigen::Map< const gsEigen::Matrix<T,_Rows,_Cols> >
+class gsAsConstMatrixImpl : public gsEigen::Map< const gsEigen::Matrix<T,_Rows,_Cols> >
 {
 public:
     typedef gsEigen::Map<const gsEigen::Matrix<T,_Rows,_Cols> > Base;
@@ -150,7 +172,7 @@ public:
 
     // type of first minor matrix: rows and cols reduced by one
     typedef typename gsMatrix< T, _Rows, _Cols>::FirstMinorMatrixType FirstMinorMatrixType;
-    
+
     // type of row minor matrix: rows reduced by one
     typedef typename gsMatrix< T, _Rows, _Cols>::RowMinorMatrixType RowMinorMatrixType;
 
@@ -159,33 +181,33 @@ public:
 
 public:
 
-    gsAsConstMatrix( const std::vector<T> & v, index_t n, index_t m)
+    gsAsConstMatrixImpl( const std::vector<T> & v, index_t n, index_t m)
     : Base( v.data(), n, m)
-    { 
+    {
         GISMO_ASSERT( m*n <= (index_t)(v.size()), "Not enough coefficients in vector to map." );
     }
 
-    gsAsConstMatrix( const std::vector<T> & v)
-    : Base( v.data(), 1, v.size() ) 
-    {  
-        //GISMO_ASSERT( v.size() != 0, "Tried to map an empty vector." ); 
+    gsAsConstMatrixImpl( const std::vector<T> & v)
+    : Base( v.data(), 1, v.size() )
+    {
+        //GISMO_ASSERT( v.size() != 0, "Tried to map an empty vector." );
     }
 
-    gsAsConstMatrix( const T * pt, unsigned n, unsigned m)
+    gsAsConstMatrixImpl( const T * pt, unsigned n, unsigned m)
     : Base( pt, n, m) {  }
 
-    gsAsConstMatrix(const gsEigen::Map< gsEigen::Matrix<T,_Rows,_Cols> > & mat)
-    : Base( mat.data(), mat.rows(), mat.cols()) 
+    gsAsConstMatrixImpl(const gsEigen::Map< gsEigen::Matrix<T,_Rows,_Cols> > & mat)
+    : Base( mat.data(), mat.rows(), mat.cols())
     {  }
 
 public:
-    
+
     /// Returns the (i,j)-minor, i.e. the matrix after removing row
     /// \a i and column \a j from the matrix. After the operation the
     /// row and column size of the matrix is one less.
     void firstMinor(index_t i, index_t j, FirstMinorMatrixType & result ) const
     {
-        const index_t mrows = this->rows()-1, 
+        const index_t mrows = this->rows()-1,
             mcols = this->cols()-1;
         GISMO_ASSERT( i <= mrows, "Invalid row." );
         GISMO_ASSERT( j <= mcols, "Invalid column." );
@@ -207,7 +229,7 @@ public:
         result.topRows(i)          = this->topRows(i);
         result.bottomRows(mrows-i) = this->bottomRows(mrows-i);
     }
-    
+
     /// Returns the jth column minor, i.e. the matrix after removing row
     /// \a j from the matrix. After the operation the column size of the
     /// matrix is one less.
@@ -221,12 +243,12 @@ public:
     }
 
 private:
-    gsAsConstMatrix() { }
+    gsAsConstMatrixImpl() { }
 };
 
 /** \brief Creates a mapped object or data pointer to a vector without
     copying data.
-    
+
    This allows for re-indexing the matrix. No copying is taking place
    and the original matrix remains untached.
 
@@ -234,30 +256,30 @@ private:
    \ingroup Matrix
  */
 template<class T, int _Rows>
-class gsAsVector : public gsAsMatrix<T,_Rows,1>
+class gsAsVectorImpl : public gsAsMatrixImpl<T,_Rows,1>
 //class gsAsVector : public gsAsMatrix<T,_Rows,(_Rows==1?1:0)>
 {
 public:
     //typedef gsEigen::Map< gsEigen::Matrix<T,_Rows,1> > Base;
     //typedef gsAsMatrix<T,_Rows,(_Rows==1?1:0)> Base;
-    typedef gsAsMatrix<T,_Rows,1> Base;
+    typedef gsAsMatrixImpl<T,_Rows,1> Base;
 
     // Type for treating a vector as a permutation matrix
     typedef gsEigen::PermutationMatrix<_Rows> Permutation;
 
 public:
-    gsAsVector( std::vector<T> & v)
-    : Base( v.data(), v.size(), 1 ) 
-    {  
-        //GISMO_ASSERT( v.size() != 0, "Tried to map an empty vector." ); 
+    gsAsVectorImpl( std::vector<T> & v)
+    : Base( v.data(), v.size(), 1 )
+    {
+        //GISMO_ASSERT( v.size() != 0, "Tried to map an empty vector." );
     }
 
-    gsAsVector( T * pt, unsigned n)
+    gsAsVectorImpl( T * pt, unsigned n)
     : Base( pt, n, 1) {  }
 
 #ifdef _MSC_VER
     template <class gsEigenExpr>
-    gsAsVector& operator= (const gsEigenExpr & other)
+    gsAsVectorImpl& operator= (const gsEigenExpr & other)
     {
         this->Base::operator=(other);
         return *this;
@@ -267,12 +289,12 @@ public:
 #endif
 
 private:
-    gsAsVector() { }
+    gsAsVectorImpl() { }
 };
 
 /** \brief Creates a mapped object or data pointer to a const vector without
     copying data.
-    
+
    This allows for re-indexing the matrix. No copying is taking place
    and the original matrix remains untached.
 
@@ -280,27 +302,27 @@ private:
    \ingroup Matrix
  */
 template<class T, int _Rows>
-//class gsAsConstVector : public gsAsConstMatrix<T,_Rows,(_Rows==1?1:0)>
-class gsAsConstVector : public gsAsConstMatrix<T,_Rows,1>
+//class gsAsConstVectorImpl : public gsAsConstMatrixImpl<T,_Rows,(_Rows==1?1:0)>
+class gsAsConstVectorImpl : public gsAsConstMatrixImpl<T,_Rows,1>
 {
 public:
     //typedef gsEigen::Map<const gsEigen::Matrix<T,_Rows,1> > Base;
 
-    typedef gsAsConstMatrix<T,_Rows,1> Base;
+    typedef gsAsConstMatrixImpl<T,_Rows,1> Base;
     //typedef gsAsConstMatrix<T,_Rows,(_Rows==1?1:0)> Base;
 public:
 
-    gsAsConstVector( const std::vector<T> & v)
-    : Base( v.data(), v.size(), 1) 
-    {  
-        //GISMO_ASSERT( v.size() != 0, "Tried to map an empty vector." ); 
+    gsAsConstVectorImpl( const std::vector<T> & v)
+    : Base( v.data(), v.size(), 1)
+    {
+        //GISMO_ASSERT( v.size() != 0, "Tried to map an empty vector." );
     }
 
-    gsAsConstVector( const T * pt, unsigned n)
+    gsAsConstVectorImpl( const T * pt, unsigned n)
     : Base( pt, n, 1) {  }
 
 private:
-    gsAsConstVector() { }
+    gsAsConstVectorImpl() { }
 };
 
 
@@ -314,6 +336,8 @@ gsMatrix<T> makeMatrix(iterator it, index_t n, index_t m)
             result(i,j)= *(it++);
     return result;
 }
+
+
 
 
 } // namespace gismo

@@ -17,6 +17,7 @@
 #pragma once
 
 #include <gismo/Common/ForwardDeclarations.h>
+#include <gismo/Common/DebugAssert.h>
 
 #include <cmath>
 #include <complex>

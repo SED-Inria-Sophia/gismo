@@ -13,32 +13,20 @@
 
 #pragma once
 
-// Linear algebra and Eigen integration
+// Linear algebra and Eigen integration (includes everything needed)
 #include <gismo/Math/LinearAlgebra.h>
+
+// Matrix and vector types
+#include <gismo/Math/Matrix.h>
+#include <gismo/Math/Vector.h>
+#include <gismo/Math/SparseMatrix.h>
+#include <gismo/Math/FiberMatrix.h>
 
 // Mathematical constants and utilities
 #include <gismo/Math/Constants.h>
 
-// Eigen declarations and extensions
-#include <gismo/Math/EigenDeclarations.h>
-#include <gismo/Math/MatrixAddons.h>
-#include <gismo/Math/PlainObjectBaseAddons.h>
-
-// Matrix and vector operations
-#include <gismo/Math/Matrix.h>
-#include <gismo/Math/Vector.h>
-#include <gismo/Math/SparseMatrix.h>
-#include <gismo/Math/SparseVector.h>
-#include <gismo/Math/SparseSolver.h>
-#include <gismo/Math/MatrixBlockView.h>
-#include <gismo/Math/AsMatrix.h>
+// Additional math utilities
 #include <gismo/Math/Point.h>
-
-// Eigen extensions
-#include <gismo/Math/Adjugate.h>
-#include <gismo/Math/BlockDiag.h>
-#include <gismo/Math/BlockTranspose.h>
 
 // Mathematical utilities and containers
 #include <gismo/Math/Combinatorics.h>
-#include <gismo/Math/PointGrid.h>

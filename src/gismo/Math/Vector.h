@@ -31,19 +31,19 @@ namespace gismo
 
     \ingroup Matrix
 */
-template<class T, int _Rows=Dynamic, int _Options=0>
-class gsVector : public gsMatrix<T, _Rows, 1, _Options>
-//class gsVector : public gsMatrix<T, _Rows, (_Rows!=-1 ? 1 : -1), _Options>
+template<class T, int _Rows, int _Options>
+class gsVectorImpl : public gsMatrixImpl<T, _Rows, 1, _Options>
+//class gsVectorImpl : public gsMatrixImpl<T, _Rows, (_Rows!=-1 ? 1 : -1), _Options>
 {
 public:
-    typedef gsMatrix<T,_Rows,1,_Options> gsBase;
-    //typedef gsMatrix<T,_Rows,(_Rows!=-1 ? 1 : -1), _Options> gsBase;
+    typedef gsMatrixImpl<T,_Rows,1,_Options> gsBase;
+    //typedef gsMatrixImpl<T,_Rows,(_Rows!=-1 ? 1 : -1), _Options> gsBase;
 
     // Base is the single-column dense matrix class of Eigen
     typedef typename gsBase::Base Base;
 
     // Self type
-    typedef gsVector<T,_Rows, _Options> Self;
+    typedef gsVectorImpl<T,_Rows, _Options> Self;
 
     typedef typename gsEigen::aligned_allocator<Self> aalloc;
 
@@ -56,11 +56,11 @@ public:
     // Type pointing to a block view of the vector
     typedef gsMatrixBlockView<Base> BlockView;
 
-    /// Shared pointer for gsVector
-    typedef memory::shared_ptr< gsVector > Ptr;
+    /// Shared pointer for gsVectorImpl
+    typedef memory::shared_ptr< Self > Ptr;
 
-    /// Unique pointer for gsVector
-    typedef memory::unique_ptr< gsVector > uPtr;
+    /// Unique pointer for gsVectorImpl
+    typedef memory::unique_ptr< Self > uPtr;
 
     // Type for copying a vector as a permutation matrix
     typedef gsEigen::PermutationMatrix<_Rows,Base::SizeAtCompileTime,index_t> Permutation;
@@ -95,18 +95,18 @@ public:
 
 public:
 
-    gsVector() ;
+    gsVectorImpl() ;
 
-    gsVector(const Base& a) ;
+    gsVectorImpl(const Base& a) ;
 
     // implicitly deleted in C++11
-    //gsVector(const gsVector& a) : gsBase(a) { }
+    //gsVectorImpl(const gsVectorImpl& a) : gsBase(a) { }
 
-    explicit gsVector(index_t dimension) ;
+    explicit gsVectorImpl(index_t dimension) ;
 
     // To enable pybind11 in gsPointLoads
-    explicit gsVector(index_t _rows, index_t _cols)
-    : gsVector(_rows)
+    explicit gsVectorImpl(index_t _rows, index_t _cols)
+    : gsVectorImpl(_rows)
     {
         GISMO_ASSERT(1==_cols,"Columns should be 1");
     }
@@ -117,17 +117,17 @@ public:
 
     void clear() { this->resize(0); }
 
-    // This constructor allows constructing a gsVector from Eigen expressions
+    // This constructor allows constructing a gsVectorImpl from Eigen expressions
     template<typename OtherDerived>
-    gsVector(const gsEigen::EigenBase<OtherDerived>& other) : gsBase(other) { }
+    gsVectorImpl(const gsEigen::EigenBase<OtherDerived>& other) : gsBase(other) { }
 
-    // This constructor allows constructing a gsVector from Eigen expressions
+    // This constructor allows constructing a gsVectorImpl from Eigen expressions
     template<typename OtherDerived>
-    gsVector(const gsEigen::MatrixBase<OtherDerived>& other) : gsBase(other) { }
+    gsVectorImpl(const gsEigen::MatrixBase<OtherDerived>& other) : gsBase(other) { }
 
-    // This constructor allows constructing a gsVector from Eigen expressions
+    // This constructor allows constructing a gsVectorImpl from Eigen expressions
     template<typename OtherDerived>
-    gsVector(const gsEigen::ReturnByValue<OtherDerived>& other) : gsBase(other) { }
+    gsVectorImpl(const gsEigen::ReturnByValue<OtherDerived>& other) : gsBase(other) { }
 
     static gsVector<T,2> vec( T x, T y)
     {
@@ -282,13 +282,13 @@ public:
 
 
 template<class T, int _Rows, int _Options> inline
-gsVector<T,_Rows,_Options>::gsVector() : gsBase() { }
+gsVectorImpl<T,_Rows,_Options>::gsVectorImpl() : gsBase() { }
 
 template<class T, int _Rows, int _Options> inline
-gsVector<T,_Rows,_Options>::gsVector(const Base& a): gsBase(a) { }
+gsVectorImpl<T,_Rows,_Options>::gsVectorImpl(const Base& a): gsBase(a) { }
 
 template<class T, int _Rows, int _Options> inline
-gsVector<T,_Rows,_Options>::gsVector(index_t dimension): gsBase(dimension,1) { }
+gsVectorImpl<T,_Rows,_Options>::gsVectorImpl(index_t dimension): gsBase(dimension,1) { }
 
 template<class T> inline
 gsVector3d<T>::gsVector3d() : Base() { }

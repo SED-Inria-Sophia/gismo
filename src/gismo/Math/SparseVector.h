@@ -2,12 +2,12 @@
 
     @brief Provides declaration of SparseVector class (wrapping Eigen)
 
-    This file is part of the G+Smo library. 
+    This file is part of the G+Smo library.
 
     This Source Code Form is subject to the terms of the Mozilla Public
     License, v. 2.0. If a copy of the MPL was not distributed with this
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
-    
+
     Author(s): A. Mantzaflaris
 */
 
@@ -31,19 +31,22 @@ namespace gismo
 */
 
 template<typename T, int _Options, typename _Index>
-class gsSparseVector : public gsEigen::SparseVector<T,_Options,_Index>
+class gsSparseVectorImpl : public gsEigen::SparseVector<T,_Options,_Index>
 {
 public:
 
     typedef gsEigen::SparseVector<T,_Options,_Index> Base;
 
+    // Self type
+    typedef gsSparseVectorImpl<T, _Options, _Index> Self;
+
     typedef typename gsEigen::SparseVector<T,_Options,_Index>::InnerIterator InnerIterator;
-    
+
     class iterator : public InnerIterator
     {
     public:
         iterator() = default;
-        iterator(const gsSparseVector & sv) : InnerIterator(sv) { }
+        iterator(const gsSparseVectorImpl & sv) : InnerIterator(sv) { }
 
         inline T& operator[](size_t i)
         { return const_cast<T&>(*(this->m_values+i)); }
@@ -51,45 +54,48 @@ public:
 
     // Type pointing to a block of the sparse vector
     typedef typename gsEigen::Block<Base> Block;
-    
+
     // Type pointing to a block view of the sparse vector
     typedef gsMatrixBlockView<Base> BlockView;
-    
-    /// Shared pointer for gsSparseVector
-    typedef memory::shared_ptr< gsSparseVector > Ptr;
-    
-public:
-    gsSparseVector() : Base() { }
-    gsSparseVector(_Index rows) : Base(rows) { }
 
-    /// This constructor allows constructing a gsSparseVector from
+    /// Shared pointer for gsSparseVectorImpl
+    typedef memory::shared_ptr< Self > Ptr;
+
+    /// Unique pointer for gsSparseVectorImpl
+    typedef memory::unique_ptr< Self > uPtr;
+
+public:
+    gsSparseVectorImpl() : Base() { }
+    gsSparseVectorImpl(_Index rows) : Base(rows) { }
+
+    /// This constructor allows constructing a gsSparseVectorImpl from
     /// gsEigen expressions
     template<typename OtherDerived>
-    gsSparseVector(const gsEigen::EigenBase<OtherDerived>& other)  : Base(other) { }
+    gsSparseVectorImpl(const gsEigen::EigenBase<OtherDerived>& other)  : Base(other) { }
 
-    /// This constructor allows constructing a gsSparseVector from
+    /// This constructor allows constructing a gsSparseVectorImpl from
     /// another sparse expression
-    template<typename OtherDerived> 
-    gsSparseVector(const gsEigen::MatrixBase<OtherDerived>& other)  : Base(other) { }
-    
-    /// This constructor allows constructing a gsSparseVector from
-    /// another sparse expression
-    template<typename OtherDerived> 
-    gsSparseVector(const gsEigen::SparseMatrixBase<OtherDerived>& other)  : Base(other) { }
+    template<typename OtherDerived>
+    gsSparseVectorImpl(const gsEigen::MatrixBase<OtherDerived>& other)  : Base(other) { }
 
-    /// This constructor allows constructing a gsSparseVector from
+    /// This constructor allows constructing a gsSparseVectorImpl from
     /// another sparse expression
-    template<typename OtherDerived> 
-    gsSparseVector(const gsEigen::ReturnByValue<OtherDerived>& other)  : Base(other) { }
-    
-    ~gsSparseVector() { }
-    
+    template<typename OtherDerived>
+    gsSparseVectorImpl(const gsEigen::SparseMatrixBase<OtherDerived>& other)  : Base(other) { }
+
+    /// This constructor allows constructing a gsSparseVectorImpl from
+    /// another sparse expression
+    template<typename OtherDerived>
+    gsSparseVectorImpl(const gsEigen::ReturnByValue<OtherDerived>& other)  : Base(other) { }
+
+    ~gsSparseVectorImpl() { }
+
 #if !EIGEN_HAS_RVALUE_REFERENCES
     // Using the assignment operators of gsEigen
     // Note: using Base::operator=; is ambiguous in MSVC
 #ifdef _MSC_VER
     template <class gsEigenExpr>
-    gsSparseVector& operator= (const gsEigenExpr & other)
+    gsSparseVectorImpl& operator= (const gsEigenExpr & other)
     {
         this->Base::operator=(other);
         return *this;
@@ -97,26 +103,26 @@ public:
 #else
     using Base::operator=;
 #endif
-    
+
 #else
-    
-    // Avoid default keyword for MSVC<2013 
+
+    // Avoid default keyword for MSVC<2013
     // https://msdn.microsoft.com/en-us/library/hh567368.aspx
-    gsSparseVector(const gsSparseVector& other) : Base(other)
+    gsSparseVectorImpl(const gsSparseVectorImpl& other) : Base(other)
     { Base::operator=(other); }
 
-    gsSparseVector& operator= (const gsSparseVector & other)
+    gsSparseVectorImpl& operator= (const gsSparseVectorImpl & other)
     { Base::operator=(other); return *this; }
-        
-    gsSparseVector(gsSparseVector&& other)
-    { operator=(std::forward<gsSparseVector>(other)); }
 
-    gsSparseVector & operator=(gsSparseVector&& other)
+    gsSparseVectorImpl(gsSparseVectorImpl&& other)
+    { operator=(std::forward<gsSparseVectorImpl>(other)); }
+
+    gsSparseVectorImpl & operator=(gsSparseVectorImpl&& other)
     {
         this->swap(other);
         other.clear();
         return *this;
-    }    
+    }
 
 #endif
 
@@ -138,10 +144,10 @@ public:
     inline T  & operator [] (_Index i) { return this->coeffRef(i); }
 
     /// Clone function. Used to make a copy of the matrix
-    gsSparseVector * clone() const
-    { return new gsSparseVector(*this); }
+    gsSparseVectorImpl * clone() const
+    { return new gsSparseVectorImpl(*this); }
 
-}; // class gsSparseVector
+}; // class gsSparseVectorImpl
 
 
 

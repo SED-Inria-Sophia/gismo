@@ -159,6 +159,28 @@ set_tests_properties(test_vecassymmmatrix
     TIMEOUT 60
 )
 
+# RowSelection Test
+add_executable(test_rowselection test_rowselection.cpp)
+target_link_libraries(test_rowselection
+  PRIVATE
+    gismo::Common
+    gismo::Math
+)
+set_target_properties(test_rowselection PROPERTIES
+  CXX_STANDARD 17
+  CXX_STANDARD_REQUIRED ON
+)
+add_test(
+  NAME test_rowselection
+  COMMAND test_rowselection
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+set_tests_properties(test_rowselection
+  PROPERTIES
+    LABELS "Math;Comprehensive;Methods"
+    TIMEOUT 60
+)
+
 # Comprehensive Test Suite Target
 # Create custom target to run all comprehensive tests together
 add_custom_target(run_comprehensive_tests
@@ -170,6 +192,7 @@ add_custom_target(run_comprehensive_tests
     test_sparsevector
     test_fibermatrix
     test_vecassymmmatrix
+    test_rowselection
   COMMENT "Running Task 2.3.1 Comprehensive Compilation Test Suite"
 )
 
@@ -183,6 +206,7 @@ add_custom_target(run_all_math_tests
     test_sparsevector
     test_fibermatrix
     test_vecassymmmatrix
+    test_rowselection
     test_asmatrix
   COMMENT "Running all Math module tests including comprehensive suite"
 )

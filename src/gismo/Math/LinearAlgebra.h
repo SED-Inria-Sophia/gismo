@@ -52,7 +52,7 @@
 #include <gismo/Math/Adjugate.h>
 #include <gismo/Math/BlockDiag.h>
 #include <gismo/Math/BlockTranspose.h>
-//#include <gismo/Math/RowSelection.h>
+#include <gismo/Math/RowSelection.h>
 
 // User-friendly type aliases (must be included before implementation headers)
 #include <gismo/Math/MatrixTypeAliases.h>

@@ -26,9 +26,8 @@ inline const BlockDiagReturnType blockDiag(Index rowFactor) const;
 typedef BlockTranspose<Derived,Dynamic> BlockTransposeReturnType;
 inline const BlockTransposeReturnType blockTranspose(Index rowFactor) const;
 
-// TODO: RowSelection class not yet implemented - commented out to prevent linker errors
-// template<typename IndicesType>
-// const RowSelection<Derived,IndicesType> selectRows(const IndicesType & ind) const;
+template<typename IndicesType>
+const RowSelection<Derived,IndicesType> selectRows(const IndicesType & ind) const;
 
 
 /**

@@ -26,7 +26,6 @@ namespace internal
 template<typename MatrixType> struct adjugate_impl;
 }
 
-// TODO: RowSelection class not yet implemented - forward declaration commented out
-// template<typename XprType, typename IndicesType> class RowSelection;
+template<typename XprType, typename IndicesType> class RowSelection;
 
 }

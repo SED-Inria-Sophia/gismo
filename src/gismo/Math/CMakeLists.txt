@@ -53,6 +53,7 @@ target_sources(${PROJECT_NAME}
         PointGrid.h
         MatrixTypeAliases.h
         VecAsSymmMatrix.h
+        RowSelection.h
 )
 
 target_include_directories(${PROJECT_NAME} INTERFACE

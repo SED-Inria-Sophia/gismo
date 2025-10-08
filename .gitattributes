@@ -5,3 +5,5 @@
 .circleci		export-ignore
 .idea			export-ignore
 appveyor.yml		export-ignore
+# SCM syntax highlighting & preventing 3-way merges
+pixi.lock merge=binary linguist-language=YAML linguist-generated=true

@@ -48,3 +48,7 @@ external/Eigen
 
 # usual cmake build directory
 build/
+
+# pixi environments
+.pixi/*
+!.pixi/config.toml

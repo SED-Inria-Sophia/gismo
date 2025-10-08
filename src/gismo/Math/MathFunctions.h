@@ -1,6 +1,9 @@
-/** @file Constants.h
+/** @file MathFunctions.h
 
-    @brief Mathematical functions for use in G+Smo.
+    @brief Mathematical functions and numerical utilities for use in G+Smo.
+
+    This file provides cross-platform mathematical function imports, numerical
+    utilities, and compatibility layers for different math libraries.
 
     This file is part of the G+Smo library.
 
@@ -11,6 +14,7 @@
     Author(s): A. Bressan, A. Mantzaflaris
 
     Migrated from gsCore/gsMath.h as part of Task 1.1: Create Math Module.
+    Renamed from Constants.h to MathFunctions.h for clarity (more accurate name).
     Only include paths updated to point to new module locations.
 */
 

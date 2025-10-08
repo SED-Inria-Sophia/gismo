@@ -1,6 +1,18 @@
 /** @file LinearAlgebra.h
 
-    @brief This is the main header file that collects wrappers of Eigen for linear algebra.
+    @brief Eigen integration with linear algebra implementations.
+
+    This file provides comprehensive Eigen library integration including:
+    - Core Eigen headers (Dense, Sparse, Geometry)
+    - GISMO Eigen extensions (BlockDiag, RowSelection, VecAsSymmMatrix, etc.)
+    - Matrix and Vector implementations with mathematical functions
+    - Type aliases and cross-platform compatibility layers
+
+    SCOPE: Complete Eigen-based linear algebra system (headers + implementations).
+    FOR BROADER MATH: Use <gismo/Math/Math> which includes this + geometry utilities.
+
+    NOTE: Includes MathFunctions.h because Matrix/Vector implementations use mathematical
+    functions (abs, acos, min, etc.). This is architecturally correct.
 
     This file is part of the G+Smo library.
 
@@ -11,13 +23,13 @@
     Author(s): A. Mantzaflaris
 
     Migrated from gsCore/gsLinearAlgebra.h as part of Task 1.1: Create Math Module.
-    Only include paths updated to point to new module locations.
+    Clarified as PURE Eigen integration (Option B: Clear Functional Separation).
 */
 
 
 # pragma once
 
-#include <gismo/Math/Constants.h>
+#include <gismo/Math/MathFunctions.h>
 
 // Eigen linear algebra library (http://eigen.tuxfamily.org)
 
@@ -28,10 +40,23 @@
 // http://eigen.tuxfamily.org/dox-3.2/TopicPreprocessorDirectives.html
 #define eigen_assert( cond ) GISMO_ASSERT( cond, "" )
 
+// Forward declarations for Eigen extensions
+namespace gsEigen
+{
+    template<typename MatrixType,int RowFactor> class BlockDiag;
+    template<typename MatrixType,int RowFactor> class BlockTranspose;
+    template<typename XprType, typename IndicesType> class RowSelection;
+    template<typename MatrixType, int Dim> class VecAsSymmMatrix;
+
+    namespace internal
+    {
+        template<typename MatrixType> struct adjugate_impl;
+    }
+}
+
 // Plugin provides extra members
 #define EIGEN_MATRIXBASE_PLUGIN <gismo/Math/MatrixAddons.h>
 #define EIGEN_PLAINOBJECTBASE_PLUGIN <gismo/Math/PlainObjectBaseAddons.h>
-#include <gismo/Math/EigenDeclarations.h>
 
 #include <Eigen/Core>
 
@@ -53,6 +78,7 @@
 #include <gismo/Math/BlockDiag.h>
 #include <gismo/Math/BlockTranspose.h>
 #include <gismo/Math/RowSelection.h>
+#include <gismo/Math/VecAsSymmMatrix.h>
 
 // User-friendly type aliases (must be included before implementation headers)
 #include <gismo/Math/MatrixTypeAliases.h>

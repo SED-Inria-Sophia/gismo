@@ -16,11 +16,6 @@
 
 #pragma once
 
-// Forward declaration needed for traits specialization
-namespace gsEigen {
-template<typename MatrixType, int Dim> class VecAsSymmMatrix;
-}
-
 namespace gsEigen {
 
 /**

@@ -1,9 +1,19 @@
 /** @file Math
-    @brief Main header for the GISMO Math module
+    @brief COMPREHENSIVE mathematical module for GISMO
 
-    This header provides convenient access to all Math module functionality.
-    It includes linear algebra operations, mathematical constants, matrix
-    operations, and mathematical utilities.
+    This header provides access to ALL mathematical functionality in GISMO including:
+    - Linear algebra operations (via LinearAlgebra.h)
+    - Geometric utilities and point operations
+    - Mathematical containers and specialized data structures
+    - Combinatorial and numerical utilities
+
+    ARCHITECTURE: Option B - Clear Functional Separation
+    - LinearAlgebra.h: PURE Eigen integration (matrices, vectors, linear algebra)
+    - Math: BROADER mathematical concepts (geometry, utilities + LinearAlgebra)
+
+    USE CASES:
+    - For linear algebra only: #include <gismo/Math/LinearAlgebra.h>
+    - For complete math functionality: #include <gismo/Math/Math>
 
     Created as part of Task 1.1: Create Math Module from the GISMO
     Architecture Refactoring Plan.
@@ -13,20 +23,11 @@
 
 #pragma once
 
-// Linear algebra and Eigen integration (includes everything needed)
+// CORE: Pure Eigen integration (linear algebra, matrices, vectors, points)
 #include <gismo/Math/LinearAlgebra.h>
 
-// Matrix and vector types
-#include <gismo/Math/Matrix.h>
-#include <gismo/Math/Vector.h>
-#include <gismo/Math/SparseMatrix.h>
+// SPECIALIZED CONTAINERS: Mathematical data structures
 #include <gismo/Math/FiberMatrix.h>
 
-// Mathematical constants and utilities
-#include <gismo/Math/Constants.h>
-
-// Additional math utilities
-#include <gismo/Math/Point.h>
-
-// Mathematical utilities and containers
+// MATHEMATICAL UTILITIES: Combinatorics, numerical functions
 #include <gismo/Math/Combinatorics.h>

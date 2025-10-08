@@ -14,7 +14,7 @@
 #pragma once
 
 #include <gismo/Math/LinearAlgebra.h>
-#include <gismo/Math/Constants.h>
+#include <gismo/Math/MathFunctions.h>
 
 namespace gismo
 {

@@ -156,7 +156,7 @@ template<> struct gismo_static_assert_failure<true> { enum { value = 1 }; };
 ///@}
 
 #ifndef GISMO_BUILD_LIB
-#include <gismo/Common/Debug.hpp>
+// #include <gismo/Common/Debug.hpp>  // File does not exist, commented out
 #endif
 
 } //namespace gismo

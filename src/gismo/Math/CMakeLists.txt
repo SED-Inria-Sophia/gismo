@@ -33,8 +33,7 @@ target_sources(${PROJECT_NAME}
       FILES
         Math
         LinearAlgebra.h
-        Constants.h
-        EigenDeclarations.h
+        MathFunctions.h
         MatrixAddons.h
         PlainObjectBaseAddons.h
         Adjugate.h

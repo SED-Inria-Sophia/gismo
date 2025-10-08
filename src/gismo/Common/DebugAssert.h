@@ -159,6 +159,17 @@ template<> struct gismo_static_assert_failure<true> { enum { value = 1 }; };
 // #include <gismo/Common/Debug.hpp>  // File does not exist, commented out
 #endif
 
+// =====================================================================
+// MISSING IMPLEMENTATION MACRO
+// =====================================================================
+
+/** Macro for notifying a virtual member function without a default implementation.
+ */
+#define GISMO_NO_IMPLEMENTATION {std::cerr                                       \
+     <<"Virtual member function `"<<__FUNCTION__<<"` has not been implemented\n" \
+     <<__FILE__<<", line "<<__LINE__<<"\n"<<typeid(*this).name()<<std::endl;     \
+    throw std::runtime_error("GISMO_NO_IMPLEMENTATION");}
+
 } //namespace gismo
 
 

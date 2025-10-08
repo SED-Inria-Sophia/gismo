@@ -434,4 +434,21 @@ private:
 
 } // end namespace memory
 
+/**
+    Alias for std::move, to be used instead of std::move for backward
+    c++98 compatibility and MSVC before 2015
+
+    Based on swapping and copy elision.
+*/
+template <typename S> inline S give(S & x)
+{ S t; t.swap(x); return t; }
+
+template <typename T> inline
+memory::unique_ptr<T> give(memory::unique_ptr<T> & x)
+{ return memory::unique_ptr<T>(x.release()); }
+
+template <typename T> inline
+memory::shared_ptr<T> give(memory::shared_ptr<T> & x)
+{ memory::shared_ptr<T> result = x; x.reset(); return result; }
+
 } // end namespace gismo

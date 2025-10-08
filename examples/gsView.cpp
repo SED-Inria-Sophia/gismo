@@ -15,6 +15,10 @@
 
 #include <gismo.h>
 
+#ifdef gsLibMeshb_ENABLED
+#include <gsLibMeshb/gsLibMeshb.h>
+#endif
+
 using namespace gismo;
 
 int main(int argc, char *argv[])
@@ -29,6 +33,7 @@ int main(int argc, char *argv[])
     bool get_mesh = false;
     bool get_geo = false;
     bool base64 = false;
+    bool export_meshb = false;
 
     //! [Parse Command line]
     gsCmdLine cmd("Hi, give me a file (eg: .xml) and I will try to draw it!");
@@ -43,6 +48,9 @@ int main(int argc, char *argv[])
     cmd.addPlainString("filename", "File containing data to draw (.xml or third-party)", fn);
     cmd.addString("o", "oname", "Filename to use for the ParaView output", pname);
     cmd.addSwitch( "base64", "whether to write in binary", base64);
+#ifdef gsLibMeshb_ENABLED
+    cmd.addSwitch("meshb", "Export to LibMeshb .meshb format instead of ParaView (for Vizir/METIS/etc)", export_meshb);
+#endif
 
 
     try { cmd.getValues(argc,argv); } catch (int rv) { return rv; }
@@ -119,11 +127,31 @@ int main(int argc, char *argv[])
             if (plot_patchid)
             {
                 gsField<> nfield = gsFieldCreator<>::patchIds(mp);
-                gsWriteParaviewUnstructuredGrid(nfield, pname, numSamples, base64);
+#ifdef gsLibMeshb_ENABLED
+                if (export_meshb)
+                {
+                    gsInfo << "Exporting to LibMeshb format...\n";
+                    gsWriteLibMeshb(nfield, pname, numSamples, 2);
+                }
+                else
+#endif
+                {
+                    gsWriteParaviewUnstructuredGrid(nfield, pname, numSamples, base64);
+                }
             }
             else
             {
-                gsWriteParaviewUnstructuredGrid(mp, pname, numSamples, base64);
+#ifdef gsLibMeshb_ENABLED
+                if (export_meshb)
+                {
+                    gsInfo << "Exporting to LibMeshb format...\n";
+                    gsWriteLibMeshb(mp, pname, numSamples, 2);
+                }
+                else
+#endif
+                {
+                    gsWriteParaviewUnstructuredGrid(mp, pname, numSamples, base64);
+                }
             }
 
             break;

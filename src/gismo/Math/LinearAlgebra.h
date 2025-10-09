@@ -80,9 +80,6 @@ namespace gsEigen
 #include <gismo/Math/RowSelection.h>
 #include <gismo/Math/VecAsSymmMatrix.h>
 
-// User-friendly type aliases (must be included before implementation headers)
-#include <gismo/Math/MatrixTypeAliases.h>
-
 #ifdef GISMO_WITH_SUPERLU
 #include <Eigen/SuperLUSupport>
 #endif
@@ -170,7 +167,7 @@ template<class T, int _Rows, int _Options> class gsVectorImpl;
 template <int Dim, int Change>
 struct ChangeDim
 {
-    enum { D = Change+Dim<0 ? 0 : Dim + Change };
+    enum { D = Dim + Change <= 0 ? 1 : Dim + Change };
 };
 template <int Change>
 struct ChangeDim<Dynamic, Change>
@@ -240,6 +237,8 @@ public:
 
 } // namespace gismo
 
+// Type aliases (included after complete Eigen setup, like original gsMatrix.h pattern)
+#include <gismo/Math/MatrixTypeAliases.h>
 
 #include <gismo/Math/MatrixBlockView.h>
 #include <gismo/Math/Matrix.h>

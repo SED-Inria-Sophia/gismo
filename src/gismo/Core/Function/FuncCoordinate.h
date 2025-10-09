@@ -14,7 +14,6 @@
 #pragma once
 
 #include <gismo/Core/Function/Function.h>
-#include <gismo/Core/Function/FunctionSet.h>
 #include <gismo/Common/Memory.h>  // For give() function
 
 namespace gismo

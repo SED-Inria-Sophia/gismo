@@ -44,11 +44,14 @@ template<typename T, int _Options, typename _Index> class gsSparseVectorImpl;
  * - gsMatrix<double>                             (user-friendly, defaults applied)
  * - gsMatrix<double, 3, 3, ColMajor>            (full specification, existing code)
  * - gsMatrix<double, Dynamic, Dynamic, ColMajor> (explicit dynamics, existing code)
+ *
+ * Note: _Options defaults to ColMajor (0) for general matrices and RowMajor (1) for 1×n matrices,
+ * matching original GISMO behavior to satisfy Eigen's row vector storage requirements.
  */
 template<typename T,
          int _Rows = gsEigen::Dynamic,
          int _Cols = gsEigen::Dynamic,
-         int _Options = gsEigen::ColMajor>
+         int _Options = 0|((_Rows==1 && _Cols!=1)?0x1:0)>
 using gsMatrix = gsMatrixImpl<T, _Rows, _Cols, _Options>;
 
 /**

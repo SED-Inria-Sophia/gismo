@@ -207,7 +207,6 @@ target_sources(${PROJECT_NAME}
       FILES
         Utilities/JITCompiler.h
         Utilities/SysInfo.h
-        Utilities/Mesh.h
   PRIVATE
     Utilities/SysInfo.cpp
 )

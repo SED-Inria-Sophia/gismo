@@ -120,6 +120,4 @@ protected:
 
 }
 
-#ifndef GISMO_BUILD_LIB
-#include GISMO_HPP_HEADER(gsComposedGeometry.hpp)
-#endif
+#include <gismo/Core/SpecializedFunction/ComposedGeometry.hpp>

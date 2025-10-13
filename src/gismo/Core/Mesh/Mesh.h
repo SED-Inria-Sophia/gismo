@@ -14,10 +14,10 @@
 #pragma once
 
 #include <gismo/Core/Mesh/MeshElement.h>
-#include <gismo/Core/Mesh/Vertex.h>
 #include <gismo/Core/Mesh/Face.h>
 #include <gismo/Core/Mesh/Edge.h>
-#include <gismo/Math/SortedVector.h>
+#include <gismo/Core/Mesh/Vertex.h>
+#include <gismo/Common/SortedVector.h>
 
 
 namespace gismo {
@@ -237,6 +237,4 @@ public: //protected: -- todo
 
 } // namespace gismo
 
-#ifndef GISMO_BUILD_LIB
-#include GISMO_HPP_HEADER(Mesh.hpp)
-#endif
+#include <gismo/Core/Mesh/Mesh.hpp>

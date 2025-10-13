@@ -307,6 +307,4 @@ std::ostream &operator<<(std::ostream &os, const gsField<T>& b)
 
 } // namespace gismo
 
-#ifndef GISMO_BUILD_LIB
-#include GISMO_HPP_HEADER(gsField.hpp)
-#endif
+#include <gismo/Core/Field/Field.hpp>

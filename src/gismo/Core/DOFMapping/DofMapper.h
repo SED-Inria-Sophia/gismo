@@ -610,6 +610,4 @@ inline std::ostream& operator<<( std::ostream& os, const gsDofMapper& b )
 } // namespace gismo
 
 
-#ifndef GISMO_BUILD_LIB
-#include GISMO_HPP_HEADER(gsDofMapper.hpp)
-#endif
+#include <gismo/Core/DOFMapping/DofMapper.hpp>

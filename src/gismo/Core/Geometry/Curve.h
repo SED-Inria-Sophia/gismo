@@ -2,12 +2,12 @@
 
     @brief Provides declaration of Curve abstract interface.
 
-    This file is part of the G+Smo library. 
+    This file is part of the G+Smo library.
 
     This Source Code Form is subject to the terms of the Mozilla Public
     License, v. 2.0. If a copy of the MPL was not distributed with this
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
-    
+
     Author(s): A. Mantzaflaris
 */
 
@@ -18,7 +18,7 @@
 namespace gismo
 {
 
-/** 
+/**
     \brief
     Abstract base class representing a curve.
 
@@ -29,14 +29,14 @@ namespace gismo
 template<class T>
 class gsCurve : public gsGeometry<T>
 {
-    
+
 public:
     /// Shared pointer for gsCurve
     typedef memory::shared_ptr< gsCurve > Ptr;
 
     /// Unique pointer for gsCurve
     typedef memory::unique_ptr< gsCurve > uPtr;
-    
+
     typedef T Scalar_t;
 public:
 
@@ -62,7 +62,7 @@ private: virtual gsCurve * clone_impl() const = 0;
 public: inline uPtr clone() const { return uPtr(clone_impl()); }
 
     short_t domainDim() const { return 1; }
-    
+
     short_t degree() const;
 
     void toMesh(gsMesh<T> & msh, int npoints = 100) const;
@@ -82,6 +82,4 @@ public: inline uPtr clone() const { return uPtr(clone_impl()); }
 } // namespace gismo
 
 
-#ifndef GISMO_BUILD_LIB
-#include GISMO_HPP_HEADER(gsCurve.hpp)
-#endif
+#include <gismo/Core/Geometry/Curve.hpp>

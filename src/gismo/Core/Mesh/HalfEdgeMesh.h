@@ -789,6 +789,4 @@ private:
 
 } // namespace gismo
 
-#ifndef GISMO_BUILD_LIB
-#include GISMO_HPP_HEADER(HalfEdgeMesh.hpp)
-#endif
+#include <gismo/Core/Mesh/HalfEdgeMesh.hpp>

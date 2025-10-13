@@ -175,6 +175,7 @@ target_sources(${PROJECT_NAME}
       FILES
         Mesh/Mesh.h
         Mesh/MeshElement.h
+        Mesh/MeshElement.hpp
         Mesh/Vertex.h
         Mesh/Edge.h
         Mesh/Face.h

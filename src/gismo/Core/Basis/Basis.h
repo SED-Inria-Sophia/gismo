@@ -1005,6 +1005,4 @@ protected:
 } // namespace gismo
 
 
-#ifndef GISMO_BUILD_LIB
-#include GISMO_HPP_HEADER(gsBasis.hpp)
-#endif
+#include <gismo/Core/Basis/Basis.hpp>

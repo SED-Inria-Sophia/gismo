@@ -283,6 +283,4 @@ protected:
 */
 } // namespace gismo
 
-#ifndef GISMO_BUILD_LIB
-#include GISMO_HPP_HEADER(gsComposedFunction.hpp)
-#endif
+#include <gismo/Core/SpecializedFunction/ComposedFunction.hpp>

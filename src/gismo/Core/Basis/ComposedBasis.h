@@ -244,7 +244,5 @@ protected:
 
 } // namespace gismo
 
-#ifndef GISMO_BUILD_LIB
-#include GISMO_HPP_HEADER(gsComposedBasis.hpp)
-#endif
+#include <gismo/Core/Basis/ComposedBasis.hpp>
 

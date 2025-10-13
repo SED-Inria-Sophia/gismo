@@ -95,7 +95,7 @@ public:
     gsMultiBasis( const gsMultiBasis& other );
 
     memory::shared_ptr<gsDomain<T> > domain() const;
-    
+
 #if EIGEN_HAS_RVALUE_REFERENCES
     /// Move constructor
     gsMultiBasis(gsMultiBasis&& other) : m_bases(give(other.m_bases)), m_topology(give(other.m_topology)) {}
@@ -724,6 +724,4 @@ std::ostream& operator<<( std::ostream& os, const gsMultiBasis<T>& b )
 } // namespace gismo
 
 
-#ifndef GISMO_BUILD_LIB
-#include GISMO_HPP_HEADER(gsMultiBasis.hpp)
-#endif
+#include <gismo/Core/MultiPatch/MultiBasis.hpp>

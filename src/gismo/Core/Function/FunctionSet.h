@@ -646,6 +646,4 @@ std::ostream &operator<<(std::ostream &os, const gsFunctionSet<T>& b)
 } // namespace gismo
 
 
-#ifndef GISMO_BUILD_LIB
-#include GISMO_HPP_HEADER(gsFunctionSet.hpp)
-#endif
+#include <gismo/Core/Function/FunctionSet.hpp>

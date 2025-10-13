@@ -583,7 +583,5 @@ std::ostream& operator<<( std::ostream& os, const gsMultiPatch<T>& b )
 } // namespace gismo
 
 
-#ifndef GISMO_BUILD_LIB
-#include GISMO_HPP_HEADER(gsMultiPatch.hpp)
-#endif
+#include <gismo/Core/MultiPatch/MultiPatch.hpp>
 

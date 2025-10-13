@@ -88,7 +88,7 @@ public:
 
     const gsMatrix<T> & matrix() const { return m_mat; }
     const gsVector<T> & translation() const { return m_trans; }
-    
+
     virtual short_t domainDim() const override;
     virtual short_t targetDim() const override;
     virtual void eval_into(const gsMatrix<T>& u, gsMatrix<T>& result) const override;
@@ -102,6 +102,4 @@ public:
 
 } // namespace gismo
 
-#ifndef GISMO_BUILD_LIB
-#include GISMO_HPP_HEADER(gsAffineFunction.hpp)
-#endif
+#include <gismo/Core/SpecializedFunction/AffineFunction.hpp>

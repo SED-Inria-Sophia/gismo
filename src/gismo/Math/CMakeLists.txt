@@ -49,7 +49,9 @@ target_sources(${PROJECT_NAME}
         FiberMatrix.h
         Point.h
         Combinatorics.h
+        GridIterator.h
         PointGrid.h
+        TensorTools.h
         MatrixTypeAliases.h
         VecAsSymmMatrix.h
         RowSelection.h

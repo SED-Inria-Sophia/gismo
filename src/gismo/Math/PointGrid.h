@@ -14,7 +14,7 @@
 #pragma once
 
 #include <gismo/Math/LinearAlgebra.h>
-// Note: Removed gsTensor/gsGridIterator.h to avoid circular dependencies in Math module
+#include <gismo/Math/GridIterator.h>
 
 namespace gismo {
 

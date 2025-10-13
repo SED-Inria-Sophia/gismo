@@ -2,12 +2,12 @@
 
     @brief Provides declaration of the BoxTopology class.
 
-    This file is part of the G+Smo library. 
+    This file is part of the G+Smo library.
 
     This Source Code Form is subject to the terms of the Mozilla Public
     License, v. 2.0. If a copy of the MPL was not distributed with this
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
-    
+
     Author(s): F. Buchegger, A. Mantzaflaris
 */
 
@@ -17,7 +17,7 @@
 #include <gismo/Common/Export.h>
 
 #include <gismo/Core/Topology/Boundary.h>
-#include <gsMesh2/gsProperty.h>
+#include <gismo/Common/Property.h>
 
 namespace gismo
 {
@@ -32,7 +32,7 @@ namespace gismo
     The topological arrangement is stored as a list of
     boundaryInterface structs, each one defining an interface between
     two patch sides.
-    
+
     \ingroup Core
 */
 class GISMO_EXPORT gsBoxTopology
@@ -56,26 +56,26 @@ public:
 public:
 
     /// Default constructor
-    gsBoxTopology(short_t d = -1, index_t n = 0) : m_dim(d), nboxes(0) 
-    { 
+    gsBoxTopology(short_t d = -1, index_t n = 0) : m_dim(d), nboxes(0)
+    {
         addBox(n);
     }
 
     gsBoxTopology( short_t d, index_t boxes,
             const bContainer & boundary,
             const ifContainer & interfaces )
-    : m_dim(d), nboxes(0), m_boundary(boundary), m_interfaces(interfaces) 
-    { 
+    : m_dim(d), nboxes(0), m_boundary(boundary), m_interfaces(interfaces)
+    {
         addBox(boxes);
     }
 
     void setBoxes(index_t n) { nboxes = n; }
 
     // Default copy constructor does the same as the following:
-    //gsBoxTopology(const gsBoxTopology & other) : dim(other.dim), nboxes(other.nboxes), 
+    //gsBoxTopology(const gsBoxTopology & other) : dim(other.dim), nboxes(other.nboxes),
     //    m_boundary(other.m_boundary), m_interfaces(other.m_interfaces)
     // { }
-    
+
     /// Clone function. Used to make a copy of the object
     gsBoxTopology * clone() const
     {
@@ -92,7 +92,7 @@ public:
     {
         return b.print( os );
     }
-    
+
     /// Number of boxes
     index_t nBoxes() const       { return nboxes; }
 
@@ -101,9 +101,9 @@ public:
 
     /// Set the dimension of the boxes
     void setDim  (short_t i)
-    { 
+    {
         GISMO_ASSERT(m_dim==-1 || i==m_dim, "Changing box dimension.");
-        m_dim = i; 
+        m_dim = i;
     }
 
     /// Number of interfaces
@@ -343,7 +343,7 @@ public:
     /// @tparam     T     The type of the property
     ///
     /// @return     The property as a gsProperty object
-    template <class T> 
+    template <class T>
     gsProperty<T> addBoxProperty(const std::string& name, T t=T())
     {
         return m_boxProp.add<T>(name, give(t));
@@ -356,7 +356,7 @@ public:
     /// @tparam     T     The type of the property
     ///
     /// @return     The property as a gsProperty<T> object
-    template <class T> 
+    template <class T>
     gsProperty<T> getBoxProperty(const std::string& name) const
     {
         return m_boxProp.get<T>(name);

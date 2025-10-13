@@ -40,6 +40,8 @@ target_sources(${PROJECT_NAME}
         Export.h
         DebugAssert.h
         ForwardDeclarations.h
+        Property.h
+        StdVectorRef.h
         Utils.h
         Stopwatch.h
         Threaded.h

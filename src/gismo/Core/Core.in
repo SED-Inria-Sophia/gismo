@@ -1,52 +1,12 @@
 /** @file Core
 
-    @brief Main GISMO Core module h// Geometry layer
-#include <gismo/Core/Geometry/Geometry.h>
-
-// GeometricShapes layer
-#include <gismo/Core/GeometricShapes/Curve.h>
-#include <gismo/Core/GeometricShapes/Surface.h>
-#include <gismo/Core/GeometricShapes/Volume.h>
-#include <gismo/Core/GeometricShapes/Bulk.h>
-#include <gismo/Core/GeometricShapes/GenericGeometry.h>
-#include <gismo/Core/GeometricShapes/GeometrySlice.h>
-
-// SpecializedFunction layer
-#include <gismo/Core/SpecializedFunction/AffineFunction.h>
-#include <gismo/Core/SpecializedFunction/FunctionExpr.h>
-#include <gismo/Core/SpecializedFunction/ComposedFunction.h>
-#include <gismo/Core/SpecializedFunction/ConstantFunction.h>
-#include <gismo/Core/SpecializedFunction/PiecewiseFunction.h>
-#include <gismo/Core/SpecializedFunction/PatchwiseFunction.h>
-#include <gismo/Core/SpecializedFunction/GeometryTransform.h>
-#include <gismo/Core/SpecializedFunction/ComposedGeometry.h>
-
-// DOFMapping layer
-#include <gismo/Core/DOFMapping/DofMapper.h>
-#include <gismo/Core/DOFMapping/StdVectorRef.h>
-
-// MultiPatch layer
-#include <gismo/Core/MultiPatch/MultiPatch.h>
-#include <gismo/Core/MultiPatch/MultiBasis.h>
-
-// Field layer
-#include <gismo/Core/Field/Field.h>
-#include <gismo/Core/Field/FieldCreator.h>
-
-// Mesh layer
-#include <gismo/Core/Mesh/Mesh.h>
-#include <gismo/Core/Mesh/HalfEdgeMesh.h>
-
-// Utilities layer
-#include <gismo/Core/Utilities/JITCompiler.h>
-#include <gismo/Core/Utilities/SysInfo.h> - includes all Core functionality
+    @brief Main GISMO Core module header - includes all Core functionality
 
     This header provides access to all Core module components:
     - Function layer: Function interfaces and evaluation
     - Basis layer: Basis function abstractions
     - Topology layer: Connectivity and boundary management
-    - Geometry layer: Base geometric objects
-    - GeometricShapes layer: Specialized geometric shapes
+    - Geometry layer: Geometric objects and shapes (unified)
     - SpecializedFunction layer: Advanced function types
     - DOFMapping layer: Degree of freedom management
     - MultiPatch layer: Multi-patch operations
@@ -89,8 +49,40 @@
 #include <gismo/Core/Basis/RationalBasis.h>
 #include <gismo/Core/Basis/ComposedBasis.h>
 
-// Geometry layer
+// Geometry layer (unified - includes geometric shapes)
 #include <gismo/Core/Geometry/Geometry.h>
+#include <gismo/Core/Geometry/Curve.h>
+#include <gismo/Core/Geometry/Surface.h>
+#include <gismo/Core/Geometry/Volume.h>
+#include <gismo/Core/Geometry/Bulk.h>
+#include <gismo/Core/Geometry/GenericGeometry.h>
+#include <gismo/Core/Geometry/GeometrySlice.h>
 
-// Additional layers will be added as files are migrated
-// TODO: Add GeometricShapes/, SpecializedFunction/, etc.
+// SpecializedFunction layer
+#include <gismo/Core/SpecializedFunction/AffineFunction.h>
+#include <gismo/Core/SpecializedFunction/FunctionExpr.h>
+#include <gismo/Core/SpecializedFunction/ComposedFunction.h>
+#include <gismo/Core/SpecializedFunction/ConstantFunction.h>
+#include <gismo/Core/SpecializedFunction/PiecewiseFunction.h>
+#include <gismo/Core/SpecializedFunction/PatchwiseFunction.h>
+#include <gismo/Core/SpecializedFunction/GeometryTransform.h>
+#include <gismo/Core/SpecializedFunction/ComposedGeometry.h>
+
+// DOFMapping layer
+#include <gismo/Core/DOFMapping/DofMapper.h>
+
+// MultiPatch layer
+#include <gismo/Core/MultiPatch/MultiPatch.h>
+#include <gismo/Core/MultiPatch/MultiBasis.h>
+
+// Field layer
+#include <gismo/Core/Field/Field.h>
+#include <gismo/Core/Field/FieldCreator.h>
+
+// Mesh layer
+#include <gismo/Core/Mesh/Mesh.h>
+#include <gismo/Core/Mesh/HalfEdgeMesh.h>
+
+// Utilities layer
+#include <gismo/Core/Utilities/JITCompiler.h>
+#include <gismo/Core/Utilities/SysInfo.h>

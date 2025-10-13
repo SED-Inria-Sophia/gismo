@@ -54,7 +54,7 @@ target_sources(${PROJECT_NAME}
     Topology/BoxTopology.cpp
 )
 
-# Geometry layer sources
+# Geometry layer sources (unified - includes geometric shapes)
 target_sources(${PROJECT_NAME}
   PUBLIC
     FILE_SET HEADERS
@@ -63,6 +63,16 @@ target_sources(${PROJECT_NAME}
       FILES
         Geometry/Geometry.h
         Geometry/Geometry.hpp
+        Geometry/Curve.h
+        Geometry/Surface.h
+        Geometry/Volume.h
+        Geometry/Bulk.h
+        Geometry/GenericGeometry.h
+        Geometry/GeometrySlice.h
+        Geometry/Curve.hpp
+        Geometry/Surface.hpp
+        Geometry/Volume.hpp
+        Geometry/Bulk.hpp
   PRIVATE
     Geometry/Geometry_.cpp
 )
@@ -86,25 +96,6 @@ target_sources(${PROJECT_NAME}
     Basis/Basis_.cpp
     Basis/BasisFun_.cpp
     Basis/ComposedBasis_.cpp
-)
-
-# GeometricShapes layer sources (header-only - all templates)
-target_sources(${PROJECT_NAME}
-  PUBLIC
-    FILE_SET HEADERS
-      BASE_DIRS
-        ${CMAKE_CURRENT_SOURCE_DIR}
-      FILES
-        GeometricShapes/Curve.h
-        GeometricShapes/Surface.h
-        GeometricShapes/Volume.h
-        GeometricShapes/Bulk.h
-        GeometricShapes/GenericGeometry.h
-        GeometricShapes/GeometrySlice.h
-        GeometricShapes/Curve.hpp
-        GeometricShapes/Surface.hpp
-        GeometricShapes/Volume.hpp
-        GeometricShapes/Bulk.hpp
 )
 
 # SpecializedFunction layer sources
@@ -142,7 +133,6 @@ target_sources(${PROJECT_NAME}
         ${CMAKE_CURRENT_SOURCE_DIR}
       FILES
         DOFMapping/DofMapper.h
-        DOFMapping/StdVectorRef.h
         DOFMapping/DofMapper.hpp
   PRIVATE
     DOFMapping/DofMapper.cpp
@@ -221,8 +211,8 @@ target_link_libraries(${PROJECT_NAME}
     ${CMAKE_PROJECT_NAME}::Math
 )
 
-target_include_directories(${PROJECT_NAME} INTERFACE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+target_include_directories(${PROJECT_NAME} PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>
 )
 
 ## #################################################################

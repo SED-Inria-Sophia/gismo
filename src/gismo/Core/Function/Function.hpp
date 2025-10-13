@@ -14,7 +14,7 @@
 #include <gismo/Math/LinearAlgebra.h>
 #include <gismo/Core/Function/FuncData.h>
 #include <gismo/Core/Function/FuncCoordinate.h>
-#include <gsTensor/gsGridIterator.h>
+#include <gismo/Math/GridIterator.h>
 
 #ifdef gsIpOpt_ENABLED
 #include <gsIpOpt/gsIpOpt.h>

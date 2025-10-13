@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include <gsUtils/gsPointGrid.h>
+#include <gismo/Math/PointGrid.h>
 #include <gismo/Core/Mesh/Mesh.h>
 
 namespace gismo

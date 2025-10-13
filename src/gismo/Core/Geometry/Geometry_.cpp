@@ -4,17 +4,17 @@
 #include <gismo/Core/Geometry/Geometry.h>
 #include <gismo/Core/Geometry/Geometry.hpp>
 
-#include <gismo/Core/GeometricShapes/Curve.h>
-#include <gismo/Core/GeometricShapes/Curve.hpp>
+#include <gismo/Core/Geometry/Curve.h>
+#include <gismo/Core/Geometry/Curve.hpp>
 
-#include <gismo/Core/GeometricShapes/Surface.h>
-#include <gismo/Core/GeometricShapes/Surface.hpp>
+#include <gismo/Core/Geometry/Surface.h>
+#include <gismo/Core/Geometry/Surface.hpp>
 
-#include <gismo/Core/GeometricShapes/Volume.h>
-#include <gismo/Core/GeometricShapes/Volume.hpp>
+#include <gismo/Core/Geometry/Volume.h>
+#include <gismo/Core/Geometry/Volume.hpp>
 
-#include <gismo/Core/GeometricShapes/Bulk.h>
-#include <gismo/Core/GeometricShapes/Bulk.hpp>
+#include <gismo/Core/Geometry/Bulk.h>
+#include <gismo/Core/Geometry/Bulk.hpp>
 
 namespace gismo
 {

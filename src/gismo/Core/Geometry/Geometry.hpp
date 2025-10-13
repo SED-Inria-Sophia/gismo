@@ -18,10 +18,10 @@
 #include <gismo/Core/Function/FuncData.h>
 #include <gismo/Core/Function/FuncCoordinate.h>
 
-#include <gismo/Core/GeometricShapes/GeometrySlice.h>
+#include <gismo/Core/Geometry/GeometrySlice.h>
 
 //#include <gismo/Optimization/Minimizer.h>
-#include <gsUtils/gsPointGrid.h>
+#include <gismo/Math/PointGrid.h>
 
 namespace gismo
 {

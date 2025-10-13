@@ -17,7 +17,7 @@
 #include <gismo/Core/Geometry/Geometry.h>
 #include <gismo/Core/MultiPatch/MultiPatch.h>
 #include <gismo/Core/MultiPatch/MultiBasis.h>
-#include <gsUtils/gsPointGrid.h>
+#include <gismo/Math/PointGrid.h>
 
 namespace gismo
 {

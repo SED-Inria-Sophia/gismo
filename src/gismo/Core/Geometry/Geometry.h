@@ -16,20 +16,20 @@
 #include <gismo/Core/Function/Function.h>
 #include <gismo/Core/Topology/Boundary.h>
 
-
-#define GISMO_BASIS_ACCESSORS \
-    Basis & basis() override { return static_cast<Basis&>(*this->m_basis); } \
-    const Basis & basis() const override { return static_cast<const Basis&>(*this-} // namespace gismo
-
-// Forward declarations for geometric shapes
-namespace gismo {
+namespace gismo
+{
+    // Forward declarations
+    template<class T> class gsMesh;
     template<class T> class gsCurve;
+    template<class T> class gsGeometrySlice;
     template<class T> class gsSurface;
     template<class T> class gsVolume;
     template<class T> class gsBulk;
 }
 
-namespace gismo); }
+#define GISMO_BASIS_ACCESSORS \
+    Basis & basis() override { return static_cast<Basis&>(*this->m_basis); } \
+    const Basis & basis() const override { return static_cast<const Basis&>(*this->m_basis); }
     // bool isProjective() const{ return Basis::IsRational; }
 
 namespace gismo

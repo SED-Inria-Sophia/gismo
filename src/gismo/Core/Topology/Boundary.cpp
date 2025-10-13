@@ -13,7 +13,7 @@
 
 
 #include <gismo/Core/Topology/Boundary.h>
-#include <gsTensor/gsTensorTools.h>
+#include <gismo/Math/Combinatorics.h>
 
 namespace gismo {
 

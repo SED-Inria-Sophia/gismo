@@ -24,11 +24,53 @@ namespace gismo {
 template<typename T>  // gsMatrix<T> ab
 gsVector<unsigned> uniformSampleCount (const gsVector<T>& lower,
                                        const gsVector<T>& upper,
-                                       int numPoints = 1000);
+                                       int numPoints = 1000)
+{
+    const index_t d = lower.rows();
+    assert( d == upper.rows() );
+
+    // TO do : phys. volume criterion
+    gsVector<T> span = upper - lower;
+    const T volume = span.prod();
+    const T h = math::pow(volume / (T)(numPoints), (T)(1) / (T)(d));
+
+    gsVector<unsigned> np(d);
+
+    for (index_t i = 0; i < d; ++i)
+    {
+        np[i] = cast<T,unsigned>(math::ceil( span[i] / h ) );
+        GISMO_ASSERT( np[i] > 0, "Something went wrong, number of points is zero..");
+    }
+
+    return np;
+}
 
 template<typename T>
 void uniformIntervals(const gsVector<T>& lower, const gsVector<T>& upper,
-                      std::vector< std::vector<T> >& intervals, int numIntervals = 1000);
+                      std::vector< std::vector<T> >& intervals, int numIntervals = 1000)
+{
+    const int d = lower.rows();
+    assert( d == upper.rows() );
+
+    gsVector<unsigned> np = uniformSampleCount( lower, upper, numIntervals );
+
+    // resize to dimension d without copying old contents, if any
+    intervals.clear();
+    intervals.resize(d);
+
+    for (int i = 0; i < d; ++i)
+    {
+        int numInt = np[i] - 1;
+        if (numInt <= 1)
+            numInt = 1;
+
+        const T h = (T)(1) / (T)(numInt);
+
+        intervals[i].resize(numInt + 1);
+        for (int j = 0; j <= numInt; ++j)
+            intervals[i][j] = (T)(j) * h;
+    }
+}
 
 
 /* **************** Uniform grids described by limits/corners **************** */
@@ -51,7 +93,14 @@ void uniformIntervals(const gsVector<T>& lower, const gsVector<T>& upper,
  */
 template<class T>  // gsMatrix<T> ab
 gsMatrix<T> gsPointGrid( gsVector<T> const & a, gsVector<T> const & b,
-                         gsVector<unsigned> const & np );
+                         gsVector<unsigned> const & np )
+{
+    gsMatrix<T> res(a.size(), np.prod() );
+    gsGridIterator<T,CUBE> pt(a, b, np.cast<index_t>());
+    for(index_t c = 0; pt; ++pt, ++c)
+        res.col(c) = *pt;
+    return res;
+}
 
 // Specialization of the arguments for the 1D case
 template<class T> inline
@@ -72,7 +121,11 @@ gsMatrix<T> gsPointGrid( T const & t1, T const & t2, unsigned const & n = 100)
 template<typename T>  // todo: remove, replace by next one
 gsMatrix<T>uniformPointGrid(const gsVector<T>& lower, // note: structure lost
                             const gsVector<T>& upper,
-                            int numPoints = 1000);
+                            int numPoints = 1000)
+{
+    const gsVector<unsigned> cwisePoints = uniformSampleCount(lower, upper, numPoints);
+    return gsPointGrid(lower, upper, cwisePoints); // note: structure lost
+}
 
 /**
    Returns an approximately uniformly spaced grid in every direction,
@@ -116,8 +169,3 @@ gsMatrix<T> gsPointGrid(CwiseContainer const & cwise)
 
 
 } // namespace gismo
-
-
-#ifndef GISMO_BUILD_LIB
-#include GISMO_HPP_HEADER(gsPointGrid.hpp)
-#endif

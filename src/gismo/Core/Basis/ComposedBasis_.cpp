@@ -2,7 +2,6 @@
 #include <gismo/Common/TemplateTools.h>
 
 #include <gismo/Core/Basis/ComposedBasis.h>
-#include <gismo/Core/Basis/ComposedBasis.hpp>
 
 namespace gismo
 {

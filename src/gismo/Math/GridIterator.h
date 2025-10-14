@@ -314,7 +314,7 @@ public:
 
     typedef gsVector<T,d> point;
 
-    typedef gsGridIterator<index_t, mode, d> integer_iterator;
+    typedef gsGridIterator<index_t, mode, d, true> integer_iterator;
 
     typedef typename integer_iterator::point point_index;
 public:
@@ -543,7 +543,7 @@ class gsGridIterator<T,CWISE,d,false>
 {
 public:
 
-    typedef gsGridIterator<index_t, 0, d> integer_iterator;
+    typedef gsGridIterator<index_t, 0, d, true> integer_iterator;
 
     typedef typename integer_iterator::point point_index;
 

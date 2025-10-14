@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include <gsTensor/gsGridIterator.h>
+#include <gismo/Math/GridIterator.h>
 #include <gismo/Core/Mesh/Mesh.h>
 
 

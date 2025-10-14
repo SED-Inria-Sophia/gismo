@@ -1,14 +1,13 @@
 #include <gismo/Common/TemplateTools.h>
 
 #include <gismo/Core/Function/Function.h>
-#include <gismo/Core/Function/Function.hpp>
 
 namespace gismo
 {
 
 CLASS_TEMPLATE_INST gsFunction<real_t> ;
 
-#ifdef GISMO_WITH_PYBIND11  
+#ifdef GISMO_WITH_PYBIND11
 
 namespace py = pybind11;
 

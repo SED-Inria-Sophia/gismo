@@ -2,19 +2,14 @@
 #include <gismo/Common/TemplateTools.h>
 
 #include <gismo/Core/Geometry/Geometry.h>
-#include <gismo/Core/Geometry/Geometry.hpp>
 
 #include <gismo/Core/Geometry/Curve.h>
-#include <gismo/Core/Geometry/Curve.hpp>
 
 #include <gismo/Core/Geometry/Surface.h>
-#include <gismo/Core/Geometry/Surface.hpp>
 
 #include <gismo/Core/Geometry/Volume.h>
-#include <gismo/Core/Geometry/Volume.hpp>
 
 #include <gismo/Core/Geometry/Bulk.h>
-#include <gismo/Core/Geometry/Bulk.hpp>
 
 namespace gismo
 {

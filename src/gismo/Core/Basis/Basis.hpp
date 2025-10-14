@@ -14,8 +14,8 @@
 #pragma once
 
 #include <gismo/Core/Basis/BasisFun.h>
-#include <gsDomain/gsDomain.h>
-#include <gsDomain/gsDomainIterator.h>
+#include <gismo/Core/Basis/DomainBase.h>
+#include <gismo/Common/DebugAssert.h>  // For GISMO_NO_IMPLEMENTATION
 #include <gismo/Core/Topology/Boundary.h>
 #include <gismo/Core/Geometry/Geometry.h>
 
@@ -538,15 +538,15 @@ template<class T>
 typename gsBasis<T>::uPtr gsBasis<T>::tensorize(const gsBasis &) const
 { GISMO_NO_IMPLEMENTATION }
 
-template<class T>
-typename gsBasis<T>::domainIter
-gsBasis<T>::makeDomainIterator() const
-{ return this->domain()->beginAll(); }
+// template<class T>
+// typename gsBasis<T>::domainIter
+// gsBasis<T>::makeDomainIterator() const
+// { return this->domain()->beginAll(); }
 
-template<class T>
-typename gsBasis<T>::domainIter
-gsBasis<T>::makeDomainIterator(const boxSide &s) const
-{ return this->domain()->beginBdr(s); }
+// template<class T>
+// typename gsBasis<T>::domainIter
+// gsBasis<T>::makeDomainIterator(const boxSide &s) const
+// { return this->domain()->beginBdr(s); }
 
 template<class T>
 size_t gsBasis<T>::numElements(boxSide const &) const
@@ -712,25 +712,23 @@ void gsBasis<T>::matchWith(const boundaryInterface &, const gsBasis<T> &,
 template<class T>
 T gsBasis<T>::getMinCellLength() const
 {
-    T h = 0;
-    for (domainIter it = this->domain()->beginAll(); it!=this->domain()->endAll(); ++it )
-    {
-        const T sz = it.getMinCellLength();
-        if ( sz < h || h == 0 ) h = sz;
-    }
-    return h;
+    auto dom = this->domain();
+    if (!dom) return T(0);
+
+    // Cast to gsDomainBase interface (requires gsDomain to inherit from gsDomainBase)
+    auto domainBase = std::reinterpret_pointer_cast<gsDomainBase<T>>(dom);
+    return domainBase->getMinCellLength();
 }
 
 template<class T>
 T gsBasis<T>::getMaxCellLength() const
 {
-    T h(0);
-    for (domainIter it = this->domain()->beginAll(); it!=this->domain()->endAll(); ++it )
-    {
-        const T sz = it.getMaxCellLength();
-        if ( sz > h ) h = sz;
-    }
-    return h;
+    auto dom = this->domain();
+    if (!dom) return T(0);
+
+    // Cast to gsDomainBase interface (requires gsDomain to inherit from gsDomainBase)
+    auto domainBase = std::reinterpret_pointer_cast<gsDomainBase<T>>(dom);
+    return domainBase->getMaxCellLength();
 }
 
 

@@ -11,6 +11,8 @@
     Author(s): A. Mantzaflaris
 */
 
+#pragma once
+
 #include <gismo/Math/LinearAlgebra.h>
 #include <gismo/Core/Function/FuncData.h>
 #include <gismo/Core/Function/FuncCoordinate.h>

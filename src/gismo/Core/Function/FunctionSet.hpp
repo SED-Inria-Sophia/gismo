@@ -11,6 +11,8 @@
     Author(s): A. Bressan
 **/
 
+#pragma once
+
 #include <gismo/Core/Function/FuncData.h>
 #include <gismo/Core/Function/Function.h>
 #include <gismo/Core/Basis/Basis.h>

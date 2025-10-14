@@ -1,9 +1,8 @@
 
-#include <gismo/Common/Debug.h> // to purge warning on MSVC
+#include <gismo/Common/DebugAssert.h> // to purge warning on MSVC
 #include <gismo/Common/TemplateTools.h>
 
 #include <gismo/Core/Basis/Basis.h>
-#include <gismo/Core/Basis/Basis.hpp>
 
 namespace gismo
 {

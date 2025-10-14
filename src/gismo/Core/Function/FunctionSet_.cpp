@@ -13,7 +13,6 @@
 
 #include <gismo/Common/TemplateTools.h>
 #include <gismo/Core/Function/FunctionSet.h>
-#include <gismo/Core/Function/FunctionSet.hpp>
 
 namespace gismo {
 

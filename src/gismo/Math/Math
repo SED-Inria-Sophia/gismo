@@ -26,6 +26,11 @@
 // CORE: Pure Eigen integration (linear algebra, matrices, vectors, points)
 #include <gismo/Math/LinearAlgebra.h>
 
+// GRID AND TENSOR OPERATIONS: Mathematical grid iteration and point generation
+#include <gismo/Math/GridIterator.h>
+#include <gismo/Math/PointGrid.h>
+#include <gismo/Math/TensorTools.h>
+
 // SPECIALIZED CONTAINERS: Mathematical data structures
 #include <gismo/Math/FiberMatrix.h>
 

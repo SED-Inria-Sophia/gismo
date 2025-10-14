@@ -20,8 +20,6 @@ namespace gismo
 
 // Forward declarations to avoid missing type errors
 template<class T> class gsFuncCoordinate;
-template<class T, int mode, short_t d = -1,
-         bool = std::numeric_limits<T>::is_integer && mode != 3> class gsGridIterator;
 template<class T> class gsMapData;
 
 // Topology forward declarations

@@ -14,7 +14,7 @@
 #pragma once
 
 #include <gismo/Core/Function/FunctionSet.h>
-#include <gismo/Core/Topology/Boundary.h>//for boxSide
+#include <gismo/Core/Topology/Boundary.h>
 
 namespace gismo
 {
@@ -729,14 +729,14 @@ public:
 
     /// @brief Create a domain iterator for the computational mesh of
     /// this basis, that points to the first element of the domain
-    GISMO_DEPRECATED // @hverhelst: this function will be deprecated, since it will now always point to the first element of the domain, hence call this->domain()->beginAll()
-    virtual domainIter makeDomainIterator() const;
+    //GISMO_DEPRECATED // @hverhelst: this function will be deprecated, since it will now always point to the first element of the domain, hence call this->domain()->beginAll()
+    //virtual domainIter makeDomainIterator() const;
 
     /// @brief Create a boundary domain iterator for the computational
     /// mesh this basis, that points to the first element on the
     /// boundary of the domain
-    GISMO_DEPRECATED // @hverhelst: this function will be deprecated, since it will now always point to the first element of the domain, hence call this->domain()->beginBdr()
-    virtual domainIter makeDomainIterator(const boxSide & s) const;
+    //GISMO_DEPRECATED // @hverhelst: this function will be deprecated, since it will now always point to the first element of the domain, hence call this->domain()->beginBdr()
+    //virtual domainIter makeDomainIterator(const boxSide & s) const;
 
     /// Prints the object as a string.
     virtual std::ostream &print(std::ostream &os) const = 0;
@@ -1003,6 +1003,5 @@ protected:
 #endif // GISMO_WITH_PYBIND11
 
 } // namespace gismo
-
 
 #include <gismo/Core/Basis/Basis.hpp>

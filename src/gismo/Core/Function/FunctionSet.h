@@ -18,7 +18,7 @@
 #pragma once
 
 #include <gismo/Common/DebugAssert.h>  // For GISMO_NO_IMPLEMENTATION
-#include <gismo/Math/LinearAlgebra.h>
+#include <gismo/Math/Math>
 
 namespace gismo
 {

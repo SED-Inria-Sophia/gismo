@@ -15,8 +15,6 @@
 
 #pragma once
 
-#include <gsIO/gsXml.h>
-#include <gsIO/gsXmlGenericUtils.hpp>
 #include <gismo/Core/Mesh/Mesh.h>
 
 namespace gismo
@@ -184,35 +182,4 @@ void gsComposedGeometry<T>::evaluateMesh(gsMesh<T>& mesh) const
         }
 }
 
-namespace internal
-{
-
-/// @brief Get a Tensor BSpline from XML data
-///
-/// \ingroup Nurbs
-template<class T>
-class gsXml< gsComposedGeometry<T> >
-{
-private:
-    gsXml() { }
-public:
-    GSXML_COMMON_FUNCTIONS(gsComposedGeometry<T>);
-    GSXML_GET_INTO(gsComposedGeometry<T>);
-    static std::string tag ()  { return "Geometry"; }
-    static std::string type () { return "ComposedGeometry"; }
-
-    static gsComposedGeometry<T> * get (gsXmlNode * node)
-    {
-        return getGeometryFromXml< gsComposedGeometry<T> >( node );
-    }
-
-    static gsXmlNode * put (const gsComposedGeometry<T> & obj,
-                            gsXmlTree & data)
-    {
-        return putGeometryToXml(obj,data);
-    }
-};
-
-}// namespace internal
-
-};// namespace gismo
+} // namespace gismo

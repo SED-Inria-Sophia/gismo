@@ -18,6 +18,9 @@
 namespace gismo
 {
 
+// Forward declarations
+template<class T> class gsConstantBasis;
+
 /**
     @brief Class defining a globally constant function
 

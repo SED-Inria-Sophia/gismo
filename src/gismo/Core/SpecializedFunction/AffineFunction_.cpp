@@ -1,8 +1,7 @@
 
 #include <gismo/Common/TemplateTools.h>
 
-#include  <gsCore/gsAffineFunction.h>
-#include  <gsCore/gsAffineFunction.hpp>
+#include  <gismo/Core/SpecializedFunction/AffineFunction.h>
 
 namespace gismo {
 

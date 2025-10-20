@@ -120,4 +120,4 @@ protected:
 
 }
 
-#include <gismo/Core/SpecializedFunction/ComposedGeometry.hpp>
+#include <gismo/Core/Geometry/ComposedGeometry.hpp>

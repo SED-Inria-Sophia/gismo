@@ -15,11 +15,11 @@
 
 #pragma once
 
-#include <gsIO/gsXml.h>
-#include <gsIO/gsXmlGenericUtils.hpp>
 #include <gismo/Math/GridIterator.h>
 #include <gismo/Core/Mesh/Mesh.h>
-#include <gsDomain/gsDomainIterator.h>
+#include <gismo/Core/Geometry/ComposedGeometry.h>
+//#include <gsDomain/gsDomainIterator.h>
+#include <gismo/Common/Memory.h>
 
 namespace gismo
 {
@@ -85,6 +85,12 @@ gsComposedBasis<T> & gsComposedBasis<T>::operator=(const gsComposedBasis<T> & ot
         m_basis = other.m_basis->clone();
     }
     return *this;
+}
+
+template <class T>
+memory::unique_ptr<gsGeometry<T> > gsComposedBasis<T>::makeGeometry( gsMatrix<T>coefs ) const
+{
+    return memory::unique_ptr<gsGeometry<T> >(new gsComposedGeometry<T>(*this, give(coefs)));
 }
 
 template <class T>
@@ -340,17 +346,17 @@ void gsComposedBasis<T>::matchWith(const boundaryInterface & bi, const gsBasis<T
     return m_basis->matchWith(bi,other,bndThis,bndOther,offset);
 }
 
-template <class T>
-typename gsBasis<T>::domainIter gsComposedBasis<T>::makeDomainIterator() const
-{
-    return m_basis->makeDomainIterator();
-}
+// template <class T>
+// typename gsBasis<T>::domainIter gsComposedBasis<T>::makeDomainIterator() const
+// {
+//     return m_basis->makeDomainIterator();
+// }
 
-template <class T>
-typename gsBasis<T>::domainIter gsComposedBasis<T>::makeDomainIterator(const boxSide & s) const
-{
-    return m_basis->makeDomainIterator(s);
-}
+// template <class T>
+// typename gsBasis<T>::domainIter gsComposedBasis<T>::makeDomainIterator(const boxSide & s) const
+// {
+//     return m_basis->makeDomainIterator(s);
+// }
 
 template <class T>
 std::string gsComposedBasis<T>::detail() const
@@ -384,13 +390,13 @@ void gsComposedBasis<T>::connectivity(const gsMatrix<T> & nodes, gsMesh<T> & mes
 }
 
 template <class T>
-void gsComposedBasis<T>::uniformRefine(int numKnots, int mul, int dir)
+void gsComposedBasis<T>::uniformRefine(int numKnots, int mul, short_t dir)
 {
     m_basis->uniformRefine(numKnots,mul,dir);
 }
 
 template <class T>
-void gsComposedBasis<T>::uniformRefine_withCoefs(gsMatrix<T>& coefs, int numKnots, int mul, int dir)
+void gsComposedBasis<T>::uniformRefine_withCoefs(gsMatrix<T>& coefs, int numKnots, int mul, short_t dir)
 {
     m_basis->uniformRefine_withCoefs(coefs,numKnots,mul,dir);
 }
@@ -459,89 +465,4 @@ void gsComposedBasis<T>::_applyBounds(gsMatrix<T> & coords) const
     }
 }
 
-
-namespace internal
-{
-
-/// @brief Get a gsComposedBasis from XML data
-template<class T>
-class gsXml< gsComposedBasis<T> >
-{
-private:
-    gsXml() { }
-    typedef gsComposedBasis<T> Object;
-public:
-    GSXML_COMMON_FUNCTIONS(Object);
-    GSXML_GET_INTO(Object);
-    static std::string tag () { return "Basis"; }
-    static std::string type () { return "ComposedBasis"; }
-
-    static Object * get (gsXmlNode * node)
-    {
-        GISMO_ASSERT( ( !strcmp( node->name(),"Basis") )
-                    &&  ( !strcmp(node->first_attribute("type")->value(),
-                                internal::gsXml<Object>::type().c_str() ) ),
-                    "Something is wrong with the XML data: There should be a node with a "<<
-                    internal::gsXml<Object>::type().c_str()<<" Basis.");
-
-        typedef typename Object::CompositionT CompositionType;
-        typedef typename Object::BasisT       BasisType;
-
-        // The XML node will have two parts: a composition (gsGeometry) and a basis (gsBasis)
-        // 1. Get the composition
-        gsXmlNode* compNode = node->first_node("Composition");
-        GISMO_ASSERT(compNode, "gsXmlUtils: get ComposedBasis: No composition found.");
-        CompositionType * composition;
-        if      (gsXmlNode* compData = compNode->first_node("Geometry"))
-            composition = gsXml< gsGeometry<T> >::get (compData) ;
-        else if (gsXmlNode* compData2 = compNode->first_node("Function"))
-            composition = gsXml< gsFunction<T> >::get (compData2) ;
-        else
-            GISMO_ERROR("gsXmlUtils: get ComposedBasis: No composition found.");
-
-        // 2. Get the basis
-        gsXmlNode* basisNode = node->first_node("Basis");
-        GISMO_ASSERT(basisNode, "gsXmlUtils: get ComposedBasis: No basis found.");
-        gsXmlNode* basisData = basisNode->first_node("Basis");
-        GISMO_ASSERT(basisData, "gsXmlUtils: get ComposedBasis: No basis data found.");
-        BasisType * basis = gsXml<BasisType >::get (basisData) ;
-        return new Object(memory::make_shared(composition), memory::make_shared(basis));
-    }
-
-    static gsXmlNode * put (const Object & obj,
-                            gsXmlTree & data )
-    {
-        typedef typename Object::CompositionT CompositionType;
-        typedef typename Object::BasisT       BasisType;
-
-        // Add a new node
-        gsXmlNode* node = internal::makeNode("Basis" , data);
-        node->append_attribute( makeAttribute("type",
-                                            internal::gsXml< Object >::type().c_str(), data) );
-
-        // The XML node will have two parts: a composition (gsGeometry/gsFunction) and a basis (gsBasis)
-        // 1. Write the composition
-        gsXmlNode* compNode = internal::makeNode("Composition",data);
-        gsXmlNode* compData;
-        if      (const gsGeometry<T> * geo = dynamic_cast<const gsGeometry<T> *>( &obj.composition() ))
-            compData = internal::gsXml< gsGeometry<T> >::put(*geo, data);
-        else if (const gsFunction<T> * fun = dynamic_cast<const gsFunction<T> *>( &obj.composition() ))
-            compData = internal::gsXml< gsFunction<T> >::put(*fun, data);
-        else
-            GISMO_ERROR("gsXmlUtils: put ComposedBasis: No known composition found.");
-        compNode->append_node(compData);
-        node->append_node(compNode);
-
-        // 2. Write the basis
-        gsXmlNode* basisNode = internal::makeNode("Basis",data);
-        gsXmlNode* basisData = internal::gsXml< BasisType >::put(obj.basis(), data);
-        basisNode->append_node(basisData);
-        node->append_node(basisNode);
-
-        return node;
-    }
-};
-
-} // internal
-
-};// namespace gismo
+} // namespace gismo

@@ -17,12 +17,15 @@
 #include <gismo/Core/Basis/Basis.h>
 #include <gismo/Core/DOFMapping/DofMapper.h>
 #include <gismo/Core/Topology/BoxTopology.h>
-#include <gsPde/gsBoundaryConditions.h>
-#include <gsAssembler/gsAssemblerOptions.h>
+//#include <gsPde/gsBoundaryConditions.h>
+//#include <gsAssembler/gsAssemblerOptions.h>
 
 
 namespace gismo
 {
+
+// Forward declarations
+template<class T> class gsConstantBasis;
 
 /** @brief
     Holds a set of patch-wise bases and their

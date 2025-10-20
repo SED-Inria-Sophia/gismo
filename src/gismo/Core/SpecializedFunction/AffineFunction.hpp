@@ -12,6 +12,8 @@
     Created on:  2014-11-27
 */
 
+#pragma once
+
 namespace gismo {
 
 template <typename T>

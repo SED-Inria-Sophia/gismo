@@ -20,6 +20,12 @@
 namespace gismo
 {
 
+// Forward declarations
+template<class T> class gsBasis;
+template<class T> class gsMultiBasis;
+template<class T> class gsBoundaryConditions;
+class gsBoxTopology;
+
 #define MAPPER_PATCH_DOF(a,b,c) m_dofs[c][m_offset[b]+a]
 
 /** @brief Maintains a mapping from patch-local dofs to global dof indices

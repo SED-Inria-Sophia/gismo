@@ -32,9 +32,9 @@ public:
     typedef gsFace<T>          * gsFaceHandle;
     typedef gsCell<T>          * gsCellHandle;
 
-    typedef gsHalfEdge<T>      * gsHalfEdgeHandle;
-    typedef gsHeVertex<T>      * gsHeVertexHandle;
-    typedef gsHalfFace<T>      * gsHalfFaceHandle;
+    // typedef gsHalfEdge<T>      * gsHalfEdgeHandle;
+    // typedef gsHalfVertex<T>      * gsHeVertexHandle;
+    // typedef gsHalfFace<T>      * gsHalfFaceHandle;
 
 public:
     explicit gsMeshElement(int i = 0) : id(i)

@@ -20,12 +20,16 @@
 #pragma once
 
 #include <gismo/Core/Basis/Basis.h>
-#include <gismo/Core/SpecializedFunction/ComposedGeometry.h>
+//#include <gismo/Core/SpecializedFunction/ComposedGeometry.h>
 #include <gismo/Core/Function/Function.h>
 
 
 namespace gismo
 {
+
+template <class T>
+class gsComposedGeometry;
+
 
 template <class T>
 class gsComposedBasis : public gsBasis<T>
@@ -36,7 +40,8 @@ class gsComposedBasis : public gsBasis<T>
 
     GISMO_CLONE_FUNCTION(gsComposedBasis)
 
-    GISMO_MAKE_GEOMETRY_NEW
+    //GISMO_MAKE_GEOMETRY_NEW
+    memory::unique_ptr<gsGeometry<T> > makeGeometry( gsMatrix<T>coefs ) const override;
 
     typedef typename gsBasis<T>::domainIter domainIter;
 
@@ -180,10 +185,10 @@ public:
                     gsMatrix<index_t> & bndThis, gsMatrix<index_t> & bndOther, index_t offset = 0) const override;
 
     /// See \ref gsBasis for documentation
-    domainIter makeDomainIterator() const override;
+    // domainIter makeDomainIterator() const override;
 
     /// See \ref gsBasis for documentation
-    virtual domainIter makeDomainIterator(const boxSide & s) const override;
+    // virtual domainIter makeDomainIterator(const boxSide & s) const override;
 
     /// See \ref gsBasis for documentation
     std::string detail() const override;
@@ -201,10 +206,10 @@ public:
     void connectivity(const gsMatrix<T> & nodes, gsMesh<T> & mesh) const override;
 
     /// See \ref gsBasis for documentation
-    void uniformRefine(int numKnots = 1, int mul=1, int dir=-1) override;
+    void uniformRefine(int numKnots = 1, int mul=1, short_t dir=-1) override;
 
     /// See \ref gsBasis for documentation
-    void uniformRefine_withCoefs(gsMatrix<T>& coefs, int numKnots = 1, int mul = 1, int dir=-1) override;
+    void uniformRefine_withCoefs(gsMatrix<T>& coefs, int numKnots = 1, int mul = 1, short_t dir=-1) override;
 
     /// See \ref gsBasis for documentation
     void degreeElevate(short_t const & i = 1, short_t const dir = -1) override;

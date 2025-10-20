@@ -63,6 +63,8 @@ target_sources(${PROJECT_NAME}
       FILES
         Geometry/Geometry.h
         Geometry/Geometry.hpp
+        Geometry/ComposedGeometry.h
+        Geometry/ComposedGeometry.hpp
         Geometry/Curve.h
         Geometry/Surface.h
         Geometry/Volume.h
@@ -75,6 +77,7 @@ target_sources(${PROJECT_NAME}
         Geometry/Bulk.hpp
   PRIVATE
     Geometry/Geometry_.cpp
+    Geometry/ComposedGeometry_.cpp
 )
 
 # Basis layer sources
@@ -112,17 +115,14 @@ target_sources(${PROJECT_NAME}
         SpecializedFunction/PiecewiseFunction.h
         SpecializedFunction/PatchwiseFunction.h
         SpecializedFunction/GeometryTransform.h
-        SpecializedFunction/ComposedGeometry.h
         SpecializedFunction/AffineFunction.hpp
         SpecializedFunction/FunctionExpr.hpp
         SpecializedFunction/ComposedFunction.hpp
         SpecializedFunction/ConstantFunction.hpp
-        SpecializedFunction/ComposedGeometry.hpp
   PRIVATE
     SpecializedFunction/AffineFunction_.cpp
     SpecializedFunction/ComposedFunction_.cpp
     SpecializedFunction/ConstantFunction_.cpp
-    SpecializedFunction/ComposedGeometry_.cpp
 )
 
 # DOFMapping layer sources (has implementations)
@@ -211,6 +211,12 @@ target_link_libraries(${PROJECT_NAME}
     ${CMAKE_PROJECT_NAME}::Common
     ${CMAKE_PROJECT_NAME}::Math
 )
+
+# Enable XML serialization support (temporary - will be made optional later)
+# target_compile_definitions(${PROJECT_NAME}
+#   PUBLIC
+#     GISMO_WITH_XML_SERIALIZATION
+# )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>

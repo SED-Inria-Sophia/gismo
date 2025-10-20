@@ -14,6 +14,7 @@
 #pragma once
 
 #include <gismo/Common/TemplateTools.h>
+#include <gismo/Common/DebugAssert.h>  // For gsInfo
 
 #ifdef __MINGW32__
 //#include <malloc/malloc.h> //xcode
@@ -432,6 +433,74 @@ private:
     }
 };
 
+/// \brief Deleter function that does not delete an object pointer
+template <typename T> void null_deleter(T *) {}
+
+/// \brief Deleter function that prints debug information
+struct debug_deleter
+{
+    template <typename T> void operator()(T * ptr)
+    {
+        gsInfo<<" debug_deleter: delete "<< ptr << std::flush;
+        delete ptr;
+        gsInfo<<".\n";
+    }
+};
+
+/// Takes a T* and wraps it in a shared_ptr. Useful for avoiding
+/// memory leaks.
+///
+/// This has a move semantics: the shared_ptr object takes
+/// the ownership.
+template <typename T>
+inline shared_ptr<T> make_shared(T *x) { return shared_ptr<T>(x); }
+
+/// \brief Creates a shared pointer which does not eventually delete
+/// the underlying raw pointer. Useful to refer to objects which
+/// should not be destroyed.
+///
+/// The caller keeps the ownership.
+template <typename T>
+inline shared_ptr<T> make_shared_not_owned(const T *x)
+{ return shared_ptr<T>(const_cast<T*>(x), null_deleter<T>); }
+
+/// \brief Converts an uPtr \a p to an uPtr
+/// of class \a toC and gives it back as return value.
+template<class toC, typename from>
+inline unique_ptr<toC> convert_ptr(from p)
+{ return unique_ptr<toC>( dynamic_cast<toC*>(p.release()) ); }
+
+/// Takes a vector of smart pointers and returns the corresponding raw pointers.
+template <typename T>
+inline std::vector<T*> get_raw(const std::vector< unique_ptr<T> >& cont)
+{
+    std::vector<T*> result;
+    for (typename std::vector< unique_ptr<T> >::const_iterator it = cont.begin(); it != cont.end(); ++it)
+        result.push_back(const_cast<T*>( (*it).get() ));
+    return result;
+}
+
+/// Takes a vector of smart pointers and returns the corresponding raw pointers.
+template <typename T>
+inline std::vector<T*> get_raw(const std::vector< shared_ptr<T> >& cont)
+{
+    std::vector<T*> result;
+    for (typename std::vector< shared_ptr<T> >::const_iterator it = cont.begin(); it != cont.end(); ++it)
+        result.push_back(const_cast<T*>( (*it).get() ));
+    return result;
+}
+
+/// Takes a vector of smart pointers, releases them and returns the corresponding raw pointers.
+template <typename T>
+inline std::vector<T*> release(std::vector< unique_ptr<T> >& cont)
+{
+    std::vector<T*> result;
+    for (typename std::vector< unique_ptr<T> >::iterator it = cont.begin(); it != cont.end(); ++it)
+        result.push_back( (*it).release() );
+    cont.clear();
+    return result;
+}
+
 } // end namespace memory
 
 /**
@@ -450,5 +519,130 @@ memory::unique_ptr<T> give(memory::unique_ptr<T> & x)
 template <typename T> inline
 memory::shared_ptr<T> give(memory::shared_ptr<T> & x)
 { memory::shared_ptr<T> result = x; x.reset(); return result; }
+
+// Small, dynamically sized arrays on the stack, for POD types.
+// Only use this if the size is guaranteed not to be more than a few
+// hundred bytes! Be warned: overflow occurs without any warning
+#if defined(gsGmp_ENABLED) || defined(gsMpfr_ENABLED)
+ #define STACK_ARRAY( T, name, sz )    T name[sz];
+#else
+// Note: VLAs(following line) can be buggy on some compilers/versions,
+// also not nececarily on the stack
+// #define STACK_ARRAY( T, name, sz )    T name[sz];
+#define STACK_ARRAY( T, name, sz )    T * name = (T*) alloca ( (sz) * sizeof(T) );
+#endif
+
+/// \brief Clones all pointers in the range [\a start \a end) and stores new
+/// raw pointers in iterator \a out.
+template <typename It, typename ItOut>
+void cloneAll(It start, It end, ItOut out)
+{
+    for (It i = start; i != end; ++i)
+        *out++ = dynamic_cast<typename std::iterator_traits<ItOut>::value_type>((*i)->clone().release());
+}
+
+/// \brief Clones all pointers in the container \a in and stores them as raw
+/// pointers in container \a out
+template <typename ContIn, typename ContOut>
+void cloneAll(const ContIn& in, ContOut& out)
+{
+    out.resize(in.size());
+    cloneAll(in.begin(), in.end(), out.begin());
+}
+
+/// \brief Frees all pointers in the range [\a begin \a end)
+template <typename It>
+void freeAll(It begin, It end)
+{
+    for (It it = begin; it != end; ++it)
+    {
+        delete (*it);
+        *it = NULL;
+    }
+}
+
+/// \brief Frees all pointers in the container \a Cont
+template <typename Cont>
+void freeAll(Cont& cont)
+{
+    for (typename Cont::iterator it = cont.begin(); it != cont.end(); ++it)
+        delete (*it);
+    cont.clear();
+}
+
+/// \brief Constructs a vector of pointers from a vector of objects
+template<typename obj> inline
+std::vector<obj*> asVectorPtr(const std::vector<obj> & matv)
+{
+    std::vector<obj*> result;
+    const size_t d = matv.size();
+    result.reserve(d);
+    for ( size_t i = 0; i!=d; ++i)
+        result.push_back( const_cast<obj*>(&matv[i]) );
+    return result;
+}
+
+/// \brief Casts a vector of pointers
+template <typename Base, typename Derived>
+std::vector<Base*> castVectorPtr(std::vector<Derived*> pVec)
+{
+    std::vector<Base*> result(pVec.size());
+    std::copy(pVec.begin(), pVec.end(), result.begin() );
+    return result;
+}
+
+/// \brief Returns true if all instances of \a Base cast to \a Derived
+template <typename Derived, typename Base>
+bool checkVectorPtrCast(std::vector<Base*> pVec)
+{
+    for (typename std::vector<Base*>::iterator it = pVec.begin(); it != pVec.end(); ++it)
+        if ( ! dynamic_cast<Derived*>(*it) )
+            return false;
+    return true;
+}
+
+/**
+   \brief Small wrapper for std::copy mimicking memcpy (or
+   std::copy_n) for a raw pointer destination, copies \a n positions
+   starting from \a begin into \a result. The latter is expected to
+   have been allocated in advance
+*/
+template <class T, class U>
+inline void copy_n(T begin, const size_t n, U* result)
+{
+    std::copy(begin, begin+n,
+#   ifdef _MSC_VER
+              // Take care of C4996 warning
+              //stdext::checked_array_iterator<U*>(result,n));
+              stdext::unchecked_array_iterator<U*>(result));
+#   else
+    result);
+// Note: in C++11 there is:
+// std::copy_n(begin, n, result);
+#   endif
+}
+
+namespace util
+{
+/**
+   \brief Small wrapper for std::copy mimicking std::copy for a raw
+   pointer destination, copies \a n positions starting from \a begin
+   into \a result. The latter is expected to have been allocated in
+   advance
+*/
+template <class T, class U>
+inline void copy(T begin, T end, U* result)
+{
+    std::copy(begin, end,
+#   ifdef _MSC_VER
+              // Take care of C4996 warning
+              //stdext::checked_array_iterator<U*>(result,n));
+              stdext::unchecked_array_iterator<U*>(result));
+#   else
+    result);
+#   endif
+}
+
+}
 
 } // end namespace gismo

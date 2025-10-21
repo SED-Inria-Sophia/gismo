@@ -2,22 +2,23 @@
 
     @brief Provides declaration of JIT-compiler class.
 
-    This file is part of the G+Smo library. 
+    This file is part of the G+Smo library.
 
     This Source Code Form is subject to the terms of the Mozilla Public
     License, v. 2.0. If a copy of the MPL was not distributed with this
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
-    
+
     Author(s): M. Moeller
 
     @note This class is based on the discussion on
     http://stackoverflow.com/questions/36040814/stdshared-ptr-and-dlopen-avoiding-undefined-behavior
 */
- 
+
 #pragma once
 
+#ifdef GISMO_WITH_XML_SERIALIZATION
 #include <gsIO/gsXml.h>
-#include <gsIO/gsFileManager.h>
+#endif
 
 #if defined(_WIN32)
 #include <windows.h>
@@ -26,6 +27,10 @@
 #endif
 
 #include <gismo/Common/Memory.h>
+#include <gismo/Core/Interface/FileManagerInterface.h>
+#include <fstream>
+#include <sstream>
+#include <cstdlib>
 
 namespace gismo {
 
@@ -44,7 +49,7 @@ struct gsJITLang
 
 /**
    @brief Struct definig a compiler configuration
-   
+
    This class defines a compiler configuration that is used by the
    \ref gsJITCompiler class to perform just-in-time compilation.
 */
@@ -57,7 +62,7 @@ struct gsJITCompilerConfig
         char *env;
         env = getenv ("JIT_COMPILER_CMD");
         if(env!=NULL) cmd = env;
-        
+
         env = getenv ("JIT_COMPILER_FLAGS");
         if(env!=NULL) flags = env;
 
@@ -69,7 +74,7 @@ struct gsJITCompilerConfig
     }
 
     virtual ~gsJITCompilerConfig() { }
-    
+
     /// Constructor (passing arguments as strings)
     gsJITCompilerConfig(const std::string& cmd,
                         const std::string& flags,
@@ -87,7 +92,7 @@ struct gsJITCompilerConfig
         std::swap(out  , other.out  );
         std::swap(temp , other.temp );
     }
-            
+
 #   if __cplusplus >= 201103L || _MSC_VER >= 1600
 
     /// Constructor (copy)
@@ -111,7 +116,7 @@ struct gsJITCompilerConfig
       lang(std::move(other.lang)), out(std::move(other.out)),
       temp(std::move(other.temp))
     {}
-    
+
     /// Assignment operator (move)
     gsJITCompilerConfig& operator=(gsJITCompilerConfig && other)
     {
@@ -128,9 +133,9 @@ struct gsJITCompilerConfig
     {
         this->swap(other);
         return *this;
-    }        
+    }
 #   endif
-    
+
     /// Return compiler command
     virtual const std::string& getCmd() const { return cmd; }
 
@@ -142,7 +147,7 @@ struct gsJITCompilerConfig
 
     /// Return compiler output flag
     virtual const std::string& getOut() const { return out; }
-    
+
     /// Return compiler temporal directory
     virtual const std::string& getTemp() const { return temp; }
 
@@ -161,7 +166,7 @@ struct gsJITCompilerConfig
     /// Set compiler output flag
     void setOut(const std::string& _out)
     { this->out = _out; }
-    
+
     /// Set compiler temporal directory
     void setTemp(const std::string& _temp)
     { this->temp = _temp; }
@@ -175,37 +180,20 @@ struct gsJITCompilerConfig
            << "  language:           " << lang << "\n"
            << "  output flag:        " << out << "\n"
            << "  temporal directory: " << temp << "\n";
-        
+
         return os;
     }
 
+#ifdef GISMO_WITH_XML_SERIALIZATION
     /// Reads compiler configuration from XML file by language
     void load(const std::string filename,
-              const int _lang = gsJITLang::CXX)
-    {
-        GISMO_ENSURE(_lang >= gsJITLang::C && _lang <= gsJITLang::Fortran,
-            "Error: Invalid compiler language.");
-
-        gsFileData<real_t> f(filename);        
-        gsJITCompilerConfig * cc = f.getId<gsJITCompilerConfig>(_lang).release();
-
-        std::swap(*cc, *this);
-        if (this->temp.empty()) this->temp=detectTemp();
-        delete cc;
-    }
+              const int _lang = gsJITLang::CXX);
 
     /// Reads compiler configuration from XML file by ID
     void load_id(const std::string filename,
-                 const int id)
-    {
-        gsFileData<real_t> f(filename);        
-        gsJITCompilerConfig * cc = f.getId<gsJITCompilerConfig>(id).release();
+                 const int id);
+#endif // GISMO_WITH_XML_SERIALIZATION
 
-        std::swap(*cc, *this);
-        if (this->temp.empty()) this->temp=detectTemp();
-        delete cc;
-    }
-    
     /// Initialize to default Clang compiler
     static gsJITCompilerConfig clang(const int lang = gsJITLang::CXX)
     {
@@ -230,7 +218,7 @@ struct gsJITCompilerConfig
             GISMO_ERROR("Error : Invalid compiler language.");
         }
     }
-    
+
     /// Initialize to default GCC compiler
     static gsJITCompilerConfig gcc(const int lang = gsJITLang::CXX)
     {
@@ -258,7 +246,7 @@ struct gsJITCompilerConfig
             GISMO_ERROR("Error : Invalid compiler language.");
         }
     }
-    
+
     /// Initialize to default Intel compiler
     static gsJITCompilerConfig intel(const int lang = gsJITLang::CXX)
     {
@@ -327,7 +315,7 @@ struct gsJITCompilerConfig
             break;
         default :
             GISMO_ERROR("Error : Invalid compiler language.");
-        }   
+        }
     }
 
     /// Initialize to default NVIDIA nvcc compiler
@@ -401,7 +389,7 @@ struct gsJITCompilerConfig
             GISMO_ERROR("Error : Invalid compiler language.");
         }
     }
-    
+
     /// Try to initialize compiler automatically based on the context
     static gsJITCompilerConfig guess()
     {
@@ -411,13 +399,13 @@ struct gsJITCompilerConfig
 #       else
         return intel(gsJITLang::Fortran);
 #       endif
-        
+
 #       elif  defined(_MSC_VER)
         return msvc();
-        
+
 #       elif defined(__clang__)
         return clang();
-        
+
 #       elif defined(__GNUC__)
 #       if defined(__cplusplus)
         return gcc(gsJITLang::CXX);
@@ -429,19 +417,19 @@ struct gsJITCompilerConfig
 
 #       elif defined(__PGIC__)
         return pgi();
-        
+
 #       elif defined(__SUNPRO_C)
         return sunstudio(gsJITLang::C);
 #       elif defined(__SUNPRO_CC)
         return sunstudio(gsJITLang::CXX);
 #       elif defined(__SUNPRO_F90) || defined(__SUNPRO_F95)
         return sunstudio(gsJITLang::Fortran);
-            
+
 #       else
         GISMO_ERROR("Compiler not known");
 #       endif
     }
-    
+
 protected:
     /// Members variables
     std::string cmd;
@@ -455,7 +443,22 @@ private:
     /// Auto-detect temp directory
     static std::string detectTemp()
     {
-        return gsFileManager::getTempPath();
+        auto fileManager = getDefaultFileManager();
+        if (fileManager)
+            return fileManager->getTempPath();
+
+        // Fallback implementation if no file manager available
+#if defined(_WIN32)
+        const char* tmp = std::getenv("TEMP");
+        if (tmp) return std::string(tmp);
+        tmp = std::getenv("TMP");
+        if (tmp) return std::string(tmp);
+        return "C:\\temp";
+#else
+        const char* tmp = std::getenv("TMPDIR");
+        if (tmp) return std::string(tmp);
+        return "/tmp";
+#endif
     }
 };
 
@@ -464,64 +467,7 @@ inline std::ostream &operator<<(std::ostream &os,
                                 const gsJITCompilerConfig& c)
 { return c.print(os); }
 
-namespace internal
-{
-
-/** \brief Read a JITCompilerConfig from XML data
-    \ingroup Core
-*/
-template<>
-class gsXml< gsJITCompilerConfig >
-{
-private:
-    gsXml() { }
-
-public:
-    GSXML_COMMON_FUNCTIONS(gsJITCompilerConfig)
-    GSXML_GET_POINTER(gsJITCompilerConfig)
-    static std::string tag () { return "JITCompilerConfig"; }
-    static std::string type() { return ""; }
-
-    static void get_into(gsXmlNode * node, gsJITCompilerConfig & result)
-    {
-        gsXmlAttribute * tmp = node->first_attribute("cmd");
-        if (tmp!=NULL)
-            result.setCmd(tmp->value());
-
-        tmp = node->first_attribute("flags");
-        if (tmp!=NULL)
-            result.setFlags(tmp->value());
-
-        tmp = node->first_attribute("lang");
-        if (tmp!=NULL)
-            result.setLang(tmp->value());
-
-        tmp = node->first_attribute("out");
-        if (tmp!=NULL)
-            result.setOut(tmp->value());
-
-        tmp = node->first_attribute("temp");
-        if (tmp!=NULL)
-            result.setTemp(tmp->value());
-    }
-
-    static gsXmlNode * put (const gsJITCompilerConfig & obj, gsXmlTree & data)
-    {
-        // Make a new XML CompilerConfig node
-        gsXmlNode * tmp = internal::makeNode("JITCompilerConfig", data);
-
-        // Append the attributes
-        tmp->append_attribute( makeAttribute("cmd"  , obj.getCmd()  , data) );
-        tmp->append_attribute( makeAttribute("flags", obj.getFlags(), data) );
-        tmp->append_attribute( makeAttribute("lang" , obj.getLang() , data) );
-        tmp->append_attribute( makeAttribute("out"  , obj.getOut()  , data) );
-        tmp->append_attribute( makeAttribute("temp" , obj.getTemp() , data) );
-        
-        return tmp;
-    }
-};
-
-} // namespace internal
+// XML serialization moved to JITCompiler.xml.hpp
 
 /**
    @brief Class defining a dynamic library.
@@ -539,7 +485,7 @@ public:
     gsDynamicLibrary(const char* filename, int flag)
     {
         gsDebug << "Loading dynamic library: " << filename << "\n";
-        
+
 #if defined(_WIN32)
         GISMO_UNUSED(flag);
         HMODULE dl = LoadLibrary(filename);
@@ -550,7 +496,7 @@ public:
             throw std::runtime_error( err.str() );
         }
         handle.reset(dl, FreeLibrary);
-#elif defined(__APPLE__) || defined(__linux__) || defined(__unix)        
+#elif defined(__APPLE__) || defined(__linux__) || defined(__unix)
         void * dl = ::dlopen(filename, flag);
         if (!dl)
             throw std::runtime_error( ::dlerror() );
@@ -566,7 +512,7 @@ public:
     {
         if (!handle)
             throw std::runtime_error("An error occured while accessing the dynamic library");
-        
+
         T *symbol;
 #if defined(_WIN32)
         *(void **)(&symbol) = (void*)GetProcAddress(handle.get(), name );
@@ -575,13 +521,13 @@ public:
 #endif
         if (!symbol)
             throw std::runtime_error("An error occured while getting symbol from the dynamic library");
-        
+
         return symbol;
     }
-    
+
     /// Check if handle is assigned
     operator bool() const { return (bool)handle; }
-    
+
 private:
 
     /// Handle to dynamic library object
@@ -601,7 +547,7 @@ private:
    compile-time optimization.
 */
 class gsJITCompiler
-{    
+{
 public:
     /// Constructor (default)
     gsJITCompiler()
@@ -619,7 +565,7 @@ public:
     explicit gsJITCompiler(const gsJITCompilerConfig & config)
     : kernel(), config(config)
     {}
-    
+
     /// Assignment operator (copy)
     gsJITCompiler& operator=(gsJITCompiler const& other)
     {
@@ -645,7 +591,7 @@ public:
         return *this;
     }
 #   endif
-    
+
     /// Input kernel source code from string
     gsJITCompiler & operator<<(const std::string & s)
     {
@@ -673,7 +619,7 @@ public:
         return build("JIT", true);
 #       endif
     }
-    
+
     /// Compile kernel source code into dynamic library
     /// (use given filename)
     gsDynamicLibrary build(const std::string &name, bool force = false)
@@ -692,7 +638,7 @@ public:
 #       else
 #       error("Unsupported operating system")
 #       endif
-        
+
         // Compile library (if required)
         std::ifstream libfile(libName.str().c_str());
         if(!libfile || force)
@@ -730,7 +676,7 @@ public:
                        << srcName.str()     << "\" "
                        << config.getOut() << "\"" << libName.str() << "\"";
 #           endif
-            
+
             gsDebug << "Compiling dynamic library: " << systemcall.str() << "\n";
             if(std::system(systemcall.str().c_str()) != 0)
                 throw std::runtime_error("An error occured while compiling the kernel source code");
@@ -768,11 +714,11 @@ public:
     {
         return kernel;
     }
-    
+
 private:
     /// Kernel source code
     std::ostringstream kernel;
-    
+
     /// Compiler configuration
     gsJITCompilerConfig config;
 };
@@ -781,38 +727,8 @@ private:
 inline std::ostream &operator<<(std::ostream &os, const gsJITCompiler& c)
 { return c.print(os); }
 
-namespace internal
-{
-
-/** \brief Read a JITCompiler from XML data
-    \ingroup Core
-*/
-template<>
-class gsXml< gsJITCompiler >
-{
-private:
-    gsXml() { }
-
-public:
-    GSXML_COMMON_FUNCTIONS(gsJITCompiler)
-    GSXML_GET_POINTER(gsJITCompiler)
-    static std::string tag () { return "JITCompiler"; }
-    static std::string type() { return ""; }
-
-    static void get_into(gsXmlNode * node, gsJITCompiler & result)
-    {
-        result.getKernel() << node->value();
-    }
-
-    static gsXmlNode * put (const gsJITCompiler & obj, gsXmlTree & data)
-    {
-        // Make a new XML KnotVector node
-        gsXmlNode * tmp = internal::makeNode("JITCompiler", obj.getKernel().str(), data);
-
-        return tmp;
-    }
-};
-
-} // namespace internal
-
 } // namespace gismo
+
+#ifdef GISMO_WITH_XML_SERIALIZATION
+#include <gismo/Core/Utilities/JITCompiler.xml.hpp>
+#endif

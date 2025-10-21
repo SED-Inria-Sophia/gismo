@@ -189,6 +189,22 @@ target_sources(${PROJECT_NAME}
     Mesh/HalfEdgeMesh_.cpp
 )
 
+# Interface layer sources (abstractions for dependency injection)
+target_sources(${PROJECT_NAME}
+  PUBLIC
+    FILE_SET HEADERS
+      BASE_DIRS
+        ${CMAKE_CURRENT_SOURCE_DIR}
+      FILES
+        Interface/FileManagerInterface.h
+        Interface/SerializationInterface.h
+        Interface/FeatureFactory.h
+  PRIVATE
+    Interface/FileManagerInterface.cpp
+    Interface/SerializationInterface.cpp
+    Interface/FeatureFactory.cpp
+)
+
 # Utilities layer sources (has implementations)
 target_sources(${PROJECT_NAME}
   PUBLIC
@@ -198,8 +214,11 @@ target_sources(${PROJECT_NAME}
       FILES
         Utilities/JITCompiler.h
         Utilities/SysInfo.h
+        Utilities/Base64.h
+        Utilities/Base64.hpp
   PRIVATE
     Utilities/SysInfo.cpp
+    Utilities/Base64.cpp
 )
 
 ## #################################################################
@@ -212,11 +231,8 @@ target_link_libraries(${PROJECT_NAME}
     ${CMAKE_PROJECT_NAME}::Math
 )
 
-# Enable XML serialization support (temporary - will be made optional later)
-# target_compile_definitions(${PROJECT_NAME}
-#   PUBLIC
-#     GISMO_WITH_XML_SERIALIZATION
-# )
+# Core is now completely independent - no XML dependencies
+# XML functionality is provided by optional XmlIO module
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>

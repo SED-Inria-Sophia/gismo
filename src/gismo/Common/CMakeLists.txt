@@ -32,21 +32,16 @@ target_sources(${PROJECT_NAME}
         ${CMAKE_CURRENT_SOURCE_DIR}
       FILES
         Common
-        Config.h
-        Types.h
-        Macros.h
-        TemplateTools.h
         Memory.h
-        Export.h
-        DebugAssert.h
         ForwardDeclarations.h
-        Property.h
-        StdVectorRef.h
+        Debug.h
+        Export.h
+        Config.h
+        TemplateTools.h
         Utils.h
         Stopwatch.h
         Threaded.h
-        SortedVector.h
-        BoundedPriorityQueue.h
+        Macros.h
 )
 
 target_include_directories(${PROJECT_NAME} INTERFACE

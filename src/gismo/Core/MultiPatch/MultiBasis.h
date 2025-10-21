@@ -26,6 +26,8 @@ namespace gismo
 
 // Forward declarations
 template<class T> class gsConstantBasis;
+template<class T> class gsBoundaryConditions;
+class gsOptionList;
 
 /** @brief
     Holds a set of patch-wise bases and their
@@ -344,6 +346,7 @@ public:
         gsSparseMatrix<T, RowMajor>& transferMatrix
     );
 
+#ifdef GISMO_WITH_ASSEMBLER_INTEGRATION
     /// @brief Refine every basis uniformly
     ///
     /// The function writes a sparse matrix into the variable \a transfer that indicates
@@ -363,6 +366,7 @@ public:
         int mul = 1,
         index_t unk = 0
         );
+#endif // GISMO_WITH_ASSEMBLER_INTEGRATION
 
     /// @brief Refine the component \a comp of every basis uniformly
     /// by inserting \a numKnots new knots on each knot span
@@ -428,6 +432,7 @@ public:
         }
     }
 
+#ifdef GISMO_WITH_ASSEMBLER_INTEGRATION
     /// @brief Coarsen every basis uniformly
     ///
     /// The function writes a sparse matrix into the variable \a transfer that indicates
@@ -446,6 +451,7 @@ public:
         int numKnots = 1,
         index_t unk = 0
         );
+#endif // GISMO_WITH_ASSEMBLER_INTEGRATION
 
     /// @brief Returns the basis that corresponds to the component
     typename gsBasis<T>::uPtr componentBasis(patchComponent p) const
@@ -728,3 +734,7 @@ std::ostream& operator<<( std::ostream& os, const gsMultiBasis<T>& b )
 
 
 #include <gismo/Core/MultiPatch/MultiBasis.hpp>
+
+#ifdef GISMO_WITH_ASSEMBLER_INTEGRATION
+#include <gismo/Core/MultiPatch/MultiBasis.assembler.hpp>
+#endif

@@ -28,103 +28,106 @@ gsMesh<T>::~gsMesh()
     freeAll(m_face);
 }
 
-template<class T>
-gsMesh<T>::gsMesh(const gsBasis<T> & basis, int midPts)
-:
-gsMesh<T>(*basis.domain(), midPts)
-{
-}
+// TODO: Re-enable when Basis and Domain modules are available
+// template<class T>
+// gsMesh<T>::gsMesh(const gsBasis<T> & basis, int midPts)
+// :
+// gsMesh<T>(*basis.domain(), midPts)
+// {
+// }
 
-template<class T>
-gsMesh<T>::gsMesh(const gsDomain<T> & domain, int midPts)
-: MeshElement()
-{
-    const unsigned d = domain.dim();
+// TODO: Re-enable when Domain module is available
+// TODO: Re-enable when Domain module is available
+// template<class T>
+// gsMesh<T>::gsMesh(const gsDomain<T> & domain, int midPts)
+// : MeshElement()
+// {
+//     const unsigned d = domain.dim();
 
-    typedef typename gsMesh<T>::VertexHandle vtx;
-    typename gsBasis<T>::domainIter domIter = domain.beginAll();
-    typename gsBasis<T>::domainIter domIterEnd = domain.endAll();
+//     typedef typename gsMesh<T>::VertexHandle vtx;
+//     typename gsBasis<T>::domainIter domIter = domain.beginAll();
+//     typename gsBasis<T>::domainIter domIterEnd = domain.endAll();
 
-    // variables for iterating over a cube (element is a cube)
-    const gsVector<unsigned> zeros = gsVector<unsigned>::Zero(d);
-    const gsVector<unsigned> ones  = gsVector<unsigned>::Ones(d);
-    gsVector<unsigned> cur;
+//     // variables for iterating over a cube (element is a cube)
+//     const gsVector<unsigned> zeros = gsVector<unsigned>::Zero(d);
+//     const gsVector<unsigned> ones  = gsVector<unsigned>::Ones(d);
+//     gsVector<unsigned> cur;
 
-    // maps integer representation of a vertex into pointer to the
-    // vertex coordinates
-    std::vector<vtx> map(1ULL<<d);
+//     // maps integer representation of a vertex into pointer to the
+//     // vertex coordinates
+//     std::vector<vtx> map(1ULL<<d);
 
-    // neighbour[i] are integer representations of certain neighbours of
-    // vertex i (i counts in lexicographics order over all vertices)
-    std::vector<std::vector<unsigned> > neighbour(1ULL<<d,
-                                                  std::vector<unsigned>() );
+//     // neighbour[i] are integer representations of certain neighbours of
+//     // vertex i (i counts in lexicographics order over all vertices)
+//     std::vector<std::vector<unsigned> > neighbour(1ULL<<d,
+//                                                   std::vector<unsigned>() );
 
-    cur.setZero(d);
-    int counter = 0;
-    do
-    {
-        // set neighbour
-        for (unsigned dim = 0; dim < d; dim++)
-        {
-            if (cur(dim) == 0)
-            {
-                const unsigned tmp =  counter | (1<< dim) ;
-                neighbour[counter].push_back(tmp);
-            }
-        }
-        counter++;
+//     cur.setZero(d);
+//     int counter = 0;
+//     do
+//     {
+//         // set neighbour
+//         for (unsigned dim = 0; dim < d; dim++)
+//         {
+//             if (cur(dim) == 0)
+//             {
+//                 const unsigned tmp =  counter | (1<< dim) ;
+//                 neighbour[counter].push_back(tmp);
+//             }
+//         }
+//         counter++;
 
-    } while (nextCubePoint<gsVector<unsigned> >(cur, zeros, ones));
+//     } while (nextCubePoint<gsVector<unsigned> >(cur, zeros, ones));
 
-    gsVector<T> vv(d);
+//     gsVector<T> vv(d);
 
-    for (; domIter<domIterEnd; ++domIter )
-    {
-        const gsVector<T>& low = domIter.lowerCorner();
-        const gsVector<T>& upp = domIter.upperCorner();
-        const T vol = domIter.volume();
+//     for (; domIter<domIterEnd; ++domIter )
+//     {
+//         const gsVector<T>& low = domIter.lowerCorner();
+//         const gsVector<T>& upp = domIter.upperCorner();
+//         const T vol = domIter.volume();
 
-        vv.setZero();
-        cur.setZero();
-        counter = 0;
+//         vv.setZero();
+//         cur.setZero();
+//         counter = 0;
 
-        // Add points to the mesh.
-        do
-        {
-            // Get the appropriate coordinate of a point.
-            for (unsigned dim = 0; dim < d; dim++)
-            {
-                vv(dim) = ( cur(dim) ?  upp(dim) : low(dim) );
-            }
+//         // Add points to the mesh.
+//         do
+//         {
+//             // Get the appropriate coordinate of a point.
+//             for (unsigned dim = 0; dim < d; dim++)
+//             {
+//                 vv(dim) = ( cur(dim) ?  upp(dim) : low(dim) );
+//             }
 
-            vtx v = addVertex(vv);
-            v->data  = vol;
-            map[counter++] = v;
+//             vtx v = addVertex(vv);
+//             v->data  = vol;
+//             map[counter++] = v;
 
-        } while (nextCubePoint<gsVector<unsigned> >(cur, zeros, ones));
+//         } while (nextCubePoint<gsVector<unsigned> >(cur, zeros, ones));
 
 
-        // Add edges to the mesh (connect points).
-        for (size_t index = 0; index != neighbour.size(); index++)
-        {
-            const std::vector<unsigned> & v = neighbour[index];
+//         // Add edges to the mesh (connect points).
+//         for (size_t index = 0; index != neighbour.size(); index++)
+//         {
+//             const std::vector<unsigned> & v = neighbour[index];
 
-            for (size_t ngh = 0; ngh != v.size(); ngh++)
-            {
-                // Add more vertices for better physical resolution.
-                addLine( map[index], map[v[ngh]], midPts );
-                //addEdge( map[index], map[v[ngh]] );
-            }
-        }
+//             for (size_t ngh = 0; ngh != v.size(); ngh++)
+//             {
+//                 // Add more vertices for better physical resolution.
+//                 addLine( map[index], map[v[ngh]], midPts );
+//                 //addEdge( map[index], map[v[ngh]] );
+//             }
+//         }
 
-        // idea: instead of edges add the faces to the mesh
-        // addFace( mesh.vertex.back(),
-        //                *(vertex.end()-3),
-        //                *(vertex.end()-4),
-        //                *(vertex.end()-2)
-        //     );
-    }
-}
+//         // idea: instead of edges add the faces to the mesh
+//         // addFace( mesh.vertex.back(),
+//         //                *(vertex.end()-3),
+//         //                *(vertex.end()-4),
+//         //                *(vertex.end()-2)
+//         //     );
+//     }
+// }
 
 
 template<class T>

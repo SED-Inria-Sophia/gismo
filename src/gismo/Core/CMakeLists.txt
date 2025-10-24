@@ -94,6 +94,7 @@ target_sources(${PROJECT_NAME}
         Basis/RationalBasis.h
         Basis/ComposedBasis.h
         Basis/Basis.hpp
+        Basis/RationalBasis.hpp
         Basis/ComposedBasis.hpp
   PRIVATE
     Basis/Basis_.cpp
@@ -171,6 +172,9 @@ target_sources(${PROJECT_NAME}
 
 # Mesh layer sources (has implementations)
 # TODO: Re-enable when dependencies are resolved
+# - Requires gsBasis and gsDomain modules (not yet migrated)
+# - Has inheritance complexity with MeshElement hierarchy
+# - Several methods depend on external modules
 # target_sources(${PROJECT_NAME}
 #   PUBLIC
 #     FILE_SET HEADERS

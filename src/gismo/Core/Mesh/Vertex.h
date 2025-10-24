@@ -14,7 +14,6 @@
 #pragma once
 
 #include <gismo/Core/Mesh/MeshElement.h>
-#include <gismo/Math/LinearAlgebra.h>
 
 namespace gismo
 {

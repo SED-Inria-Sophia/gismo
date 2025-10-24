@@ -14,12 +14,9 @@
 #ifndef _CELL_H_
 #define _CELL_H_
 
-#include <gismo/Core/Mesh/Mesh.h>
 #include <gismo/Core/Mesh/MeshElement.h>
 
 namespace gismo {
-
-
 
 template <class Vertex>
 class gsCell : public gsMeshElement<Vertex>

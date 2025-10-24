@@ -14,6 +14,7 @@
 #pragma once
 
 #include <gismo/Common/ForwardDeclarations.h>
+#include <gismo/Math/LinearAlgebra.h>
 
 namespace gismo {
 

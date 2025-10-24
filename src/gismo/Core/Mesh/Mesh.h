@@ -19,6 +19,10 @@
 #include <gismo/Core/Mesh/Vertex.h>
 #include <gismo/Common/SortedVector.h>
 
+// Forward declarations
+namespace gismo {
+template<class T> class gsBasis;
+}
 
 namespace gismo {
 
@@ -87,12 +91,11 @@ public:
 
     /// Create a mesh corresponding to the parametric domain of the
     /// basis \a basis.
-    // TODO: Re-enable when Basis and Domain modules are available
-    // /// @param basis Basis whose parametric domain should be meshed.
-    // /// @param midPts Number of intermediate vertices to be inserted
-    // /// to each element side. Cf. gsMesh::addLine(VertexHandle,
-    // /// VertexHandle, int).
-    // explicit gsMesh(const gsBasis<T> & basis, int midPts = 0);
+    /// @param basis Basis whose parametric domain should be meshed.
+    /// @param midPts Number of intermediate vertices to be inserted
+    /// to each element side. Cf. gsMesh::addLine(VertexHandle,
+    /// VertexHandle, int).
+    explicit gsMesh(const gsBasis<T> & basis, int midPts = 0);
     // /// Create a mesh corresponding to the parametric domain of the
     // /// domain \a domain.
     // /// @param domain Basis whose parametric domain should be meshed.

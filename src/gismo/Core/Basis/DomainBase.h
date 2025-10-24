@@ -32,6 +32,10 @@ class gsDomainBase
 public:
     virtual ~gsDomainBase() = default;
 
+    /// @brief Get the dimension of the domain
+    /// @return The parametric dimension of the domain
+    virtual short_t dim() const = 0;
+
     /// @brief Get the minimum cell length in the domain
     /// @return The minimum cell length across all domain elements
     virtual T getMinCellLength() const = 0;
@@ -39,6 +43,14 @@ public:
     /// @brief Get the maximum cell length in the domain
     /// @return The maximum cell length across all domain elements
     virtual T getMaxCellLength() const = 0;
+
+    /// @brief Get the number of elements in the domain
+    /// @return Total number of elements in the domain
+    virtual size_t numElements() const = 0;
+
+    /// @brief Get the bounding box of the domain
+    /// @param result Matrix where result(i,0) = min in dimension i, result(i,1) = max in dimension i
+    virtual void boundingBox_into(gsMatrix<T>& result) const = 0;
 };
 
 } // namespace gismo

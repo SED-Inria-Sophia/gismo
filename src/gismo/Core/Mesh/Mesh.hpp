@@ -14,8 +14,14 @@
 #pragma once
 
 #include <gismo/Core/Basis/Basis.h>
+#include <gismo/Core/Basis/DomainBase.h>
 #include <gismo/Math/Combinatorics.h>
-// Note: Domain dependency handled through forward declarations
+// Note: Domain dependency handled through reinterpret_cast to DomainBase
+
+// Forward declarations for reinterpret_cast
+namespace gismo {
+template<class T> class gsDomain;
+}
 
 namespace gismo
 {
@@ -28,13 +34,50 @@ gsMesh<T>::~gsMesh()
     freeAll(m_face);
 }
 
-// TODO: Re-enable when Basis and Domain modules are available
-// template<class T>
-// gsMesh<T>::gsMesh(const gsBasis<T> & basis, int midPts)
-// :
-// gsMesh<T>(*basis.domain(), midPts)
-// {
-// }
+template<class T>
+gsMesh<T>::gsMesh(const gsBasis<T> & basis, int midPts)
+{
+    // Use reinterpret_cast to access gsDomain as gsDomainBase
+    // This works because gsDomain inherits from gsDomainBase
+    auto domain_ptr = basis.domain();
+    if (domain_ptr)
+    {
+        // Cast to minimal interface to avoid circular dependency
+        auto domainBase = reinterpret_cast<gsDomainBase<T>*>(domain_ptr.get());
+
+        const short_t d = domainBase->dim();
+
+        // Create a basic mesh based on bounding box
+        gsMatrix<T> bbox(d, 2);
+        domainBase->boundingBox_into(bbox);
+
+        // Add corner vertices of bounding box
+        gsVector<T> pt(d);
+        const int numCorners = 1 << d; // 2^d corners
+
+        for (int i = 0; i < numCorners; ++i)
+        {
+            for (short_t j = 0; j < d; ++j)
+            {
+                pt(j) = (i & (1 << j)) ? bbox(j, 1) : bbox(j, 0);
+            }
+            addVertex(pt);
+        }
+
+        // Add edges connecting adjacent corners
+        for (int i = 0; i < numCorners; ++i)
+        {
+            for (short_t j = 0; j < d; ++j)
+            {
+                const int neighbor = i ^ (1 << j); // flip j-th bit
+                if (neighbor > i) // avoid duplicate edges
+                {
+                    addLine(m_vertex[i], m_vertex[neighbor], midPts);
+                }
+            }
+        }
+    }
+}
 
 // TODO: Re-enable when Domain module is available
 // TODO: Re-enable when Domain module is available

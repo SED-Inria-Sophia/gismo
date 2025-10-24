@@ -171,31 +171,28 @@ target_sources(${PROJECT_NAME}
 # )
 
 # Mesh layer sources (has implementations)
-# TODO: Re-enable when dependencies are resolved
-# - Requires gsBasis and gsDomain modules (not yet migrated)
-# - Has inheritance complexity with MeshElement hierarchy
-# - Several methods depend on external modules
-# target_sources(${PROJECT_NAME}
-#   PUBLIC
-#     FILE_SET HEADERS
-#       BASE_DIRS
-#         ${CMAKE_CURRENT_SOURCE_DIR}
-#       FILES
-#         Mesh/Mesh.h
-#         Mesh/MeshElement.h
-#         Mesh/MeshElement.hpp
-#         Mesh/Vertex.h
-#         Mesh/Edge.h
-#         Mesh/Face.h
-#         Mesh/Cell.h
-#         Mesh/BoundingBox.h
-#         Mesh/HalfEdgeMesh.h
-#         Mesh/Mesh.hpp
-#         Mesh/HalfEdgeMesh.hpp
-#   PRIVATE
-#     Mesh/Mesh_.cpp
-#     Mesh/HalfEdgeMesh_.cpp
-# )
+# Dependencies resolved using gsDomainBase interface and reinterpret_cast
+target_sources(${PROJECT_NAME}
+  PUBLIC
+    FILE_SET HEADERS
+      BASE_DIRS
+        ${CMAKE_CURRENT_SOURCE_DIR}
+      FILES
+        Mesh/Mesh.h
+        Mesh/MeshElement.h
+        Mesh/MeshElement.hpp
+        Mesh/Vertex.h
+        Mesh/Edge.h
+        Mesh/Face.h
+        Mesh/Cell.h
+        Mesh/BoundingBox.h
+        Mesh/HalfEdgeMesh.h
+        Mesh/Mesh.hpp
+        Mesh/HalfEdgeMesh.hpp
+  PRIVATE
+    Mesh/Mesh_.cpp
+    Mesh/HalfEdgeMesh_.cpp
+)
 
 # Interface layer sources (abstractions for dependency injection)
 target_sources(${PROJECT_NAME}

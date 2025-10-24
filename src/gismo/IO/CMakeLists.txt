@@ -8,51 +8,22 @@ LANGUAGES
 ## External dependencies
 ## #################################################################
 
+# Use modern CMake modules to find dependencies
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+
 # Find RapidXML for XML functionality
-find_path(RAPIDXML_INCLUDE_DIR
-    NAMES rapidxml.hpp
-    PATHS ${CMAKE_SOURCE_DIR}/external/rapidxml
-    DOC "RapidXML include directory"
-)
+find_package(RapidXML REQUIRED)
 
 # Find TCLAP for command line parsing
-find_path(TCLAP_INCLUDE_DIR
-    NAMES tclap/CmdLine.h
-    PATHS ${CMAKE_SOURCE_DIR}/external/tclap/include
-    DOC "TCLAP include directory"
-)
-
-# Check if all required dependencies are available
-if(NOT RAPIDXML_INCLUDE_DIR OR NOT TCLAP_INCLUDE_DIR)
-    message(STATUS "IO module: Missing dependencies")
-    if(NOT RAPIDXML_INCLUDE_DIR)
-        message(STATUS "  Missing: RapidXML (required for XML parsing)")
-    endif()
-    if(NOT TCLAP_INCLUDE_DIR)
-        message(STATUS "  Missing: TCLAP (required for command line parsing)")
-    endif()
-    message(STATUS "  IO module will not be built")
-    return()
-endif()
-
-# Create modern IMPORTED targets for external dependencies
-if(NOT TARGET RapidXML::RapidXML)
-    add_library(RapidXML::RapidXML INTERFACE IMPORTED)
-    target_include_directories(RapidXML::RapidXML INTERFACE
-        ${RAPIDXML_INCLUDE_DIR}
-    )
-endif()
-
-if(NOT TARGET TCLAP::TCLAP)
-    add_library(TCLAP::TCLAP INTERFACE IMPORTED)
-    target_include_directories(TCLAP::TCLAP INTERFACE
-        ${TCLAP_INCLUDE_DIR}
-    )
-endif()
+find_package(TCLAP REQUIRED)
 
 message(STATUS "IO module: All dependencies found")
-message(STATUS "  RapidXML: ${RAPIDXML_INCLUDE_DIR}")
-message(STATUS "  TCLAP: ${TCLAP_INCLUDE_DIR}")
+if(RAPIDXML_INCLUDE_DIRS)
+    message(STATUS "  RapidXML: ${RAPIDXML_INCLUDE_DIRS}")
+elseif(RapidXML_INCLUDE_DIR)
+    message(STATUS "  RapidXML: ${RapidXML_INCLUDE_DIR}")
+endif()
+message(STATUS "  TCLAP: ${TCLAP_INCLUDE_DIRS}")
 
 ## #################################################################
 ## Create target

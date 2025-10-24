@@ -708,7 +708,4 @@ struct gsGeoTraits<4,T>
 
 } // namespace gismo
 
-
-#ifndef GISMO_BUILD_LIB
 #include <gismo/Core/Geometry/Geometry.hpp>
-#endif

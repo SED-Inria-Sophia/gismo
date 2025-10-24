@@ -126,68 +126,72 @@ target_sources(${PROJECT_NAME}
 )
 
 # DOFMapping layer sources (has implementations)
-target_sources(${PROJECT_NAME}
-  PUBLIC
-    FILE_SET HEADERS
-      BASE_DIRS
-        ${CMAKE_CURRENT_SOURCE_DIR}
-      FILES
-        DOFMapping/DofMapper.h
-        DOFMapping/DofMapper.hpp
-  PRIVATE
-    DOFMapping/DofMapper.cpp
-    DOFMapping/DofMapper_.cpp
-)
+# TODO: Re-enable when dependencies are resolved
+# target_sources(${PROJECT_NAME}
+#   PUBLIC
+#     FILE_SET HEADERS
+#       BASE_DIRS
+#         ${CMAKE_CURRENT_SOURCE_DIR}
+#       FILES
+#         DOFMapping/DofMapper.h
+#         DOFMapping/DofMapper.hpp
+#   PRIVATE
+#     DOFMapping/DofMapper.cpp
+#     DOFMapping/DofMapper_.cpp
+# )
 
 # MultiPatch layer sources (header-only - all templates)
-target_sources(${PROJECT_NAME}
-  PUBLIC
-    FILE_SET HEADERS
-      BASE_DIRS
-        ${CMAKE_CURRENT_SOURCE_DIR}
-      FILES
-        MultiPatch/MultiPatch.h
-        MultiPatch/MultiBasis.h
-        MultiPatch/MultiPatch.hpp
-        MultiPatch/MultiBasis.hpp
-)
+# TODO: Re-enable when dependencies are resolved
+# target_sources(${PROJECT_NAME}
+#   PUBLIC
+#     FILE_SET HEADERS
+#       BASE_DIRS
+#         ${CMAKE_CURRENT_SOURCE_DIR}
+#       FILES
+#         MultiPatch/MultiPatch.h
+#         MultiPatch/MultiBasis.h
+#         MultiPatch/MultiPatch.hpp
+#         MultiPatch/MultiBasis.hpp
+# )
 
 # Field layer sources
-target_sources(${PROJECT_NAME}
-  PUBLIC
-    FILE_SET HEADERS
-      BASE_DIRS
-        ${CMAKE_CURRENT_SOURCE_DIR}
-      FILES
-        Field/Field.h
-        Field/FieldCreator.h
-        Field/Field.hpp
-  PRIVATE
-    Field/Field_.cpp
-)
+# TODO: Re-enable when dependencies are resolved
+# target_sources(${PROJECT_NAME}
+#   PUBLIC
+#     FILE_SET HEADERS
+#       BASE_DIRS
+#         ${CMAKE_CURRENT_SOURCE_DIR}
+#       FILES
+#         Field/Field.h
+#         Field/FieldCreator.h
+#         Field/Field.hpp
+#   PRIVATE
+#     Field/Field_.cpp
+# )
 
 # Mesh layer sources (has implementations)
-target_sources(${PROJECT_NAME}
-  PUBLIC
-    FILE_SET HEADERS
-      BASE_DIRS
-        ${CMAKE_CURRENT_SOURCE_DIR}
-      FILES
-        Mesh/Mesh.h
-        Mesh/MeshElement.h
-        Mesh/MeshElement.hpp
-        Mesh/Vertex.h
-        Mesh/Edge.h
-        Mesh/Face.h
-        Mesh/Cell.h
-        Mesh/BoundingBox.h
-        Mesh/HalfEdgeMesh.h
-        Mesh/Mesh.hpp
-        Mesh/HalfEdgeMesh.hpp
-  PRIVATE
-    Mesh/Mesh_.cpp
-    Mesh/HalfEdgeMesh_.cpp
-)
+# TODO: Re-enable when dependencies are resolved
+# target_sources(${PROJECT_NAME}
+#   PUBLIC
+#     FILE_SET HEADERS
+#       BASE_DIRS
+#         ${CMAKE_CURRENT_SOURCE_DIR}
+#       FILES
+#         Mesh/Mesh.h
+#         Mesh/MeshElement.h
+#         Mesh/MeshElement.hpp
+#         Mesh/Vertex.h
+#         Mesh/Edge.h
+#         Mesh/Face.h
+#         Mesh/Cell.h
+#         Mesh/BoundingBox.h
+#         Mesh/HalfEdgeMesh.h
+#         Mesh/Mesh.hpp
+#         Mesh/HalfEdgeMesh.hpp
+#   PRIVATE
+#     Mesh/Mesh_.cpp
+#     Mesh/HalfEdgeMesh_.cpp
+# )
 
 # Interface layer sources (abstractions for dependency injection)
 target_sources(${PROJECT_NAME}

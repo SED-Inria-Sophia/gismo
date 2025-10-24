@@ -250,7 +250,8 @@ public:
      * @param scaling
      * @return
      */
-    gsAffineFunction<T> getMapForInterface(const boundaryInterface &bi, T scaling=0) const;
+    // TODO: Re-enable when SpecializedFunction module is available
+    // gsAffineFunction<T> getMapForInterface(const boundaryInterface &bi, T scaling=0) const;
 
     /// \brief Swap with another gsMultiPatch
     void swap(gsMultiPatch& other)
@@ -404,7 +405,8 @@ public:
     gsDofMapper getMapper(T tol) const;
 
     /// Creates a surface mesh out of this multipatch
-    gsSurfMesh toMesh() const;
+    // TODO: Re-enable when SurfMesh module is available
+    // gsSurfMesh toMesh() const;
 
     /// Clear (delete) all patches
     void clear()

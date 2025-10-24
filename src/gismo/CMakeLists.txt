@@ -16,10 +16,5 @@ add_subdirectory(IO)
 # JIT module - just-in-time compilation (depends on Core, IO)
 add_subdirectory(JIT)
 
-# XmlIO module - optional XML serialization (depends on Core)
-if(GISMO_WITH_XML_SERIALIZATION)
-    add_subdirectory(XmlIO)
-endif()
-
 # Example module - commented out as it's just an empty example
 # add_subdirectory(Module1)

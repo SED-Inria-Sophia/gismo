@@ -17,6 +17,7 @@
 #include <gismo/Core/Basis/Basis.h>
 #include <gismo/Core/DOFMapping/DofMapper.h>
 #include <gismo/Core/Topology/BoxTopology.h>
+#include <gismo/Core/MultiPatch/MultiPatch.h>
 //#include <gsPde/gsBoundaryConditions.h>
 //#include <gsAssembler/gsAssemblerOptions.h>
 
@@ -633,46 +634,49 @@ public:
                    bool finalize = true) const
     { getMapper(conforming, bc, 0, mapper, finalize); }
 
-    void getMapper(iFace::strategy is,
-                   const gsBoundaryConditions<T> & bc,
-                   gsDofMapper & mapper,
-                   int unk,
-                   bool finalize = true) const
-    { getMapper(is==iFace::glue, bc, unk, mapper, finalize); }
+    // TODO: Re-enable when assembler module is available
+    // void getMapper(iFace::strategy is,
+    //                const gsBoundaryConditions<T> & bc,
+    //                gsDofMapper & mapper,
+    //                int unk,
+    //                bool finalize = true) const
+    // { getMapper(is==iFace::glue, bc, unk, mapper, finalize); }
 
-    void getMapper(dirichlet::strategy ds,
-                   iFace::strategy is,
-                   const gsBoundaryConditions<T> & bc,
-                   gsDofMapper & mapper,
-                   int unk,
-                   bool finalize = true) const
-    {
-        if ( ds == dirichlet::elimination )
-            getMapper(is==iFace::glue, bc, unk, mapper, finalize);
-        else
-            getMapper(is==iFace::glue,        mapper, finalize);
-    }
+    // void getMapper(dirichlet::strategy ds,
+    //                iFace::strategy is,
+    //                const gsBoundaryConditions<T> & bc,
+    //                gsDofMapper & mapper,
+    //                int unk,
+    //                bool finalize = true) const
+    // {
+    //     if ( ds == dirichlet::elimination )
+    //         getMapper(is==iFace::glue, bc, unk, mapper, finalize);
+    //     else
+    //         getMapper(is==iFace::glue,        mapper, finalize);
+    // }
 
-    gsDofMapper getMapper(dirichlet::strategy ds,
-                          iFace::strategy is,
-                          const gsBoundaryConditions<T> & bc,
-                          int unk,
-                          bool finalize = true) const
-    {
-        gsDofMapper mapper;
-        if ( ds == dirichlet::elimination )
-            getMapper(is==iFace::glue, bc, unk, mapper, finalize);
-        else
-            getMapper(is==iFace::glue,        mapper, finalize);
-        return mapper;
-    }
+    // TODO: Re-enable when assembler module is available
+    // gsDofMapper getMapper(dirichlet::strategy ds,
+    //                       iFace::strategy is,
+    //                       const gsBoundaryConditions<T> & bc,
+    //                       int unk,
+    //                       bool finalize = true) const
+    // {
+    //     gsDofMapper mapper;
+    //     if ( ds == dirichlet::elimination )
+    //         getMapper(is==iFace::glue, bc, unk, mapper, finalize);
+    //     else
+    //         getMapper(is==iFace::glue,        mapper, finalize);
+    //     return mapper;
+    // }
 
 
     // to remove
     void getMapper(bool conforming, gsDofMapper & mapper, bool finalize = true) const;
 
-    void getMapper(iFace::strategy is, gsDofMapper & mapper, bool finalize = true) const
-    { getMapper(is==iFace::glue, mapper, finalize); }
+    // TODO: Re-enable when assembler module is available
+    // void getMapper(iFace::strategy is, gsDofMapper & mapper, bool finalize = true) const
+    // { getMapper(is==iFace::glue, mapper, finalize); }
 
 
     //private: // to do

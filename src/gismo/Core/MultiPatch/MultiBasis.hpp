@@ -16,7 +16,7 @@
 #include <gismo/Core/MultiPatch/MultiPatch.h>
 #include <gsDomain/gsCompositeDomain.h>
 #include <gsHSplines/gsHTensorBasis.h>
-#include <gsUtils/gsCombinatorics.h>
+#include <gismo/Math/Combinatorics.h>
 // gsIO/gsOptionList.h include moved to MultiBasis.assembler.hpp
 
 namespace gismo

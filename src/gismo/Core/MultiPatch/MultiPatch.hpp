@@ -17,13 +17,15 @@
 #include <gismo/Core/Geometry/Geometry.h>
 #include <gismo/Core/DOFMapping/DofMapper.h>
 #include <gismo/Core/SpecializedFunction/AffineFunction.h>
-#include <gsUtils/gsCombinatorics.h>
-#include <gsMesh2/gsSurfMesh.h>
-#include <gsTensor/gsTensorBasis.h>
-#include <gsAssembler/gsQuadrature.h>
-#include <gsDomain/gsCompositeDomain.h>
+#include <gismo/Math/Combinatorics.h>
+// TODO: Re-enable when these modules are available
+// #include <gsMesh2/gsSurfMesh.h>
+// #include <gsTensor/gsTensorBasis.h>
+// #include <gsAssembler/gsQuadrature.h>
+// #include <gsDomain/gsCompositeDomain.h>
 
-#include <gsNurbs/gsNurbsBasis.h>
+// TODO: Re-enable when NURBS module is available
+// #include <gsNurbs/gsNurbsBasis.h>
 
 namespace gismo
 {

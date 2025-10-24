@@ -15,7 +15,7 @@
 #include <iostream>
 #include <fstream>
 #include <gismo/Common/Config.h>
-#include <gismo/Core/Utilities/Utils.h>
+#include <gismo/Common/Utils.h>
 #include <cstdlib>
 #include <sys/stat.h>
 

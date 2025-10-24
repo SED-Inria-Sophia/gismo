@@ -196,13 +196,9 @@ target_sources(${PROJECT_NAME}
       BASE_DIRS
         ${CMAKE_CURRENT_SOURCE_DIR}
       FILES
-        Interface/FileManagerInterface.h
-        Interface/SerializationInterface.h
-        Interface/FeatureFactory.h
+        # Interface files removed - not used by Core functionality
   PRIVATE
-    Interface/FileManagerInterface.cpp
-    Interface/SerializationInterface.cpp
-    Interface/FeatureFactory.cpp
+    # Interface implementations removed
 )
 
 # Utilities layer sources (has implementations)
@@ -212,7 +208,6 @@ target_sources(${PROJECT_NAME}
       BASE_DIRS
         ${CMAKE_CURRENT_SOURCE_DIR}
       FILES
-        Utilities/JITCompiler.h
         Utilities/SysInfo.h
         Utilities/Base64.h
         Utilities/Base64.hpp
@@ -268,6 +263,12 @@ install(
     ${PROJECT_NAME}
   EXPORT
     ${CMAKE_PROJECT_NAME}${PROJECT_NAME}-targets
+  LIBRARY
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
   FILE_SET HEADERS
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${CMAKE_PROJECT_NAME}/${PROJECT_NAME}
   INCLUDES

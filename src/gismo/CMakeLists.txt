@@ -10,6 +10,12 @@ add_subdirectory(Math)
 # Core module - unified core functionality
 add_subdirectory(Core)
 
+# IO module - unified input/output functionality
+add_subdirectory(IO)
+
+# JIT module - just-in-time compilation (depends on Core, IO)
+add_subdirectory(JIT)
+
 # XmlIO module - optional XML serialization (depends on Core)
 if(GISMO_WITH_XML_SERIALIZATION)
     add_subdirectory(XmlIO)

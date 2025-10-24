@@ -1,0 +1,34 @@
+/** @file JIT
+
+    @brief Main convenience header for GISMO JIT module
+
+    This file is part of the G+Smo library.
+
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+    Author(s): M. Moeller, Architecture Refactoring Team
+*/
+
+#pragma once
+
+#include <gismo/JIT/JITCompiler.h>
+
+/**
+ * @brief Just-In-Time compilation module for GISMO
+ *
+ * This module provides runtime code generation and compilation capabilities:
+ *
+ * - **gsJITCompiler**: Main JIT compilation class
+ * - **gsJITCompilerConfig**: Compiler configuration management
+ * - **gsDynamicLibrary**: Dynamic library loading and symbol access
+ * - **Platform Support**: Cross-platform dynamic loading (Windows, Linux, macOS)
+ *
+ * The JIT module enables advanced runtime optimization by:
+ * - Generating optimized code based on runtime parameters
+ * - Compiling and linking code on-the-fly
+ * - Loading and executing dynamically generated functions
+ *
+ * \ingroup JIT
+ */

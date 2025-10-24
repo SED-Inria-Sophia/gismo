@@ -1,0 +1,89 @@
+/** @file IO
+
+    @brief Main convenience header for GISMO IO module
+
+    This file is part of the G+Smo library.
+
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+    Author(s): Architecture Refactoring Team
+*/
+
+#pragma once
+
+// Core file operations
+#include <gismo/IO/FileManager.h>
+
+// Command line and configuration
+#include <gismo/IO/CommandLine.h>
+#include <gismo/IO/OptionList.h>
+
+// Data format support
+#include <gismo/IO/Csv.h>
+
+// High-level file I/O
+#include <gismo/IO/FileData.h>
+#include <gismo/IO/ReadFile.h>
+
+// XML functionality
+#include <gismo/IO/Xml.h>
+#include <gismo/IO/XmlUtils.h>
+#include <gismo/IO/XmlOptionList.h>
+
+// XML specializations (standalone template headers)
+#include <gismo/IO/XmlGenericUtils.hpp>
+#include <gismo/IO/XmlComposedBasis.hpp>
+#include <gismo/IO/XmlComposedFunction.hpp>
+#include <gismo/IO/XmlComposedGeometry.hpp>
+#include <gismo/IO/XmlConstantFunction.hpp>
+#include <gismo/IO/XmlFunctionExpr.hpp>
+#include <gismo/IO/XmlMultiBasis.hpp>
+
+// Paraview visualization
+#include <gismo/IO/Paraview/Paraview>
+
+/**
+ * @brief Unified Input/Output module for GISMO
+ *
+ * This comprehensive convenience header provides access to all IO functionality:
+ *
+ * **Core IO Utilities**:
+ * - FileManager: Basic file operations and management
+ * - CommandLine: Command-line argument parsing (TCLAP-based)
+ * - OptionList: Configuration and option management
+ * - Csv: CSV (Comma Separated Values) file export for matrices
+ *
+ * **Data Formats**:
+ * - FileData: High-level file I/O with automatic format detection
+ * - ReadFile: Convenient file reading with automatic type conversion
+ *
+ * **XML Functionality**:
+ * - Xml: XML serialization and deserialization (RapidXML-based)
+ * - XmlUtils: XML utility functions and generic serialization
+ * - XmlOptionList: XML serialization for OptionList
+ * - XML Specializations: Type-specific XML serialization for Core classes
+ *
+ * **Paraview Visualization**:
+ * - WriteParaview: Paraview file generation
+ * - ParaviewCollection: Paraview collection (.pvd) file management
+ * - ParaviewDataSet: Paraview dataset (.vts) file handling
+ * - ParaviewUtils: Paraview utility functions and data conversion
+ *
+ * **Usage**:
+ * Simply include this header to access all IO functionality:
+ * ```cpp
+ * #include <gismo/IO/IO>
+ * // Now you have access to all IO classes and functions
+ * ```
+ *
+ * **External Dependencies**:
+ * This module requires both RapidXML and TCLAP to be available.
+ * If either dependency is missing, the entire module is disabled.
+ *
+ * **Additional Utilities**:
+ * For Base64 encoding/decoding, include: `#include <gismo/Core/Utilities/Base64.h>`
+ *
+ * \ingroup IO
+ */

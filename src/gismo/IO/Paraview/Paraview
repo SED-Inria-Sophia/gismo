@@ -1,0 +1,22 @@
+/** @file Paraview
+
+    @brief Main header for Paraview specialized IO module
+
+    This file provides a convenient include for all Paraview-related
+    functionality in the GISMO IO system.
+
+    This file is part of the G+Smo library.
+
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+    Author(s): A. Mantzaflaris and others
+*/
+
+#pragma once
+
+#include <gismo/IO/Paraview/ParaviewCollection.h>
+#include <gismo/IO/Paraview/ParaviewDataSet.h>
+#include <gismo/IO/Paraview/ParaviewUtils.h>
+#include <gismo/IO/Paraview/WriteParaview.h>

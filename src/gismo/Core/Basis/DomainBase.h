@@ -51,6 +51,24 @@ public:
     /// @brief Get the bounding box of the domain
     /// @param result Matrix where result(i,0) = min in dimension i, result(i,1) = max in dimension i
     virtual void boundingBox_into(gsMatrix<T>& result) const = 0;
+
+    // Iterator interface for mesh construction (preserves original algorithm structure)
+
+    /// @brief Get iterator to the beginning of all domain elements
+    /// @return Wrapped iterator pointing to the first element, or null if not supported
+    virtual memory::unique_ptr<gsDomainIteratorBase<T>> beginAll() const
+    {
+        // Default implementation: not supported
+        return nullptr;
+    }
+
+    /// @brief Get iterator to the end of all domain elements
+    /// @return Wrapped iterator pointing past the last element, or null if not supported
+    virtual memory::unique_ptr<gsDomainIteratorBase<T>> endAll() const
+    {
+        // Default implementation: not supported
+        return nullptr;
+    }
 };
 
 } // namespace gismo

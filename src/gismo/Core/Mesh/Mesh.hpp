@@ -15,13 +15,8 @@
 
 #include <gismo/Core/Basis/Basis.h>
 #include <gismo/Core/Basis/DomainBase.h>
+#include <gismo/Core/Basis/DomainIteratorBase.h>
 #include <gismo/Math/Combinatorics.h>
-// Note: Domain dependency handled through reinterpret_cast to DomainBase
-
-// Forward declarations for reinterpret_cast
-namespace gismo {
-template<class T> class gsDomain;
-}
 
 namespace gismo
 {
@@ -36,141 +31,115 @@ gsMesh<T>::~gsMesh()
 
 template<class T>
 gsMesh<T>::gsMesh(const gsBasis<T> & basis, int midPts)
+:
+gsMesh<T>(*basis.domain(), midPts)
 {
-    // Use reinterpret_cast to access gsDomain as gsDomainBase
-    // This works because gsDomain inherits from gsDomainBase
-    auto domain_ptr = basis.domain();
-    if (domain_ptr)
-    {
-        // Cast to minimal interface to avoid circular dependency
-        auto domainBase = reinterpret_cast<gsDomainBase<T>*>(domain_ptr.get());
-
-        const short_t d = domainBase->dim();
-
-        // Create a basic mesh based on bounding box
-        gsMatrix<T> bbox(d, 2);
-        domainBase->boundingBox_into(bbox);
-
-        // Add corner vertices of bounding box
-        gsVector<T> pt(d);
-        const int numCorners = 1 << d; // 2^d corners
-
-        for (int i = 0; i < numCorners; ++i)
-        {
-            for (short_t j = 0; j < d; ++j)
-            {
-                pt(j) = (i & (1 << j)) ? bbox(j, 1) : bbox(j, 0);
-            }
-            addVertex(pt);
-        }
-
-        // Add edges connecting adjacent corners
-        for (int i = 0; i < numCorners; ++i)
-        {
-            for (short_t j = 0; j < d; ++j)
-            {
-                const int neighbor = i ^ (1 << j); // flip j-th bit
-                if (neighbor > i) // avoid duplicate edges
-                {
-                    addLine(m_vertex[i], m_vertex[neighbor], midPts);
-                }
-            }
-        }
-    }
 }
 
-// TODO: Re-enable when Domain module is available
-// TODO: Re-enable when Domain module is available
-// template<class T>
-// gsMesh<T>::gsMesh(const gsDomain<T> & domain, int midPts)
-// : MeshElement()
-// {
-//     const unsigned d = domain.dim();
+template<class T>
+gsMesh<T>::gsMesh(const gsDomain<T> & domain, int midPts)
+: MeshElement()
+{
+    // Cast to base interface to avoid circular dependency
+    auto domainBase = reinterpret_cast<const gsDomainBase<T>*>(&domain);
 
-//     typedef typename gsMesh<T>::VertexHandle vtx;
-//     typename gsBasis<T>::domainIter domIter = domain.beginAll();
-//     typename gsBasis<T>::domainIter domIterEnd = domain.endAll();
+    const unsigned d = domainBase->dim();
 
-//     // variables for iterating over a cube (element is a cube)
-//     const gsVector<unsigned> zeros = gsVector<unsigned>::Zero(d);
-//     const gsVector<unsigned> ones  = gsVector<unsigned>::Ones(d);
-//     gsVector<unsigned> cur;
+    typedef typename gsMesh<T>::VertexHandle vtx;
 
-//     // maps integer representation of a vertex into pointer to the
-//     // vertex coordinates
-//     std::vector<vtx> map(1ULL<<d);
+    // Use polymorphic iterator interface
+    auto domIter = domainBase->beginAll();
+    auto domIterEnd = domainBase->endAll();
+    
+    // Check if iterators are available (warn and do nothing if not)
+    if (!domIter || !domIterEnd)
+    {
+        gsWarn << "Domain iterators not available for mesh construction. No mesh created.\n";
+        return;
+    }    // variables for iterating over a cube (element is a cube)
+    const gsVector<unsigned> zeros = gsVector<unsigned>::Zero(d);
+    const gsVector<unsigned> ones  = gsVector<unsigned>::Ones(d);
+    gsVector<unsigned> cur;
 
-//     // neighbour[i] are integer representations of certain neighbours of
-//     // vertex i (i counts in lexicographics order over all vertices)
-//     std::vector<std::vector<unsigned> > neighbour(1ULL<<d,
-//                                                   std::vector<unsigned>() );
+    // maps integer representation of a vertex into pointer to the
+    // vertex coordinates
+    std::vector<vtx> map(1ULL<<d);
 
-//     cur.setZero(d);
-//     int counter = 0;
-//     do
-//     {
-//         // set neighbour
-//         for (unsigned dim = 0; dim < d; dim++)
-//         {
-//             if (cur(dim) == 0)
-//             {
-//                 const unsigned tmp =  counter | (1<< dim) ;
-//                 neighbour[counter].push_back(tmp);
-//             }
-//         }
-//         counter++;
+    // neighbour[i] are integer representations of certain neighbours of
+    // vertex i (i counts in lexicographics order over all vertices)
+    std::vector<std::vector<unsigned> > neighbour(1ULL<<d,
+                                                  std::vector<unsigned>() );
 
-//     } while (nextCubePoint<gsVector<unsigned> >(cur, zeros, ones));
+    cur.setZero(d);
+    int counter = 0;
+    do
+    {
+        // set neighbour
+        for (unsigned dim = 0; dim < d; dim++)
+        {
+            if (cur(dim) == 0)
+            {
+                const unsigned tmp =  counter | (1<< dim) ;
+                neighbour[counter].push_back(tmp);
+            }
+        }
+        counter++;
 
-//     gsVector<T> vv(d);
+    } while (nextCubePoint<gsVector<unsigned> >(cur, zeros, ones));
 
-//     for (; domIter<domIterEnd; ++domIter )
-//     {
-//         const gsVector<T>& low = domIter.lowerCorner();
-//         const gsVector<T>& upp = domIter.upperCorner();
-//         const T vol = domIter.volume();
+    gsVector<T> vv(d);
 
-//         vv.setZero();
-//         cur.setZero();
-//         counter = 0;
+    // Use polymorphic iterator base interface
+    while (domIter->isValid() && *domIter < *domIterEnd)
+    {
+        const gsVector<T>& low = domIter->lowerCorner();
+        const gsVector<T>& upp = domIter->upperCorner();
+        const T vol = domIter->volume();
 
-//         // Add points to the mesh.
-//         do
-//         {
-//             // Get the appropriate coordinate of a point.
-//             for (unsigned dim = 0; dim < d; dim++)
-//             {
-//                 vv(dim) = ( cur(dim) ?  upp(dim) : low(dim) );
-//             }
+        vv.setZero();
+        cur.setZero();
+        counter = 0;
 
-//             vtx v = addVertex(vv);
-//             v->data  = vol;
-//             map[counter++] = v;
+        // Add points to the mesh.
+        do
+        {
+            // Get the appropriate coordinate of a point.
+            for (unsigned dim = 0; dim < d; dim++)
+            {
+                vv(dim) = ( cur(dim) ?  upp(dim) : low(dim) );
+            }
 
-//         } while (nextCubePoint<gsVector<unsigned> >(cur, zeros, ones));
+            vtx v = addVertex(vv);
+            v->data  = vol;
+            map[counter++] = v;
+
+        } while (nextCubePoint<gsVector<unsigned> >(cur, zeros, ones));
 
 
-//         // Add edges to the mesh (connect points).
-//         for (size_t index = 0; index != neighbour.size(); index++)
-//         {
-//             const std::vector<unsigned> & v = neighbour[index];
+        // Add edges to the mesh (connect points).
+        for (size_t index = 0; index != neighbour.size(); index++)
+        {
+            const std::vector<unsigned> & v = neighbour[index];
 
-//             for (size_t ngh = 0; ngh != v.size(); ngh++)
-//             {
-//                 // Add more vertices for better physical resolution.
-//                 addLine( map[index], map[v[ngh]], midPts );
-//                 //addEdge( map[index], map[v[ngh]] );
-//             }
-//         }
+            for (size_t ngh = 0; ngh != v.size(); ngh++)
+            {
+                // Add more vertices for better physical resolution.
+                addLine( map[index], map[v[ngh]], midPts );
+                //addEdge( map[index], map[v[ngh]] );
+            }
+        }
 
-//         // idea: instead of edges add the faces to the mesh
-//         // addFace( mesh.vertex.back(),
-//         //                *(vertex.end()-3),
-//         //                *(vertex.end()-4),
-//         //                *(vertex.end()-2)
-//         //     );
-//     }
-// }
+        // idea: instead of edges add the faces to the mesh
+        // addFace( mesh.vertex.back(),
+        //                *(vertex.end()-3),
+        //                *(vertex.end()-4),
+        //                *(vertex.end()-2)
+        //     );
+        
+        // Increment iterator (was ++domIter in for loop)
+        ++(*domIter);
+    }
+}
 
 
 template<class T>

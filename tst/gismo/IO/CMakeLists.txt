@@ -37,6 +37,13 @@ set_tests_properties(test_commandline PROPERTIES LABELS "IO;CommandLine")
 add_io_test(test_csv)
 set_tests_properties(test_csv PROPERTIES LABELS "IO;CSV")
 
+# High-level I/O functionality tests
+add_io_test(test_filedata)
+set_tests_properties(test_filedata PROPERTIES LABELS "IO;FileData;XML")
+
+add_io_test(test_readfile)
+set_tests_properties(test_readfile PROPERTIES LABELS "IO;ReadFile;BasicFunctionality")
+
 # Specialized functionality tests (maintained)
 add_io_test(test_gzstreamer)
 set_tests_properties(test_gzstreamer PROPERTIES LABELS "IO;GZStreamer;Compression")

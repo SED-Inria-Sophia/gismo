@@ -17,6 +17,9 @@ find_package(RapidXML REQUIRED)
 # Find TCLAP for command line parsing
 find_package(TCLAP REQUIRED)
 
+# Find zlib for compression support
+find_package(ZLIB REQUIRED)
+
 message(STATUS "IO module: All dependencies found")
 if(RAPIDXML_INCLUDE_DIRS)
     message(STATUS "  RapidXML: ${RAPIDXML_INCLUDE_DIRS}")
@@ -70,21 +73,20 @@ target_sources(${PROJECT_NAME}
       FILES
         Xml.h
         Xml.hpp
-        XmlUtils.h
-        XmlUtils.hpp
-        XmlOptionList.h
+        # TODO: Uncomment when Core modules are migrated
+        # XmlUtils.h
+        # XmlUtils.hpp
         XmlGenericUtils.hpp
         XmlComposedBasis.hpp
         XmlComposedFunction.hpp
         XmlComposedGeometry.hpp
         XmlConstantFunction.hpp
         XmlFunctionExpr.hpp
-        XmlMultiBasis.hpp
   PRIVATE
     Xml.cpp
     XmlInstance.cpp
-    XmlOptionList.cpp
-    XmlUtils.cpp
+    # TODO: Uncomment when Core modules are migrated
+    # XmlUtils.cpp
 )
 
 # High-level file I/O
@@ -116,13 +118,25 @@ target_sources(${PROJECT_NAME}
         Paraview/ParaviewUtils.hpp
         Paraview/WriteParaview.h
         Paraview/WriteParaview.hpp
+#   PRIVATE
+#     Paraview/ParaviewCollection.cpp
+#     Paraview/ParaviewDataSet.cpp
+#     Paraview/ParaviewUtils.cpp
+#     Paraview/ParaviewUtils_.cpp
+#     Paraview/WriteParaview.cpp
+#     Paraview/WriteParaview_.cpp
+)
+
+# Compression functionality
+target_sources(${PROJECT_NAME}
+  PUBLIC
+    FILE_SET HEADERS
+      BASE_DIRS
+        ${CMAKE_CURRENT_SOURCE_DIR}
+      FILES
+        gzstreamer/gzstream.h
   PRIVATE
-    Paraview/ParaviewCollection.cpp
-    Paraview/ParaviewDataSet.cpp
-    Paraview/ParaviewUtils.cpp
-    Paraview/ParaviewUtils_.cpp
-    Paraview/WriteParaview.cpp
-    Paraview/WriteParaview_.cpp
+    gzstreamer/gzstream.cpp
 )
 
 # Main convenience header
@@ -146,6 +160,8 @@ target_link_libraries(${PROJECT_NAME}
     ${CMAKE_PROJECT_NAME}::Core
     RapidXML::RapidXML
     TCLAP::TCLAP
+  PRIVATE
+    ZLIB::ZLIB  # For gzstreamer compression support
 )
 
 ## ###################################################################

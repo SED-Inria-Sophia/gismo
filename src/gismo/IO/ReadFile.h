@@ -16,6 +16,8 @@
 #include <string>
 
 #include <gismo/Common/DebugAssert.h>
+#include <gismo/Core/Geometry/Geometry.h>
+#include <gismo/Core/SpecializedFunction/FunctionExpr.h>
 #include <gismo/IO/FileData.h>
 
 namespace gismo
@@ -188,36 +190,36 @@ public:
         return memory::unique_ptr< gsFunctionExpr<T> >();
     }
 
-    /// Allows to read a file into a gsBasis
-    operator memory::unique_ptr< gsPlanarDomain<T> > ()
-    {
-        // Get the first basis in the file
-        if ( this->m_data.template hasAny< gsPlanarDomain<T>  >() )
-            return  this->m_data.template getAnyFirst< gsPlanarDomain<T> >();
+    // /// Allows to read a file into a gsBasis
+    // operator memory::unique_ptr< gsPlanarDomain<T> > ()
+    // {
+    //     // Get the first basis in the file
+    //     if ( this->m_data.template hasAny< gsPlanarDomain<T>  >() )
+    //         return  this->m_data.template getAnyFirst< gsPlanarDomain<T> >();
 
-        gsWarn<< "Failed to read gsPlanarDomain from file (not found).\n";
-        return memory::unique_ptr< gsPlanarDomain<T> >();
-    }
+    //     gsWarn<< "Failed to read gsPlanarDomain from file (not found).\n";
+    //     return memory::unique_ptr< gsPlanarDomain<T> >();
+    // }
 
-    /// Allows to convert a gsReadFile to a gsMultipatch
-    operator memory::unique_ptr< gsMultiPatch<T> > ()
-    {
-        // Get the first MultiPatch tag, if one exists
-        if ( this->m_data.template has< gsMultiPatch<T> >() )
-            return  this->m_data.template getFirst< gsMultiPatch<T> >();
+    // /// Allows to convert a gsReadFile to a gsMultipatch
+    // operator memory::unique_ptr< gsMultiPatch<T> > ()
+    // {
+    //     // Get the first MultiPatch tag, if one exists
+    //     if ( this->m_data.template has< gsMultiPatch<T> >() )
+    //         return  this->m_data.template getFirst< gsMultiPatch<T> >();
 
-        // Else get all geometries and make a multipatch out of that
-        if ( this->m_data.template has< gsGeometry<T> >() )
-        {
-            std::vector< memory::unique_ptr<gsGeometry<T> > > patches =
-                this->m_data.template getAll< gsGeometry<T> >();
-            std::vector< gsGeometry<T>* > releasedPatches = memory::release(patches);
-            return memory::make_unique(new gsMultiPatch<T>( releasedPatches ));
-        }
+    //     // Else get all geometries and make a multipatch out of that
+    //     if ( this->m_data.template has< gsGeometry<T> >() )
+    //     {
+    //         std::vector< memory::unique_ptr<gsGeometry<T> > > patches =
+    //             this->m_data.template getAll< gsGeometry<T> >();
+    //         std::vector< gsGeometry<T>* > releasedPatches = memory::release(patches);
+    //         return memory::make_unique(new gsMultiPatch<T>( releasedPatches ));
+    //     }
 
-        gsWarn<< "Failed to read gsMultiPatch from file (not found).\n";
-        return memory::unique_ptr< gsMultiPatch<T> >();
-    }
+    //     gsWarn<< "Failed to read gsMultiPatch from file (not found).\n";
+    //     return memory::unique_ptr< gsMultiPatch<T> >();
+    // }
 
     /// Allows to read a gsMesh
     operator memory::unique_ptr< gsMesh<T> > ()
@@ -237,25 +239,25 @@ public:
         return  this->m_data.template getAll< gsBasis<T> >();
     }
 
-    /// Allows to read a PDE
-    operator memory::unique_ptr< gsPde<T> > ()
-    {
-        if ( this->m_data.template has< gsPde<T>  >() )
-            return  this->m_data.template getFirst< gsPde<T>  >();
+    // /// Allows to read a PDE
+    // operator memory::unique_ptr< gsPde<T> > ()
+    // {
+    //     if ( this->m_data.template has< gsPde<T>  >() )
+    //         return  this->m_data.template getFirst< gsPde<T>  >();
 
-        gsWarn<< "Failed to read gsPde from file (not found).\n";
-        return memory::unique_ptr< gsPde<T> >();
-    }
+    //     gsWarn<< "Failed to read gsPde from file (not found).\n";
+    //     return memory::unique_ptr< gsPde<T> >();
+    // }
 
-    /// Read a poisson PDE
-    operator memory::unique_ptr< gsPoissonPde<T> > ()
-    {
-        if ( this->m_data.template has< gsPoissonPde<T>  >() )
-            return  this->m_data.template getFirst< gsPoissonPde<T>  >();
+    // /// Read a poisson PDE
+    // operator memory::unique_ptr< gsPoissonPde<T> > ()
+    // {
+    //     if ( this->m_data.template has< gsPoissonPde<T>  >() )
+    //         return  this->m_data.template getFirst< gsPoissonPde<T>  >();
 
-        gsWarn<< "Failed to read gsPoissonPde from file (not found).\n";
-        return memory::unique_ptr< gsPoissonPde<T> >();
-    }
+    //     gsWarn<< "Failed to read gsPoissonPde from file (not found).\n";
+    //     return memory::unique_ptr< gsPoissonPde<T> >();
+    // }
 
     /// Allows to convert a gsReadFile to a sharead pointer
     template<class Obj>

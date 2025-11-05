@@ -8,7 +8,7 @@ The IO module provides input/output functionality for GISMO applications includi
 
 - **FileData**: High-level GISMO file reading/writing
 - **CommandLine**: Command-line argument parsing
-- **OptionList**: Configuration and parameter management
+- **OptionList**: Configuration and parameter management (includes integrated XML serialization)
 - **Xml**: XML parsing and serialization
 - **Paraview**: Visualization file export
 - **FileManager**: Basic file operations
@@ -22,9 +22,13 @@ src/gismo/IO/
 ├── README.md               # This file
 │
 ├── CommandLine.h/.cpp       # Command-line argument parsing
-├── OptionList.h/.cpp        # Configuration management
+├── OptionList.h/.cpp        # Configuration management with XML serialization
 ├── FileManager.h/.cpp       # Basic file operations
 ├── Csv.h                   # CSV export (header-only)
+│
+├── gzstreamer/             # Compressed stream I/O
+│   ├── gzstreamer.h       # Gzip stream interface
+│   └── gzstreamer.cpp     # Gzip stream implementation
 │
 ├── FileData.h/.hpp         # High-level GISMO file I/O
 ├── FileData_.cpp           # FileData implementations
@@ -32,8 +36,8 @@ src/gismo/IO/
 ├── ReadFile_.cpp           # ReadFile implementations
 │
 ├── Xml.h/.hpp/.cpp         # XML parsing and serialization
-├── XmlUtils.h/.hpp/.cpp    # XML utility functions
-├── XmlOptionList.h/.cpp    # XML serialization for OptionList
+├── XmlUtils.h/.hpp/.cpp    # XML utility functions (temporarily disabled)
+
 ├── XmlInstance.cpp         # XML template instantiations
 ├── Xml*.hpp                # XML specializations for Core classes
 │

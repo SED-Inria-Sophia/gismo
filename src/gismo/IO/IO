@@ -29,8 +29,9 @@
 
 // XML functionality
 #include <gismo/IO/Xml.h>
-#include <gismo/IO/XmlUtils.h>
-#include <gismo/IO/XmlOptionList.h>
+// TODO: Uncomment when Core modules are migrated
+// #include <gismo/IO/XmlUtils.h>
+
 
 // XML specializations (standalone template headers)
 #include <gismo/IO/XmlGenericUtils.hpp>
@@ -39,10 +40,9 @@
 #include <gismo/IO/XmlComposedGeometry.hpp>
 #include <gismo/IO/XmlConstantFunction.hpp>
 #include <gismo/IO/XmlFunctionExpr.hpp>
-#include <gismo/IO/XmlMultiBasis.hpp>
 
 // Paraview visualization
-#include <gismo/IO/Paraview/Paraview>
+// #include <gismo/IO/Paraview/Paraview>
 
 /**
  * @brief Unified Input/Output module for GISMO
@@ -58,11 +58,11 @@
  * **Data Formats**:
  * - FileData: High-level file I/O with automatic format detection
  * - ReadFile: Convenient file reading with automatic type conversion
+ * - Csv: CSV (Comma Separated Values) file export for matrices
  *
  * **XML Functionality**:
  * - Xml: XML serialization and deserialization (RapidXML-based)
  * - XmlUtils: XML utility functions and generic serialization
- * - XmlOptionList: XML serialization for OptionList
  * - XML Specializations: Type-specific XML serialization for Core classes
  *
  * **Paraview Visualization**:

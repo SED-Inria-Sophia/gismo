@@ -19,7 +19,7 @@
 //#include <iostream>
 //#include <fstream>
 
-#include <gsNurbs/gsKnotVector.h>
+// #include <gsNurbs/gsKnotVector.h>
 
 #include <rapidxml/rapidxml.hpp>       // External file
 #include <rapidxml/rapidxml_print.hpp> // External file
@@ -37,7 +37,7 @@
 #endif
 
 
-#include <gzstream/gzstream.h>
+#include <gismo/IO/gzstreamer/gzstream.h>
 #include <gismo/IO/FileManager.h>
 
 namespace gismo {
@@ -899,7 +899,7 @@ bool gsFileData<T>::readGeompFile( String const & fn )
     //int patch_count(0);
 
     int N,Np,Ni(0),Ns(0);
-    std::vector<gsKnotVector<T> *> knots;
+    //std::vector<gsKnotVector<T> *> knots;
     T tmp;
 
     //Parsing file

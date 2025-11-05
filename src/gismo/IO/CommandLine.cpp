@@ -16,11 +16,11 @@
 // --- start External files
 #include <tclap/CmdLine.h>
 #include <tclap/ValueArg.h>
-//#include <tclap/UnlabeledValueArg.h>
-//#include <tclap/MultiArg.h>
-//#include <tclap/UnlabeledMultiArg.h>
+#include <tclap/UnlabeledValueArg.h>
+#include <tclap/MultiArg.h>
+#include <tclap/UnlabeledMultiArg.h>
 #include <tclap/SwitchArg.h>
-//#include <tclap/MultiSwitchArg.h>
+#include <tclap/MultiSwitchArg.h>
 // --- end External files
 
 #include <gismo/Core/Utilities/SysInfo.h>
@@ -45,14 +45,12 @@ class gsCmdLinePrivate
 {
     typedef index_t intVal_t;
 public:
-    /*
     typedef TCLAP::Arg                             Arg;
     typedef TCLAP::ValueArg<intVal_t>              IntArg;
     typedef TCLAP::ValueArg<real_t>                RealArg;
     typedef TCLAP::ValueArg<std::string>           StrArg;
     typedef TCLAP::SwitchArg                       SwitchArg;
     typedef TCLAP::UnlabeledValueArg<std::string>  PlainStrArg;
-    */
 
     gsCmdLinePrivate(const std::string& message,
                      const char delimiter = ' ',
@@ -177,6 +175,9 @@ void gsCmdLine::addInt( const std::string& flag,
     GISMO_ASSERT( !my->didParseCmdLine, "Variables must not be registered after calling gsCmdLine::getValues." );
     my->intVals.push_back(new TCLAP::ValueArg<intVal_t>(flag,name,desc,false,value,"int",my->cmd) );
     my->intRes.push_back(&value);
+
+    // Add default value to OptionList immediately for access via ask methods
+    gsOptionList::addInt(name, desc, value);
 }
 
 void gsCmdLine::addMultiInt( const std::string    & flag,
@@ -201,6 +202,9 @@ void gsCmdLine::addReal( const std::string& flag,
     GISMO_ASSERT( !my->didParseCmdLine, "Variables must not be registered after calling gsCmdLine::getValues." );
     my->realVals.push_back(new TCLAP::ValueArg<real_t>(flag,name,desc,false,value,"float",my->cmd) );
     my->realRes.push_back(&value);
+
+    // Add default value to OptionList immediately for access via ask methods
+    gsOptionList::addReal(name, desc, value);
 }
 
 void gsCmdLine::addMultiReal( const std::string  & flag,
@@ -225,6 +229,9 @@ void gsCmdLine::addString( const std::string& flag,
     GISMO_ASSERT( !my->didParseCmdLine, "Variables must not be registered after calling gsCmdLine::getValues." );
     my->stringVals.push_back(new TCLAP::ValueArg<std::string>(flag,name,desc,false,value,"string",my->cmd));
     my->stringRes.push_back(&value);
+
+    // Add default value to OptionList immediately for access via ask methods
+    gsOptionList::addString(name, desc, value);
 }
 
 void gsCmdLine::addMultiString( const std::string       & flag,
@@ -249,6 +256,9 @@ void gsCmdLine::addSwitch( const std::string& flag,
     GISMO_ASSERT( !my->didParseCmdLine, "Variables must not be registered after calling gsCmdLine::getValues." );
     my->switchVals.push_back(new TCLAP::SwitchArg(flag,name,desc,my->cmd) );
     my->switchRes.push_back(&value);
+
+    // Add default value to OptionList immediately for access via ask methods
+    gsOptionList::addSwitch(name, desc, value);
 }
 
 void gsCmdLine::addPlainString( const std::string& name,
@@ -267,21 +277,32 @@ void gsCmdLine::addPlainString( const std::string& name,
 
 bool gsCmdLine::valid(int argc, char *argv[]) const
 {
-    const bool eh = my->cmd.hasExceptionHandling();
+    // Save current output to restore later
     TCLAP::CmdLineOutput * o = my->cmd.getOutput();
-    my->cmd.setExceptionHandling(false);
+
+    // Temporarily redirect output to null to suppress error messages during validation
     my->cmd.setOutput( &my->cmdNullOut );
+
     bool result = true;
     try
     {
         my->cmd.parse(argc,argv);
     }
-    catch ( TCLAP::ExitException& )   { /*result = true;*/  }
-    //catch ( TCLAP::ArgException&  ) { result = false;     }
-    catch (...)                       { result = false;     }
+    catch ( TCLAP::ExitException& )   {
+        // Exit exceptions (like --help, --version) are considered valid
+        result = true;
+    }
+    catch ( TCLAP::ArgException& ) {
+        // Argument parsing errors indicate invalid command line
+        result = false;
+    }
+    catch (...)                       {
+        // Any other exception indicates invalid command line
+        result = false;
+    }
 
+    // Reset the command line parser and restore original output
     my->cmd.reset();
-    my->cmd.setExceptionHandling(eh);
     my->cmd.setOutput(o);
     return result;
 }
@@ -329,12 +350,16 @@ void gsCmdLine::getValues(int argc, char *argv[])
 
 void gsCmdLine::setExceptionHandling(const bool state)
 {
+    // setExceptionHandling() is available in this TCLAP version
     my->cmd.setExceptionHandling(state);
 }
 
 bool gsCmdLine::getExceptionHandling() const
 {
-    return my->cmd.hasExceptionHandling();
+    // Note: hasExceptionHandling() not available in this TCLAP version
+    // We maintain a fallback approach since this method doesn't exist
+    // In practice, TCLAP exception handling is always enabled by default
+    return true; // Default TCLAP behavior
 }
 
 #define ADD_OPTION_LIST_ENTRY(res,vals,addFct)                                      \

@@ -178,7 +178,7 @@ public:
         m_src->uniformRefine_withCoefs(m_weights, numKnots, mul, dir);
     }
 
-    void uniformRefine_withCoefs(gsMatrix<T>& coefs, int numKnots = 1,  int mul = 1, short_t const dir = -1);
+    void uniformRefine_withCoefs(gsMatrix<T>& coefs, int numKnots = 1,  int mul = 1, int dir = -1);
 
     void uniformRefine_withTransfer(gsSparseMatrix<T,RowMajor> & transfer, int numKnots = 1, int mul = 1);
 

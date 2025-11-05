@@ -18,6 +18,10 @@
 #include <sstream>
 
 #include <gismo/IO/OptionList.h>
+#include <gismo/Common/Utils.h>
+
+// XML support includes (minimal for OptionList serialization)
+#include <gismo/IO/Xml.h>
 
 namespace gismo
 {
@@ -617,5 +621,81 @@ void pybind11_init_gsOptionList(py::module &m) {
 }
 
 #endif // GISMO_WITH_PYBIND11
+
+// ==============================================================================
+// XML Serialization Implementation
+// ==============================================================================
+
+namespace internal {
+
+void gsXml<gsOptionList>::get_into(gsXmlNode * node, gsOptionList & result)
+{
+    // get all child-nodes
+    gsXmlNode * tmp = node->first_node();
+    while ( tmp )
+    {
+        const char* name = tmp->name();
+
+        const std::string label = tmp->first_attribute("label")->value();
+        const std::string desc = tmp->first_attribute("desc")->value();
+        const std::string val = tmp->first_attribute("value")->value();
+
+        if (strcmp("int", name) == 0)
+        {
+            std::istringstream str;
+            str.str( val );
+            index_t myVal;
+            gsGetInt(str, myVal);
+            result.addInt(label, desc, myVal);
+        }
+        else if (strcmp("real", name) == 0)
+        {
+            std::istringstream str;
+            str.str( val );
+            real_t myVal;
+            gsGetReal(str, myVal);
+            result.addReal(label, desc, myVal);
+        }
+        else if (strcmp("bool", name) == 0)
+        {
+            std::istringstream str;
+            str.str( val );
+            index_t myVal;
+            gsGetInt(str, myVal);
+            result.addSwitch(label, desc, (0 != myVal) );
+        }
+        else
+        {
+            result.addString(label, desc, val);
+        }
+        tmp =  tmp->next_sibling();
+    }
+}
+
+gsXmlNode * gsXml<gsOptionList>::put (const gsOptionList & obj, gsXmlTree & data)
+{
+    // Append data
+    gsXmlNode * optionList = internal::makeNode("OptionList", data);
+
+    // Iterate over all entries using public API
+    std::vector<gsOptionList::OptionListEntry> entries = obj.getAllEntries();
+    std::vector<gsOptionList::OptionListEntry>::const_iterator it;
+    for (it = entries.begin(); it != entries.end(); it++)
+    {
+        const gsOptionList::OptionListEntry & entry = *it;
+        gsXmlNode * node_str = internal::makeNode(entry.type, data);
+        gsXmlAttribute * attr_label = internal::makeAttribute("label", entry.label, data);
+        gsXmlAttribute * attr_desc = internal::makeAttribute("desc", entry.desc, data);
+        gsXmlAttribute * attr_val = internal::makeAttribute("value", entry.val, data);
+        node_str->insert_attribute(0, attr_label);
+        node_str->insert_attribute(0, attr_desc);
+        node_str->insert_attribute(0, attr_val);
+        optionList->insert_node(0, node_str);
+    }
+
+    return optionList;
+}
+
+} // namespace internal
 
 } //namespace gismo

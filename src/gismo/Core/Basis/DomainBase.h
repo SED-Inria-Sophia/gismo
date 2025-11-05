@@ -13,6 +13,8 @@
 
 #pragma once
 
+#include <gismo/Core/Basis/DomainIteratorBase.h>
+
 namespace gismo
 {
 

@@ -1,7 +1,6 @@
 #include <gismo/Common/TemplateTools.h>
 
 #include <gismo/IO/FileData.h>
-#include <gismo/IO/FileData.hpp>
 
 #ifdef GISMO_WITH_PYBIND11
 #include <gismo/Core/MultiPatch/MultiPatch.h>

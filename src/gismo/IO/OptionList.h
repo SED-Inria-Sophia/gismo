@@ -16,6 +16,8 @@
 
 #include <gismo/Common/ForwardDeclarations.h>
 
+#include <gismo/IO/Xml.h>
+
 namespace gismo
 {
 
@@ -251,7 +253,7 @@ private:
     bool isSwitch(const std::string & label) const;
 
 private:
-    friend class internal::gsXml<gsOptionList>;
+    // Note: XML serialization uses public API (getAllEntries()), no friend access needed
 
     // Format: std::pair<Value,Description>
     typedef std::pair<std::string,std::string> StringOpt;
@@ -293,6 +295,25 @@ inline bool operator< ( const gsOptionList::OptionListEntry& a, const gsOptionLi
 
 #endif // GISMO_WITH_PYBIND11
 
-} // namespace gismo
+namespace internal {
 
-// XML specialization is available separately in gismo/IO/Xml/XmlOptionList.h
+    // Template specialization declaration for XML serialization
+    // Implementation is in OptionList.cpp
+    template<>
+    class GISMO_EXPORT gsXml<gsOptionList>
+    {
+    private:
+        gsXml();
+    public:
+        GSXML_COMMON_FUNCTIONS(gsOptionList)
+        GSXML_GET_POINTER(gsOptionList)
+        static std::string tag () { return "OptionList"; }
+        static std::string type() { return ""; }
+
+        static void get_into(gsXmlNode * node, gsOptionList & result);
+        static gsXmlNode * put (const gsOptionList & obj, gsXmlTree & data);
+    };
+}
+
+}
+

@@ -15,6 +15,7 @@
 
 #include <gismo/Common/ForwardDeclarations.h>
 #include <gismo/IO/OptionList.h>
+#include <gismo/IO/Xml.h>
 
 namespace gismo
 {

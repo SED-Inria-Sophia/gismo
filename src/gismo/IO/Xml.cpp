@@ -13,7 +13,8 @@
 
 #include <gismo/IO/Xml.h>
 
-#include <gismo/IO/XmlUtils.h>
+// TODO: Uncomment when Core modules are migrated
+// #include <gismo/IO/XmlUtils.h>
 
 #include <fstream>
 #include <iomanip>      // std::setprecision

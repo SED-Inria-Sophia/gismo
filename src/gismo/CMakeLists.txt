@@ -13,6 +13,10 @@ add_subdirectory(Core)
 # IO module - unified input/output functionality
 add_subdirectory(IO)
 
+# Domain module - domain definitions and iterators (depends on Common, Math)
+# Temporarily disabled for testing
+# add_subdirectory(Domain)
+
 # JIT module - just-in-time compilation (depends on Core, IO)
 add_subdirectory(JIT)
 

@@ -19,53 +19,20 @@
 
 #include <gismo/Core/Topology/Boundary.h>
 #include <gismo/Core/Topology/BoxTopology.h>
+
+#include <gismo/IO/XmlTypes.h>
 // TODO: Replace with specific includes instead of full Core
 // #include <gismo/Core/Core>
 
-// Default memory sizes
-// #define RAPIDXML_STATIC_POOL_SIZE  ( 64*1024 )
-// #define RAPIDXML_DYNAMIC_POOL_SIZE ( 64*1024 )
-#define private public
-#define protected public
-#include <rapidxml/rapidxml.hpp>
-#undef private
-#undef protected
-namespace rapidxml { namespace internal {
-        template<class OutIt, class Ch>
-        OutIt print_children(OutIt out, const xml_node<Ch> *node, int flags, int indent);
-        template<class OutIt, class Ch>
-        OutIt print_element_node(OutIt out, const xml_node<Ch> *node, int flags, int indent);
-        template<class OutIt, class Ch>
-        OutIt print_data_node(OutIt out, const xml_node<Ch> *node, int flags, int indent);
-        template<class OutIt, class Ch>
-        OutIt print_cdata_node(OutIt out, const xml_node<Ch> *node, int flags, int indent);
-        template<class OutIt, class Ch>
-        OutIt print_element_node(OutIt out, const xml_node<Ch> *node, int flags, int indent);
-        template<class OutIt, class Ch>
-        OutIt print_declaration_node(OutIt out, const xml_node<Ch> *node, int flags, int indent);
-        template<class OutIt, class Ch>
-        OutIt print_comment_node(OutIt out, const xml_node<Ch> *node, int flags, int indent);
-        template<class OutIt, class Ch>
-        OutIt print_doctype_node(OutIt out, const xml_node<Ch> *node, int flags, int indent);
-        template<class OutIt, class Ch>
-        OutIt print_pi_node(OutIt out, const xml_node<Ch> *node, int flags, int indent);
-    }
-}
-#include <rapidxml/rapidxml_print.hpp>       // External file
 //#include <rapidxml/rapidxml_utils.hpp>     // External file
 //#include <rapidxml/rapidxml_iterators.hpp> // External file
 
 #include <cstring>
 
-/*
-// Forward declare rapidxml structures
-namespace rapidxml
-{
-    template<class Ch> class xml_node;
-    template<class Ch> class xml_attribute;
-    template<class Ch> class xml_document;
-}
-*/
+// Import XML types from internal namespace for convenience
+using gismo::internal::gsXmlNode;
+using gismo::internal::gsXmlAttribute;
+using gismo::internal::gsXmlTree;
 
 #define GSXML_COMMON_FUNCTIONS(obj)             \
     static bool has(gsXmlNode * node)           \
@@ -215,10 +182,6 @@ gsGetValue(std::istream & is, T & var)
 { return gsGetReal<T>(is,var); }
 
 namespace internal {
-
-typedef rapidxml::xml_node<char>        gsXmlNode;
-typedef rapidxml::xml_attribute<char>   gsXmlAttribute;
-// typedef rapidxml::xml_document<char>    gsXmlTree;
 
 // /////////////////////////////////////////////////////////////////////////////
 //
@@ -613,3 +576,11 @@ gsXmlNode * putSparseMatrixToXml ( gsSparseMatrix<T> const & mat,
 }// end namespace gismo
 
 #include <gismo/IO/Xml.hpp>
+
+#define GSXML_PUT_DYNAMIC_CAST(TYPE) \
+if (const TYPE * g = dynamic_cast<const TYPE *>(ptr)) \
+    return gsXml<TYPE>::put(*g, data);
+
+#define GSXML_GET_TYPE(TYPE) \
+if (s == gsXml<TYPE>::type().c_str()) \
+    return gsXml<TYPE>::get(node);

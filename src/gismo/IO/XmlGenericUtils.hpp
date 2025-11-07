@@ -103,143 +103,143 @@ Object * getRationalBasisFromXml ( gsXmlNode * node)
     return new Object(src, give(weights));
 }
 
-template<class Object>
-Object * getHTensorBasisFromXml ( gsXmlNode * node)
-{
-    GISMO_ASSERT( ( !strcmp( node->name(),"Basis") )
-                  &&  ( !strcmp(node->first_attribute("type")->value(),
-                                internal::gsXml<Object>::type().c_str() ) ),
-                  "Something is wrong with the XML data: There should be a node with a "<<
-                  internal::gsXml<Object>::type().c_str()<<" Basis.");
+// template<class Object>
+// Object * getHTensorBasisFromXml ( gsXmlNode * node)
+// {
+//     GISMO_ASSERT( ( !strcmp( node->name(),"Basis") )
+//                   &&  ( !strcmp(node->first_attribute("type")->value(),
+//                                 internal::gsXml<Object>::type().c_str() ) ),
+//                   "Something is wrong with the XML data: There should be a node with a "<<
+//                   internal::gsXml<Object>::type().c_str()<<" Basis.");
 
-    typedef typename Object::Scalar_t T;
-    static const int d = Object::Dim;
+//     typedef typename Object::Scalar_t T;
+//     static const int d = Object::Dim;
 
-    // Read max level
-    //unsigned lvl = atoi( node->first_attribute("levels")->value() );
-    gsXmlNode * tmp = node->first_node("Basis");
-    GISMO_ASSERT( tmp , "Expected to find a basis node.");
+//     // Read max level
+//     //unsigned lvl = atoi( node->first_attribute("levels")->value() );
+//     gsXmlNode * tmp = node->first_node("Basis");
+//     GISMO_ASSERT( tmp , "Expected to find a basis node.");
 
-    // Read the Tensor-product basis
-    gsTensorBSplineBasis<d,T> * tp =
-        gsXml<gsTensorBSplineBasis<d,T> >::get(tmp);
+//     // Read the Tensor-product basis
+//     gsTensorBSplineBasis<d,T> * tp =
+//         gsXml<gsTensorBSplineBasis<d,T> >::get(tmp);
 
-    // Initialize the HBSplineBasis
-    std::istringstream str;
+//     // Initialize the HBSplineBasis
+//     std::istringstream str;
 
-    // Insert all boxes
-    unsigned c;
-    std::vector<index_t> all_boxes;
-    for (tmp = node->first_node("box");
-         tmp; tmp = tmp->next_sibling("box"))
-    {
-        all_boxes.push_back(atoi( tmp->first_attribute("level")->value() ));
-        str.clear();
-        str.str( tmp->value() );
-        for( unsigned i = 0; i < 2*d; i++)
-        {
-            str>> c;
-            all_boxes.push_back(c);
-        }
-    }
+//     // Insert all boxes
+//     unsigned c;
+//     std::vector<index_t> all_boxes;
+//     for (tmp = node->first_node("box");
+//          tmp; tmp = tmp->next_sibling("box"))
+//     {
+//         all_boxes.push_back(atoi( tmp->first_attribute("level")->value() ));
+//         str.clear();
+//         str.str( tmp->value() );
+//         for( unsigned i = 0; i < 2*d; i++)
+//         {
+//             str>> c;
+//             all_boxes.push_back(c);
+//         }
+//     }
 
-    gsXmlAttribute * manualLevels = node->first_attribute("manualLevels");
-    bool ml = manualLevels && !strcmp(manualLevels->value(),"true");
-    Object * hbs = new Object(*tp, ml);
-    delete tp;
+//     gsXmlAttribute * manualLevels = node->first_attribute("manualLevels");
+//     bool ml = manualLevels && !strcmp(manualLevels->value(),"true");
+//     Object * hbs = new Object(*tp, ml);
+//     delete tp;
 
-    if (ml)
-    {
-        index_t lvl = 1;
-        const gsXmlAttribute * id_at;
-        for (gsXmlNode * child = node->first_node("Basis");
-             child; child = child->next_sibling("Basis"))
-        {
-            id_at = child->first_attribute("level");
-            if (id_at && atoi(id_at->value()) == lvl )
-            {
-                ++lvl;
-                auto tb = memory::make_unique(
-                    internal::gsXml<gsTensorBSplineBasis<d,T> >::get(child) );
-                hbs->addLevel( give(*tb) );
-            }
-        }
-    }
+//     if (ml)
+//     {
+//         index_t lvl = 1;
+//         const gsXmlAttribute * id_at;
+//         for (gsXmlNode * child = node->first_node("Basis");
+//              child; child = child->next_sibling("Basis"))
+//         {
+//             id_at = child->first_attribute("level");
+//             if (id_at && atoi(id_at->value()) == lvl )
+//             {
+//                 ++lvl;
+//                 auto tb = memory::make_unique(
+//                     internal::gsXml<gsTensorBSplineBasis<d,T> >::get(child) );
+//                 hbs->addLevel( give(*tb) );
+//             }
+//         }
+//     }
 
-    hbs->refineElements(all_boxes);
-    return hbs;
-}
+//     hbs->refineElements(all_boxes);
+//     return hbs;
+// }
 
-template<class Object>
-gsXmlNode * putHTensorBasisToXml ( Object const & obj, gsXmlTree & data)
-{
-    //typedef typename Object::Scalar_t T;
-    const int d = obj.dim();
+// template<class Object>
+// gsXmlNode * putHTensorBasisToXml ( Object const & obj, gsXmlTree & data)
+// {
+//     //typedef typename Object::Scalar_t T;
+//     const int d = obj.dim();
 
-    // Add a new node (without data)
-    gsXmlNode* tp_node = internal::makeNode("Basis" , data);
+//     // Add a new node (without data)
+//     gsXmlNode* tp_node = internal::makeNode("Basis" , data);
 
-    tp_node->append_attribute( makeAttribute("type",
-                                             internal::gsXml<Object>::type().c_str(), data) );
+//     tp_node->append_attribute( makeAttribute("type",
+//                                              internal::gsXml<Object>::type().c_str(), data) );
 
-    //tp_node->append_attribute( makeAttribute( "levels",2 ,data )); // deprecated
+//     //tp_node->append_attribute( makeAttribute( "levels",2 ,data )); // deprecated
 
-    gsXmlNode * tmp;
-    if (obj.manualLevels())
-    {
-        tp_node->append_attribute( makeAttribute("manualLevels","true", data) );
-        for (index_t l = 0; l != obj.numLevels(); l++)
-        {
-            tmp = putTensorBasisToXml(obj.tensorLevel(l), data);
-            tmp->append_attribute( makeAttribute("level", to_string(l), data ) );
-            tp_node->append_node(tmp);
-        }
-    }
-    else
-    {
-        tp_node->append_attribute( makeAttribute("manualLevels","false", data) );
-        // Write the component bases
-        tmp = putTensorBasisToXml(obj.tensorLevel(0), data);
-        tp_node->append_node(tmp);
-    }
+//     gsXmlNode * tmp;
+//     if (obj.manualLevels())
+//     {
+//         tp_node->append_attribute( makeAttribute("manualLevels","true", data) );
+//         for (index_t l = 0; l != obj.numLevels(); l++)
+//         {
+//             tmp = putTensorBasisToXml(obj.tensorLevel(l), data);
+//             tmp->append_attribute( makeAttribute("level", to_string(l), data ) );
+//             tp_node->append_node(tmp);
+//         }
+//     }
+//     else
+//     {
+//         tp_node->append_attribute( makeAttribute("manualLevels","false", data) );
+//         // Write the component bases
+//         tmp = putTensorBasisToXml(obj.tensorLevel(0), data);
+//         tp_node->append_node(tmp);
+//     }
 
 
-    //Output boxes
-    gsMatrix<index_t> box(1,2*d);
+//     //Output boxes
+//     gsMatrix<index_t> box(1,2*d);
 
-    for( typename Object::hdomain_type::const_literator lIter =
-             obj.tree().beginLeafIterator(); lIter.good() ; lIter.next() )
-    {
-        if ( lIter->level > 0 )
-        {
-            box.leftCols(d)  = lIter.lowerCorner().transpose();
-            box.rightCols(d) = lIter.upperCorner().transpose();
+//     for( typename Object::hdomain_type::const_literator lIter =
+//              obj.tree().beginLeafIterator(); lIter.good() ; lIter.next() )
+//     {
+//         if ( lIter->level > 0 )
+//         {
+//             box.leftCols(d)  = lIter.lowerCorner().transpose();
+//             box.rightCols(d) = lIter.upperCorner().transpose();
 
-            tmp = putMatrixToXml( box, data, "box" );
+//             tmp = putMatrixToXml( box, data, "box" );
 
-            tmp->append_attribute( makeAttribute("level", to_string(lIter->level), data ) );
-            tp_node->append_node(tmp);
-        }
-    }
+//             tmp->append_attribute( makeAttribute("level", to_string(lIter->level), data ) );
+//             tp_node->append_node(tmp);
+//         }
+//     }
 
-/*
-// Write box history (deprecated)
-typename Object::boxHistory const & boxes = obj.get_inserted_boxes();
+// /*
+// // Write box history (deprecated)
+// typename Object::boxHistory const & boxes = obj.get_inserted_boxes();
 
-for(unsigned int i = 0; i < boxes.size(); i++)
-{
-box.leftCols(d)  = boxes[i].lower.transpose();
-box.rightCols(d) = boxes[i].upper.transpose();
+// for(unsigned int i = 0; i < boxes.size(); i++)
+// {
+// box.leftCols(d)  = boxes[i].lower.transpose();
+// box.rightCols(d) = boxes[i].upper.transpose();
 
-tmp = putMatrixToXml( box, data, "box" );
-tmp->append_attribute( makeAttribute("level", to_string(boxes[i].level), data ) );
-tp_node->append_node(tmp);
-}
-*/
+// tmp = putMatrixToXml( box, data, "box" );
+// tmp->append_attribute( makeAttribute("level", to_string(boxes[i].level), data ) );
+// tp_node->append_node(tmp);
+// }
+// */
 
-    // All set, return the basis
-    return tp_node;
-}
+//     // All set, return the basis
+//     return tp_node;
+// }
 
 
 template<class Object>
@@ -302,120 +302,6 @@ Object * getById(gsXmlNode * node, const int & id)
 /// Helper to fetch geometries
 //template<class Object>
 //Object * getGeometryFromXml ( gsXmlNode * node);
-template<class Object>
-Object * getGeometryFromXml ( gsXmlNode * node)
-{
-    //gsWarn<<"Reading "<< gsXml<Object>::type() <<" Geometry..\n";
-    assert ( ( !strcmp( node->name(),"Geometry") ) &&
-             ( !strcmp(node->first_attribute("type")->value(), gsXml<Object>::type().c_str() ) ) );
-
-    gsXmlNode * tmp = node->first_node("Basis");
-
-    // to do: avoid copy object here (remove Ptr)
-    typename Object::Basis::Ptr b( gsXml<typename Object::Basis>::get(tmp) );
-
-    //gsWarn<<"Read basis from node "<< tmp <<", got "<< *b <<"\n";
-
-    tmp = node->first_node("coefs");
-    GISMO_ASSERT( tmp, "Did not find any coefficients for "<< gsXml<Object>::type().c_str() );
-    gsXmlAttribute * at_geodim = tmp->first_attribute("geoDim");
-    GISMO_ASSERT( at_geodim , "geoDim attribute not found in Geometry XML tag");
-    unsigned geoDim = atoi(at_geodim->value() ) ;
-
-    //gsWarn<<"Read mat "<< b->size()<<"x"<< geoDim <<"\n";
-
-    // Read the Coefficients and store them in a matrix
-    gsMatrix<typename Object::Scalar_t> coefficient_matrix;
-    gsXmlAttribute* format = tmp->first_attribute("format");
-    std::string format_flag = format ? format->value() : "ascii";
-    getMatrixFromXml<typename Object::Scalar_t>(
-        tmp, b->size(), geoDim, coefficient_matrix, format_flag);
-
-
-    gsXmlAttribute* coef_order = tmp->first_attribute("order");
-    if (nullptr != coef_order)
-        if (!strcmp(coef_order->value(), "coordinates")) {
-            coefficient_matrix.transposeInPlace();
-            coefficient_matrix.resize(b->size(), geoDim);
-        }
-
-    // Looking for transformations
-    tmp = node->first_node("transform");
-    gsMatrix<typename Object::Scalar_t> a;
-    if ( tmp )
-    {
-        for (gsXmlNode * tr = tmp->first_node();
-             tr; tr= tr->next_sibling() )
-        {
-            std::string val( tr->name() );
-
-            if (val == "translation")
-            {
-                getMatrixFromXml<typename Object::Scalar_t>(tmp, 3, 1 ,a);
-                // coefficient_matrix->rowwise() += a->transpose(); // TO DO
-            }
-            if (val ==  "rotation" ) // 3d
-            {
-                getMatrixFromXml<typename Object::Scalar_t>(tmp, 4, 1, a);
-                gsEigen::Transform<typename Object::Scalar_t,3,gsEigen::Affine>
-                    rot( gsEigen::AngleAxis<typename Object::Scalar_t>
-                         ( a(3,0), a.template block<3,1>(0,0).normalized() ) );
-                coefficient_matrix = (coefficient_matrix. rowwise().homogeneous() *
-                     rot.matrix().transpose() ).leftCols(3) ;
-
-            }
-            if (val == "scale")
-            {
-
-            }
-            else
-            {
-                gsWarn<< "Unidentified transform tag in XML.\n";
-            }
-        }
-    }
-
-    Object * result = new Object(*b, coefficient_matrix);
-    return result;
-}
-
-/// Helper to put geometries to XML
-//template<class Object>
-//gsXmlNode * putGeometryToXml ( Object const & obj, gsXmlTree & data);
-template<class Object>
-gsXmlNode * putGeometryToXml ( Object const & obj, gsXmlTree & data)
-{
-    // Make a new XML Geometry node
-    gsXmlNode * bs = internal::makeNode("Geometry", data);
-    bs->append_attribute( makeAttribute("type",
-                                        internal::gsXml<Object>::type().c_str(), data) );
-
-    // Add the basis
-    gsXmlNode* tmp =
-	    internal::gsXml< typename Object::Basis >::put(obj.basis(), data);
-	if ( ! tmp )
-    {
-	    gsWarn<<"XML Warning: Writing basis failed.\n";
-	    return NULL;
-    }
-
-    bs->append_node(tmp);
-
-    // Write the coefficient matrix
-    tmp = putMatrixToXml( obj.coefs(), data, "coefs" );
-    tmp->append_attribute( makeAttribute("geoDim", obj.geoDim(), data) );
-    bs->append_node(tmp);
-    return bs;
-}
-
-template < class T >
-gsXmlNode * putFunctionToXml ( const gsFunction<T> & obj, gsXmlTree & data, int index)
-{
-    gsXmlNode * result = internal::gsXml< gsFunction<T> >::put(obj, data);
-    gsXmlAttribute * indexNode = internal::makeAttribute("index", index,data);
-    result->append_attribute(indexNode);
-    return result;
-}
 
 
 }// end namespace internal

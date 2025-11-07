@@ -73,20 +73,43 @@ target_sources(${PROJECT_NAME}
       FILES
         Xml.h
         Xml.hpp
-        # TODO: Uncomment when Core modules are migrated
         # XmlUtils.h
         # XmlUtils.hpp
-        XmlGenericUtils.hpp
-        XmlComposedBasis.hpp
-        XmlComposedFunction.hpp
-        XmlComposedGeometry.hpp
-        XmlConstantFunction.hpp
-        XmlFunctionExpr.hpp
+        # XmlGenericUtils.hpp
+        # XmlComposedBasis.hpp
+        # XmlComposedFunction.hpp
+        # XmlComposedGeometry.hpp
+        # XmlConstantFunction.hpp
+        # XmlFunctionExpr.hpp
+        # XmlGeometry.hpp
+        # Modern XmlRegistry-based XML serialization
+        XmlTypes.h
+        XmlRegistry.h
+        XmlFunction.h
+        XmlFunctionExpr.h
+        XmlConstantFunction.h
+        XmlComposedFunction.h
+        XmlGeometry.h
+        XmlComposedGeometry.h
+        XmlCurve.h
+        XmlSurface.h
+        # Basis XML serialization
+        XmlBasis.h
+        XmlComposedBasis.h
+        # Matrix XML serialization
+        XmlMatrix.h
+        XmlSparseMatrix.h
+        # XmlTHBSplineBasis.h
   PRIVATE
     Xml.cpp
     XmlInstance.cpp
-    # TODO: Uncomment when Core modules are migrated
     # XmlUtils.cpp
+    # Modern XmlRegistry implementations
+    XmlRegistry.cpp
+    XmlFunction_.cpp
+    XmlGeometry_.cpp
+    XmlBasis_.cpp
+    XmlMatrix_.cpp
 )
 
 # High-level file I/O
